@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Сергей Харлов](https://up.htmlacademy.ru/javascript/17/user/52016).
-* Наставник: `Неизвестно`.
+* Наставник: [Константин Цуканов](https://up.htmlacademy.ru/javascript/17/user/769011).
 
 ---
 
