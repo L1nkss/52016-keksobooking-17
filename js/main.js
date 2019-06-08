@@ -2,7 +2,10 @@
 var fragment = document.createDocumentFragment();
 var pinList = document.querySelector('.map__pins');
 var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-var adCount = 8;
+var AD_COUNT = 8;
+// размер pin'a
+var PIN_WIDTH = 50;
+var PIN_HEIGHT = 70;
 
 document.querySelector('.map').classList.remove('map--faded');
 
@@ -38,27 +41,34 @@ var getRandomAd = function () {
   };
 };
 
-var renderAd = function (ad) {
-  var x = ad.location.x;
-  var y = ad.location.y;
-  var type = ad.offer.type;
-  var avatar = ad.author.avatar;
-  var adElement = adTemplate.cloneNode(true);
+// генерируем массив объявлений
+var getRandomAds = function (count) {
+  var ads = [];
+  for (var i = 0; i < count; i++) {
+    ads.push(getRandomAd());
+  }
 
-  adElement.style = 'left: ' + x + 'px; top: ' + y + 'px;';
-  adElement.querySelector('img').src = avatar;
-  // пусть будет так
-  adElement.querySelector('img').alt = type;
-
-  return adElement;
+  return ads;
 };
 
-// добавляем всё в fragment
-for (var i = 0; i < adCount; i++) {
-  fragment.appendChild(renderAd(getRandomAd()));
-}
+// отрисовываем все объявления
+var renderAds = function (ads) {
+  for (var i = 0; i < ads.length; i++) {
+    var x = ads[i].location.x - PIN_WIDTH / 2;
+    var y = ads[i].location.y - PIN_HEIGHT / 2;
+    var type = ads[i].offer.type;
+    var avatar = ads[i].author.avatar;
+    var adElement = adTemplate.cloneNode(true);
 
-// отрисовываем всё
-pinList.appendChild(fragment);
+    adElement.style = 'left: ' + x + 'px; top: ' + y + 'px;';
+    adElement.querySelector('img').src = avatar;
+    adElement.querySelector('img').alt = type;
 
+    // добавляем элемент во фрагмент
+    fragment.appendChild(adElement);
+  }
+  // отрисовываем всё
+  pinList.appendChild(fragment);
+};
 
+renderAds(getRandomAds(AD_COUNT));
