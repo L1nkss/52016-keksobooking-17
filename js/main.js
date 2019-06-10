@@ -12,8 +12,8 @@ document.querySelector('.map').classList.remove('map--faded');
  * Получить случайное число
  *
  * @param {number} min - начальное число
- * @param {number} max - конечное число
- * 
+ * @param {number} max - конечное число (не включительно)
+ *
  * @return {number}
  */
 window.getRandomInt = function (min, max) {
@@ -78,7 +78,7 @@ var getRandomAds = function (count) {
  */
 var renderAds = function (ads) {
   var fragment = document.createDocumentFragment();
-  ads.forEach( function(ad) {
+  ads.forEach(function (ad) {
     var left = ad.location.x - PIN_WIDTH / 2;
     var top = ad.location.y - PIN_HEIGHT / 2;
     var type = ad.offer.type;
@@ -90,7 +90,7 @@ var renderAds = function (ads) {
     adElement.querySelector('img').src = avatar;
     adElement.querySelector('img').alt = type;
     fragment.appendChild(adElement);
-  })
+  });
   pinList.appendChild(fragment);
 };
 
