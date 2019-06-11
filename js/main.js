@@ -3,6 +3,7 @@
 var AD_COUNT = 8; // количество объявлений
 var PIN_WIDTH = 50; // ширина пина
 var PIN_HEIGHT = 70; // высота пина
+var IMAGE_COUNT = 8;
 var pinList = document.querySelector('.map__pins');
 var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 
@@ -35,7 +36,6 @@ window.getRandomInt = function (min, max) {
  *
  */
 var getRandomAd = function () {
-  var IMAGE_COUNT = 8;
   var mapWidth = document.querySelector('.map__pins').offsetWidth;
   var types = ['palace', 'flat', 'house', 'bungalo'];
   /**
