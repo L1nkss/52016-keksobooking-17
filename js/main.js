@@ -6,8 +6,16 @@ var PIN_HEIGHT = 70; // высота пина
 var IMAGE_COUNT = 8;
 var pinList = document.querySelector('.map__pins');
 var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-
-document.querySelector('.map').classList.remove('map--faded');
+var addressInput = document.getElementById('address');
+var mapFilter = document.querySelectorAll('.map__filter');
+var adForm = document.querySelectorAll('.ad-form__element');
+var mainPin = document.querySelector('.map__pin--main');
+var map = document.querySelector('.map');
+var adFormStatus = document.querySelector('.ad-form');
+var primaryPin = { // главный пин
+  isActive: false
+};
+var users = []; // массив пользователей
 
 /**
  * Получить случайное число
@@ -62,6 +70,13 @@ var getRandomAd = function () {
   };
 };
 
+var getMainPinPosition = function () {
+  return {
+    x: mainPin.offsetLeft,
+    y: mainPin.offsetTop
+  };
+};
+
 var getRandomAds = function (count) {
   var ads = [];
   for (var i = 0; i < count; i++) {
@@ -70,6 +85,9 @@ var getRandomAds = function (count) {
 
   return ads;
 };
+
+users = getRandomAds(AD_COUNT);
+
 /**
  * Рендерим Объявления
  *
@@ -94,4 +112,58 @@ var renderAds = function (ads) {
   pinList.appendChild(fragment);
 };
 
-renderAds(getRandomAds(AD_COUNT));
+var removeAds = function () {
+  var arrayPins = document.querySelectorAll('.map__pin');
+  arrayPins.forEach(function (el, index) {
+    if (index !== 0) {
+      el.remove();
+    }
+  });
+};
+
+/**
+ * Изменение состояние форм
+ */
+
+var changePageStatus = function () {
+
+  // меняет состояние карты
+  adFormStatus.classList.toggle('ad-form--disabled');
+  map.classList.toggle('map--faded');
+
+  // меняем состояние элементов форм
+  mapFilter.forEach(function (el) {
+    el.disabled = !el.disabled;
+  });
+
+  adForm.forEach(function (el) {
+    el.disabled = !el.disabled;
+  });
+
+  // отрисовываем или удаляем пины с карты в зависимости от статуса.
+  primaryPin.isActive = !primaryPin.isActive;
+
+  if (primaryPin.isActive) {
+    renderAds(users);
+  } else {
+    removeAds();
+  }
+};
+
+var onMainPinClick = function () {
+  var pinPosition = getMainPinPosition();
+  changePageStatus();
+
+  if (primaryPin.isActive) {
+    addressInput.value = pinPosition.x + ', ' + pinPosition.y;
+  } else {
+    addressInput.value = ' ';
+  }
+};
+
+
+/**
+ * Обработчики событий
+ */
+
+mainPin.addEventListener('click', onMainPinClick);
