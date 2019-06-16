@@ -4,7 +4,16 @@ var AD_COUNT = 8; // количество объявлений
 var PIN_WIDTH = 50; // ширина пина
 var PIN_HEIGHT = 70; // высота пина
 var IMAGE_COUNT = 8;
+var timeArrival; // время заезда
+var timeDeparture; // время выезда
 var pinList = document.querySelector('.map__pins');
+var adHeader = document.getElementById('title');
+var adHeaderText = document.querySelector('.title-label');
+var price = document.getElementById('price');
+var timein = document.getElementById('timein');
+var timeout = document.getElementById('timeout');
+var priceHeader = document.querySelector('.price-label');
+var houseType = document.getElementById('type');
 var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 var addressInput = document.getElementById('address');
 var mapFilter = document.querySelectorAll('.map__filter');
@@ -12,10 +21,13 @@ var adForm = document.querySelectorAll('.ad-form__element');
 var mainPin = document.querySelector('.map__pin--main');
 var map = document.querySelector('.map');
 var adFormStatus = document.querySelector('.ad-form');
+var ads = []; // массив пользователей
 var primaryPin = { // главный пин
-  isActive: false
+  isActive: false,
+  activeHeight: mainPin.clientHeight + 22,
+  disabledHeight: mainPin.clientHeight,
+  width: mainPin.clientWidth
 };
-var users = []; // массив пользователей
 
 /**
  * Получить случайное число
@@ -71,34 +83,37 @@ var getRandomAd = function () {
 };
 
 var getMainPinPosition = function () {
+  var isPageActive = primaryPin.isActive;
+  var leftPosition = Math.floor(mainPin.offsetLeft + primaryPin.width / 2);
+  var topPosition = Math.floor(isPageActive ? mainPin.offsetTop + (primaryPin.activeHeight / 2) : mainPin.offsetTop + primaryPin.disabledHeight / 2);
   return {
-    x: mainPin.offsetLeft,
-    y: mainPin.offsetTop
+    x: leftPosition,
+    y: topPosition
   };
 };
 
 var getRandomAds = function (count) {
-  var ads = [];
+  var randomAds = [];
   for (var i = 0; i < count; i++) {
-    ads.push(getRandomAd());
+    randomAds.push(getRandomAd());
   }
 
-  return ads;
+  return randomAds;
 };
 
-users = getRandomAds(AD_COUNT);
+ads = getRandomAds(AD_COUNT);
 
 /**
  * Рендерим Объявления
  *
- * @param { array } ads - массив объявлений
+ * @param { array } adArray - массив объявлений
  *
  */
-var renderAds = function (ads) {
+var renderAds = function (adArray) {
   var fragment = document.createDocumentFragment();
-  ads.forEach(function (ad) {
-    var left = ad.location.x - PIN_WIDTH / 2;
-    var top = ad.location.y - PIN_HEIGHT / 2;
+  adArray.forEach(function (ad) {
+    var left = ad.location.x + PIN_WIDTH / 2;
+    var top = ad.location.y + PIN_HEIGHT / 2;
     var type = ad.offer.type;
     var avatar = ad.author.avatar;
     var adElement = adTemplate.cloneNode(true);
@@ -144,26 +159,114 @@ var changePageStatus = function () {
   primaryPin.isActive = !primaryPin.isActive;
 
   if (primaryPin.isActive) {
-    renderAds(users);
+    renderAds(ads);
   } else {
     removeAds();
   }
 };
 
 var onMainPinClick = function () {
-  var pinPosition = getMainPinPosition();
   changePageStatus();
-
-  if (primaryPin.isActive) {
-    addressInput.value = pinPosition.x + ', ' + pinPosition.y;
-  } else {
-    addressInput.value = ' ';
-  }
+  var pinPosition = getMainPinPosition();
+  addressInput.value = pinPosition.x + ', ' + pinPosition.y;
 };
-
 
 /**
  * Обработчики событий
  */
 
+window.addEventListener('load', function () {
+  var pinPosition = getMainPinPosition();
+  addressInput.value = pinPosition.x + ', ' + pinPosition.y;
+});
+
 mainPin.addEventListener('click', onMainPinClick);
+
+/**
+ * Проверка заполнения поля "Заголов объявления"
+ */
+adHeader.addEventListener('blur', function (evt) {
+  var minValue = 30;
+  var textValue = adHeaderText.textContent;
+  var value = minValue - evt.target.value.length;
+  if (!evt.target.checkValidity()) {
+    adHeaderText.textContent = 'Минимальное количество символов 30, осталось: ' + value;
+    evt.target.classList.add('invalid-value');
+    setTimeout(function () {
+      adHeaderText.textContent = textValue;
+    }, 1500);
+  } else {
+    evt.target.classList.remove('invalid-value');
+  }
+});
+/**
+ * Проверка заполнения поля "цена за ночь"
+ */
+price.addEventListener('blur', function (evt) {
+  var textValue = priceHeader.textContent;
+  var minValue = evt.target.min;
+  if (!evt.target.checkValidity()) {
+    priceHeader.textContent = 'Цена от ' + minValue + ' до 1000000';
+    evt.target.classList.add('invalid-value');
+    setTimeout(function () {
+      priceHeader.textContent = textValue;
+    }, 1500);
+  } else {
+    evt.target.classList.remove('invalid-value');
+  }
+});
+
+/**
+ * Изменение поля "тип жилья"
+ */
+houseType.addEventListener('change', function (evt) {
+  var value = evt.target.value;
+
+  switch (value) {
+    case 'bungalo':
+      price.placeholder = 0;
+      price.min = 0;
+      break;
+
+    case 'flat':
+      price.placeholder = 1000;
+      price.min = 1000;
+      break;
+
+    case 'house':
+      price.placeholder = 5000;
+      price.min = 5000;
+      break;
+
+    case 'palace':
+      price.placeholder = 10000;
+      price.min = 10000;
+      break;
+  }
+
+  if (price.checkValidity()) {
+    price.classList.remove('invalid-value');
+  } else {
+    price.classList.add('invalid-value');
+  }
+});
+
+/**
+ * Изменения полей "время заезда и выезда"
+*/
+
+timein.addEventListener('change', function (evt) {
+  timeArrival = evt.target.value;
+  timeDeparture = timeout.value;
+  if (timeArrival !== timeDeparture) {
+    timeout.value = timeArrival;
+  }
+});
+
+timeout.addEventListener('change', function (evt) {
+  timeArrival = timein.value;
+  timeDeparture = evt.target.value;
+  if (timeArrival !== timeDeparture) {
+    timein.value = timeDeparture;
+  }
+});
