@@ -190,7 +190,7 @@ var form = (function () {
     };
 
     ReqNumberInput.prototype.showErrorMessage = function () {
-      return 'Минимальное цена за ночь: ' + this.input.min;
+      return 'Минимальная цена за ночь: ' + this.input.min;
     };
   }
 
@@ -208,6 +208,7 @@ var form = (function () {
 
   var changeFormStatus = function () {
     adFormStatus.classList.toggle('ad-form--disabled');
+    adFormStatus.classList.toggle('disabled-events');
     // меняем состояние элементов форм
     mapFilter.forEach(function (el) {
       el.disabled = !el.disabled;
