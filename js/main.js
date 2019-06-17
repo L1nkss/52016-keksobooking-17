@@ -6,16 +6,17 @@ var PIN_HEIGHT = 70; // высота пина
 var IMAGE_COUNT = 8;
 var timeArrival; // время заезда
 var timeDeparture; // время выезда
+var timerID = 0;
 var pinList = document.querySelector('.map__pins');
-var adHeader = document.getElementById('title');
+var adHeader = document.querySelector('#title');
 var adHeaderText = document.querySelector('.title-label');
-var price = document.getElementById('price');
-var timein = document.getElementById('timein');
-var timeout = document.getElementById('timeout');
+var price = document.querySelector('#price');
+var timein = document.querySelector('#timein');
+var timeout = document.querySelector('#timeout');
 var priceHeader = document.querySelector('.price-label');
-var houseType = document.getElementById('type');
+var houseType = document.querySelector('#type');
 var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-var addressInput = document.getElementById('address');
+var addressInput = document.querySelector('#address');
 var mapFilter = document.querySelectorAll('.map__filter');
 var adForm = document.querySelectorAll('.ad-form__element');
 var mainPin = document.querySelector('.map__pin--main');
@@ -28,6 +29,12 @@ var primaryPin = { // главный пин
   disabledHeight: mainPin.clientHeight,
   width: mainPin.clientWidth
 };
+var TypeOfHousePrice = {
+  BUNGALO: 0,
+  FLAT: 1000,
+  HOUSE: 5000,
+  PALACE: 10000
+}
 
 /**
  * Получить случайное число
@@ -145,6 +152,7 @@ var changePageStatus = function () {
   // меняет состояние карты
   adFormStatus.classList.toggle('ad-form--disabled');
   map.classList.toggle('map--faded');
+  adFormStatus.classList.toggle('disabled-form');
 
   // меняем состояние элементов форм
   mapFilter.forEach(function (el) {
@@ -171,6 +179,11 @@ var onMainPinClick = function () {
   addressInput.value = pinPosition.x + ', ' + pinPosition.y;
 };
 
+var setMinPrice = function (value) {
+  price.min = value;
+  price.placeholder = value;
+}
+
 /**
  * Обработчики событий
  */
@@ -186,15 +199,8 @@ mainPin.addEventListener('click', onMainPinClick);
  * Проверка заполнения поля "Заголов объявления"
  */
 adHeader.addEventListener('blur', function (evt) {
-  var minValue = 30;
-  var textValue = adHeaderText.textContent;
-  var value = minValue - evt.target.value.length;
   if (!evt.target.checkValidity()) {
-    adHeaderText.textContent = 'Минимальное количество символов 30, осталось: ' + value;
     evt.target.classList.add('invalid-value');
-    setTimeout(function () {
-      adHeaderText.textContent = textValue;
-    }, 1500);
   } else {
     evt.target.classList.remove('invalid-value');
   }
@@ -203,14 +209,8 @@ adHeader.addEventListener('blur', function (evt) {
  * Проверка заполнения поля "цена за ночь"
  */
 price.addEventListener('blur', function (evt) {
-  var textValue = priceHeader.textContent;
-  var minValue = evt.target.min;
   if (!evt.target.checkValidity()) {
-    priceHeader.textContent = 'Цена от ' + minValue + ' до 1000000';
     evt.target.classList.add('invalid-value');
-    setTimeout(function () {
-      priceHeader.textContent = textValue;
-    }, 1500);
   } else {
     evt.target.classList.remove('invalid-value');
   }
@@ -220,29 +220,7 @@ price.addEventListener('blur', function (evt) {
  * Изменение поля "тип жилья"
  */
 houseType.addEventListener('change', function (evt) {
-  var value = evt.target.value;
-
-  switch (value) {
-    case 'bungalo':
-      price.placeholder = 0;
-      price.min = 0;
-      break;
-
-    case 'flat':
-      price.placeholder = 1000;
-      price.min = 1000;
-      break;
-
-    case 'house':
-      price.placeholder = 5000;
-      price.min = 5000;
-      break;
-
-    case 'palace':
-      price.placeholder = 10000;
-      price.min = 10000;
-      break;
-  }
+  setMinPrice(TypeOfHousePrice[evt.target.value.toUpperCase()]);
 
   if (price.checkValidity()) {
     price.classList.remove('invalid-value');
