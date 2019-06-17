@@ -1248,3 +1248,12 @@ fieldset {
   outline: none;
   opacity: 0.6;
 }
+
+/* Свои стили */
+.invalid-value {
+  box-shadow: 0 0 10px 1px #ff0000;
+}
+
+.disabled-form {
+  pointer-events: none;
+}
