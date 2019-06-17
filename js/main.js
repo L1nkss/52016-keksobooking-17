@@ -6,14 +6,11 @@ var PIN_HEIGHT = 70; // высота пина
 var IMAGE_COUNT = 8;
 var timeArrival; // время заезда
 var timeDeparture; // время выезда
-var timerID = 0;
 var pinList = document.querySelector('.map__pins');
 var adHeader = document.querySelector('#title');
-var adHeaderText = document.querySelector('.title-label');
 var price = document.querySelector('#price');
 var timein = document.querySelector('#timein');
 var timeout = document.querySelector('#timeout');
-var priceHeader = document.querySelector('.price-label');
 var houseType = document.querySelector('#type');
 var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 var addressInput = document.querySelector('#address');
@@ -34,7 +31,7 @@ var TypeOfHousePrice = {
   FLAT: 1000,
   HOUSE: 5000,
   PALACE: 10000
-}
+};
 
 /**
  * Получить случайное число
@@ -182,7 +179,7 @@ var onMainPinClick = function () {
 var setMinPrice = function (value) {
   price.min = value;
   price.placeholder = value;
-}
+};
 
 /**
  * Обработчики событий
