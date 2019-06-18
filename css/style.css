@@ -1254,6 +1254,6 @@ fieldset {
   box-shadow: 0 0 10px 1px #ff0000;
 }
 
-.disabled-form {
+.disabled-events {
   pointer-events: none;
 }
