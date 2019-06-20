@@ -4,16 +4,11 @@
   var mainPin = primaryPin.mainPin;
   var mapPins = pageMap.mapPins;
   var ads = usersAd;
-  var nameInput = pageForm.nameInput;
-  var priceInput = pageForm.priceInput;
   var appStatus = false;
-  var houseType = pageForm.houseType;
-  var timein = pageForm.visitTimes.timeIn;
-  var timeout = pageForm.visitTimes.timeOut;
   var pinMove = pageMap.onPinMouseMove;
   var initOffCords = pageMap.initOffSetCoords;
-  var roomNumber = pageForm.roomNumber;
-  var roomNumberChange = pageForm.roomNumberChange;
+  var pricePerNightInput = pageForm.pricePerNightInput;
+  var headerInput = pageForm.headerInput;
 
   var fillAddress = function () {
     var pinPosition = primaryPin.getMainPinPosition();
@@ -22,30 +17,6 @@
 
   window.addEventListener('load', function () {
     fillAddress();
-  });
-
-  nameInput.input.addEventListener('input', function (evt) {
-    nameInput.inputValid(evt.target.value.length);
-  });
-
-  priceInput.input.addEventListener('input', function (evt) {
-    priceInput.checkInputValid(evt.target.value);
-  });
-
-  houseType.addEventListener('change', function (evt) {
-    pageForm.changeHouseType(evt.target.value, priceInput);
-  });
-
-  timein.addEventListener('change', function (evt) {
-    pageForm.visitTimes.syncTime(evt.target, timeout);
-  });
-
-  timeout.addEventListener('change', function (evt) {
-    pageForm.visitTimes.syncTime(evt.target, timein);
-  });
-
-  roomNumber.addEventListener('change', function (evt) {
-    roomNumberChange(evt.target.value);
   });
 
   mainPin.addEventListener('mousedown', function (evt) {
@@ -79,8 +50,8 @@
       ads.renderAds();
     } else {
       ads.removeAds();
-      priceInput.restoreDefaultSetting();
-      nameInput.restoreDefaultSetting();
+      pricePerNightInput.restoreDefaultSetting();
+      headerInput.restoreDefaultSetting();
     }
   });
 }(window.form, window.map, window.data, window.mainPin));

@@ -2,18 +2,17 @@
 
 (function () {
   var adFormStatus = document.querySelector('.ad-form');
-  var addressInput = document.getElementById('address');
+  var addressInput = document.querySelector('#address');
   var mapFilter = document.querySelectorAll('.map__filter');
   var adForm = document.querySelectorAll('.ad-form__element');
   var mapFeatures = document.querySelector('.map__features');
-  var nameInput = document.getElementById('title');
+  var nameInput = document.querySelector('#title');
   var nameInputText = document.querySelector('.title-label');
-  var priceInput = document.getElementById('price');
+  var priceInput = document.querySelector('#price');
   var priceInputText = document.querySelector('.price-label');
-  var houseType = document.getElementById('type');
-  var timein = document.getElementById('timein');
-  var timeout = document.getElementById('timeout');
-  var roomNumber = document.querySelector('#room_number');
+  var houseType = document.querySelector('#type');
+  var timein = document.querySelector('#timein');
+  var timeout = document.querySelector('#timeout');
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -89,6 +88,9 @@
     };
   }
 
+  var headerInput = new ReqNameInput(nameInput, nameInputText);
+  var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
+
   var syncTime = function (firstElement, secondElement) {
 
     if (firstElement.value !== secondElement.value) {
@@ -120,18 +122,30 @@
     element.checkInputValid();
   };
 
+  timein.addEventListener('change', function (evt) {
+    syncTime(evt.target, timeout);
+  });
+
+  timeout.addEventListener('change', function (evt) {
+    syncTime(evt.target, timein);
+  });
+
+  headerInput.input.addEventListener('input', function (evt) {
+    headerInput.inputValid(evt.target.value.length);
+  });
+
+  pricePerNightInput.input.addEventListener('input', function (evt) {
+    pricePerNightInput.checkInputValid(evt.target.value);
+  });
+
+  houseType.addEventListener('change', function (evt) {
+    changeHouseType(evt.target.value, pricePerNightInput);
+  });
+
   window.form = {
     fillAddress: fillAddress,
     changeFormStatus: changeFormStatus,
-    nameInput: new ReqNameInput(nameInput, nameInputText),
-    priceInput: new ReqNumberInput(priceInput, priceInputText),
-    houseType: houseType,
-    roomNumber: roomNumber,
-    changeHouseType: changeHouseType,
-    visitTimes: {
-      timeIn: timein,
-      timeOut: timeout,
-      syncTime: syncTime
-    }
+    headerInput: headerInput,
+    pricePerNightInput: pricePerNightInput
   };
 }());
