@@ -1,33 +1,27 @@
 'use strict';
 
-(function (pageForm, pageMap, usersAd, primaryPin) {
-  var mainPin = primaryPin.mainPin;
+(function (pageForm, pageMap, usersAd, mainPin) {
   var mapPins = pageMap.mapPins;
   var ads = usersAd;
-  var appStatus = false;
   var pinMove = pageMap.onPinMouseMove;
   var initOffCords = pageMap.initOffSetCoords;
   var pricePerNightInput = pageForm.pricePerNightInput;
   var headerInput = pageForm.headerInput;
-
-  var fillAddress = function () {
-    var pinPosition = primaryPin.getMainPinPosition();
-    pageForm.fillAddress(pinPosition.x, pinPosition.y);
-  };
+  var appStatus = false;
 
   window.addEventListener('load', function () {
-    fillAddress();
+    pageForm.fillAddress();
   });
 
-  mainPin.addEventListener('mousedown', function (evt) {
+  mainPin.pin.addEventListener('mousedown', function (evt) {
     mapPins.addEventListener('mousemove', pinMove);
     var x = evt.clientX - parseInt(evt.currentTarget.style.left, 10);
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
     initOffCords(x, y);
   });
 
-  mainPin.addEventListener('mousemove', function () {
-    fillAddress();
+  mainPin.pin.addEventListener('mousemove', function () {
+    pageForm.fillAddress();
   });
 
   mapPins.addEventListener('mouseup', function (evt) {
@@ -36,13 +30,13 @@
     initOffCords();
   });
 
-  mainPin.addEventListener('click', function () {
+  mainPin.pin.addEventListener('click', function () {
     // меняет состояние карты
     pageMap.changeMapStatus();
     // меняем состояние форм
     pageForm.changeFormStatus();
     // меняем адрес
-    fillAddress();
+    pageForm.fillAddress();
     // меняем состояние страницы
     appStatus = !appStatus;
 

@@ -1,9 +1,8 @@
 'use strict';
 
-(function (primaryPin) {
+(function (mainPin) {
   var mainMap = document.querySelector('.map');
   var mapPins = document.querySelector('.map__pins');
-  var mainPin = primaryPin.mainPin;
   var offSet = {
     x: 0,
     y: 0
@@ -25,13 +24,14 @@
   };
 
   var onPinMouseMove = function (evt) {
+    mainPin.setPosition();
 
     if (evt.clientX - offSet.x > mapLimit.left && evt.clientX - offSet.x < mapLimit.right) {
-      mainPin.style.left = evt.clientX - offSet.x + 'px';
+      mainPin.pin.style.left = evt.clientX - offSet.x + 'px';
     }
 
     if (evt.clientY - offSet.y > mapLimit.top && evt.clientY - offSet.y < mapLimit.bottom) {
-      mainPin.style.top = evt.clientY - offSet.y + 'px';
+      mainPin.pin.style.top = evt.clientY - offSet.y + 'px';
     }
   };
 
