@@ -6,33 +6,27 @@
   var IMAGE_COUNT = 8;
   var getRandomInt = utilities.getRandomInt;
   var getRandomArrayElement = utilities.getRandomArrayElement;
+  var generateUniqImage = utilities.generateUniqImage;
+  var imageNumber = generateUniqImage(IMAGE_COUNT);
 
   /**
-     * Генератор случайного объявления
-     *
-     * @return {object}
-     *
-     * @example
-     *
-     * {
-      *  author: { avatar: 'img/avatars/user02.png'},
-      *  offer: { type: 'flat'},
-      *  location: { x: 500, y: 320}
-      * }
-      *
+   * Генератор случайного объявления
+   *
+   * @return {object}
+   *
+   * @example
+   *
+   * {
+    *  author: { avatar: 'img/avatars/user02.png'},
+    *  offer: { type: 'flat'},
+    *  location: { x: 500, y: 320}
+    * }
+    *
   */
   var getRandomAd = function () {
     var mapWidth = document.querySelector('.map__pins').offsetWidth;
     var types = ['palace', 'flat', 'house', 'bungalo'];
-    /**
-     * @description Генерируем строку для пути к картинке
-     *
-     * @example
-     *
-     * imageString = 'img/avatars/user02.png'
-    */
-    var imageNumber = getRandomInt(1, IMAGE_COUNT);
-    var imageString = 'img/avatars/user0' + imageNumber + '.png';
+    var imageString = 'img/avatars/user' + imageNumber.pop() + '.png';
 
     return {
       author: {

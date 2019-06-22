@@ -3,7 +3,7 @@
 (function (mainPin) {
   var mainMap = document.querySelector('.map');
   var mapPins = document.querySelector('.map__pins');
-  var offSet = {
+  var offset = {
     x: 0,
     y: 0
   };
@@ -18,20 +18,19 @@
     mainMap.classList.toggle('map--faded');
   };
 
-  var initOffSetCoords = function (x, y) {
-    offSet.x = x || 0;
-    offSet.y = y || 0;
+  var initOffsetCoords = function (x, y) {
+    offset.x = x || 0;
+    offset.y = y || 0;
   };
 
   var onPinMouseMove = function (evt) {
     mainPin.setPosition();
-
-    if (evt.clientX - offSet.x > mapLimit.left && evt.clientX - offSet.x < mapLimit.right) {
-      mainPin.pin.style.left = evt.clientX - offSet.x + 'px';
+    if (evt.clientX - offset.x > mapLimit.left && evt.clientX - offset.x < mapLimit.right - mainPin.width) {
+      mainPin.pin.style.left = evt.clientX - offset.x + 'px';
     }
 
-    if (evt.clientY - offSet.y > mapLimit.top && evt.clientY - offSet.y < mapLimit.bottom) {
-      mainPin.pin.style.top = evt.clientY - offSet.y + 'px';
+    if (evt.clientY - offset.y > mapLimit.top && evt.clientY - offset.y < mapLimit.bottom) {
+      mainPin.pin.style.top = evt.clientY - offset.y + 'px';
     }
   };
 
@@ -39,6 +38,6 @@
     changeMapStatus: changeMapStatus,
     mapPins: mapPins,
     onPinMouseMove: onPinMouseMove,
-    initOffSetCoords: initOffSetCoords
+    initOffsetCoords: initOffsetCoords
   };
-}(window.mainPin));
+})(window.mainPin);

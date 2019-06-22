@@ -13,11 +13,25 @@
   var houseType = document.querySelector('#type');
   var timein = document.querySelector('#timein');
   var timeout = document.querySelector('#timeout');
+  var roomNumber = document.querySelector('#room_number');
+  var capacity = document.querySelector('#capacity');
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
     HOUSE: 5000,
     PALACE: 10000
+  };
+  var roomCounts = {
+    1: [1],
+    2: [1, 2],
+    3: [1, 2, 3],
+    100: [0]
+  };
+  var guestCounts = {
+    3: 'для 3 гостей',
+    2: 'для 2 гостей',
+    1: 'для 1 гостя',
+    0: 'не для гостей'
   };
 
   function ReqNameInput(element, text) {
@@ -101,6 +115,21 @@
     element.checkInputValid();
   };
 
+  var createOption = function (index) {
+    var option = document.createElement('option');
+    option.text = guestCounts[index];
+    option.value = index;
+
+    return option;
+  };
+
+  var changeGuestCapacity = function (rooms) {
+    capacity.length = 0;
+    rooms.forEach(function (el) {
+      capacity.add(createOption(el));
+    });
+  };
+
   timein.addEventListener('change', function (evt) {
     syncTime(evt.target, timeout);
   });
@@ -121,10 +150,15 @@
     changeHouseType(evt.target.value, pricePerNightInput);
   });
 
+  roomNumber.addEventListener('change', function (evt) {
+    changeGuestCapacity(roomCounts[evt.target.value]);
+  });
+
   window.form = {
     fillAddress: fillAddress,
     changeFormStatus: changeFormStatus,
     headerInput: headerInput,
     pricePerNightInput: pricePerNightInput
   };
-}(window.mainPin));
+})(window.mainPin);
+

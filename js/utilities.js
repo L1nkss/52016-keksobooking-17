@@ -17,8 +17,22 @@
     return arr[getRandomInt(0, arr.length - 1)];
   };
 
+  var generateUniqImage = function (imageCount) {
+    var uniqArray = [];
+
+    for (var i = 1; i <= imageCount; i++) {
+      if (i < 10) {
+        uniqArray.push('0' + i);
+      } else {
+        uniqArray.push(i + '');
+      }
+    }
+    return uniqArray;
+  };
+
   window.utilities = {
     getRandomInt: getRandomInt,
-    getRandomArrayElement: getRandomArrayElement
+    getRandomArrayElement: getRandomArrayElement,
+    generateUniqImage: generateUniqImage
   };
 })();

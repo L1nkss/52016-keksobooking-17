@@ -4,16 +4,32 @@
   var mapPins = pageMap.mapPins;
   var ads = usersAd;
   var pinMove = pageMap.onPinMouseMove;
-  var initOffCords = pageMap.initOffSetCoords;
-  var pricePerNightInput = pageForm.pricePerNightInput;
-  var headerInput = pageForm.headerInput;
+  var initOffCords = pageMap.initOffsetCoords;
   var appStatus = false;
+
+  var activatePage = function () {
+
+    if (!appStatus) {
+      // меняет состояние карты
+      pageMap.changeMapStatus();
+      // меняем состояние форм
+      pageForm.changeFormStatus();
+      // меняем адрес
+      pageForm.fillAddress();
+      // меняем состояние страницы
+      appStatus = true;
+      // рендерим объявления
+      ads.renderAds();
+    }
+  };
 
   window.addEventListener('load', function () {
     pageForm.fillAddress();
   });
 
   mainPin.pin.addEventListener('mousedown', function (evt) {
+    // активируем страницу при первом зажатии главного пина
+    activatePage();
     mapPins.addEventListener('mousemove', pinMove);
     var x = evt.clientX - parseInt(evt.currentTarget.style.left, 10);
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
@@ -29,23 +45,4 @@
     evt.currentTarget.removeEventListener('mousemove', pinMove);
     initOffCords();
   });
-
-  mainPin.pin.addEventListener('click', function () {
-    // меняет состояние карты
-    pageMap.changeMapStatus();
-    // меняем состояние форм
-    pageForm.changeFormStatus();
-    // меняем адрес
-    pageForm.fillAddress();
-    // меняем состояние страницы
-    appStatus = !appStatus;
-
-    if (appStatus) {
-      ads.renderAds();
-    } else {
-      ads.removeAds();
-      pricePerNightInput.restoreDefaultSetting();
-      headerInput.restoreDefaultSetting();
-    }
-  });
-}(window.form, window.map, window.data, window.mainPin));
+})(window.form, window.map, window.data, window.mainPin);

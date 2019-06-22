@@ -34,4 +34,4 @@
   });
 
   window.mainPin = mainPin;
-}());
+})();
