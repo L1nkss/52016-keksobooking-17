@@ -21,13 +21,13 @@
     HOUSE: 5000,
     PALACE: 10000
   };
-  var roomCounts = {
+  var RoomCounts = {
     1: [1],
     2: [1, 2],
     3: [1, 2, 3],
     100: [0]
   };
-  var guestCounts = {
+  var GuestCounts = {
     3: 'для 3 гостей',
     2: 'для 2 гостей',
     1: 'для 1 гостя',
@@ -117,7 +117,7 @@
 
   var createOption = function (index) {
     var option = document.createElement('option');
-    option.text = guestCounts[index];
+    option.text = GuestCounts[index];
     option.value = index;
 
     return option;
@@ -151,7 +151,7 @@
   });
 
   roomNumber.addEventListener('change', function (evt) {
-    changeGuestCapacity(roomCounts[evt.target.value]);
+    changeGuestCapacity(RoomCounts[evt.target.value]);
   });
 
   window.form = {

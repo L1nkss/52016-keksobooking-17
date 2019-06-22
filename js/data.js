@@ -13,7 +13,7 @@
 
   var checkCoords = function (posX, posY) {
     if (posX + PIN_WIDTH > 1200) {
-      posX = 1200 - PIN_WIDTH;
+      posX = 1200 - PIN_WIDTH / 2;
     } else if (posX < 0) {
       posX = 0;
     }

@@ -1,9 +1,9 @@
 'use strict';
 
 (function (utilities) {
+  var IMAGE_COUNT = 8;
   var mapMinY = 130;
   var mapMaxY = 630;
-  var IMAGE_COUNT = 8;
   var getRandomInt = utilities.getRandomInt;
   var getRandomArrayElement = utilities.getRandomArrayElement;
   var generateUniqImage = utilities.generateUniqImage;

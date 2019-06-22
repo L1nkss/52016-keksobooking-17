@@ -1,43 +1,52 @@
 'use strict';
 
 (function (mainPin) {
-  var mainMap = document.querySelector('.map');
-  var mapPins = document.querySelector('.map__pins');
-  var offset = {
-    x: 0,
-    y: 0
-  };
-  var mapLimit = {
-    top: 130,
-    right: mainMap.clientWidth,
-    bottom: 630,
-    left: 0
+
+  function Map(element) {
+    this.map = element;
+  }
+
+  function MapPins(element) {
+    Map.call(this, element);
+    this.offset = {
+      x: 0,
+      y: 0
+    };
+    this.MapLimit = {
+      TOP: 130,
+      RIGHT: this.map.clientWidth,
+      BOTTOM: 630,
+      LEFT: 0
+    };
+  }
+
+  Map.prototype.changeMapStatus = function () {
+    this.map.classList.toggle('map--faded');
   };
 
-  var changeMapStatus = function () {
-    mainMap.classList.toggle('map--faded');
+  // наследуем MapPins от Map
+  MapPins.prototype = Object.create(Map.prototype);
+  MapPins.prototype.constructor = MapPins;
+
+  MapPins.prototype.initOffsetCoords = function (x, y) {
+    this.offset.x = x || 0;
+    this.offset.y = y || 0;
   };
 
-  var initOffsetCoords = function (x, y) {
-    offset.x = x || 0;
-    offset.y = y || 0;
-  };
-
-  var onPinMouseMove = function (evt) {
-    mainPin.setPosition();
-    if (evt.clientX - offset.x > mapLimit.left && evt.clientX - offset.x < mapLimit.right - mainPin.width) {
-      mainPin.pin.style.left = evt.clientX - offset.x + 'px';
+  MapPins.prototype.onPinMouseMove = function (evt) {
+    /**
+     * Проверям выходит ли пин за границы, которые описаны в объекте MapPins.MapLimit
+     */
+    if (evt.clientX - mapPins.offset.x > mapPins.MapLimit.LEFT && evt.clientX - mapPins.offset.x < mapPins.MapLimit.RIGHT - mainPin.width && evt.clientY - mapPins.offset.y > mapPins.MapLimit.TOP && evt.clientY - mapPins.offset.y < mapPins.MapLimit.BOTTOM) {
+      mainPin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
     }
-
-    if (evt.clientY - offset.y > mapLimit.top && evt.clientY - offset.y < mapLimit.bottom) {
-      mainPin.pin.style.top = evt.clientY - offset.y + 'px';
-    }
   };
+
+  var mainMap = new Map(document.querySelector('.map'));
+  var mapPins = new MapPins(document.querySelector('.map__pins'));
 
   window.map = {
-    changeMapStatus: changeMapStatus,
+    mainMap: mainMap,
     mapPins: mapPins,
-    onPinMouseMove: onPinMouseMove,
-    initOffsetCoords: initOffsetCoords
   };
 })(window.mainPin);
