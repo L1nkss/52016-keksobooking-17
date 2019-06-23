@@ -1,6 +1,7 @@
 'use strict';
 
 (function (mainPin) {
+  var pin = mainPin;
 
   function Map(element) {
     this.map = element;
@@ -38,7 +39,7 @@
      * Проверям выходит ли пин за границы, которые описаны в объекте MapPins.MapLimit
      */
     if (evt.clientX - mapPins.offset.x > mapPins.MapLimit.LEFT && evt.clientX - mapPins.offset.x < mapPins.MapLimit.RIGHT - mainPin.width && evt.clientY - mapPins.offset.y > mapPins.MapLimit.TOP && evt.clientY - mapPins.offset.y < mapPins.MapLimit.BOTTOM) {
-      mainPin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
+      pin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
     }
   };
 

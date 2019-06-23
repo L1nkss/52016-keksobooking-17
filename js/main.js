@@ -4,29 +4,33 @@
   var mapPins = pageMap.mapPins;
   var ads = usersAd;
   var appStatus = false;
-
+  var pin = mainPin.pin;
+  var changeFormStatus = pageForm.changeFormStatus;
+  var mainMap = pageMap.mainMap;
+  var fillAddress = pageForm.fillAddress;
+  var renderAds = ads.renderAds;
   var activatePage = function () {
 
     if (!appStatus) {
       // меняет состояние карты
-      pageMap.mainMap.changeMapStatus();
+      mainMap.changeMapStatus();
       // меняем состояние форм
-      pageForm.changeFormStatus();
+      changeFormStatus();
       // меняем адрес
-      pageForm.fillAddress();
+      fillAddress();
       // меняем состояние страницы
       appStatus = true;
       // рендерим объявления
-      ads.renderAds();
+      renderAds();
     }
   };
 
   window.addEventListener('load', function () {
-    pageForm.fillAddress();
+    fillAddress();
   });
 
 
-  mainPin.pin.addEventListener('mousedown', function (evt) {
+  pin.addEventListener('mousedown', function (evt) {
     // активируем страницу при первом зажатии главного пина
     activatePage();
     mapPins.map.addEventListener('mousemove', mapPins.onPinMouseMove);
@@ -36,8 +40,8 @@
     mapPins.initOffsetCoords(x, y);
   });
 
-  mainPin.pin.addEventListener('mousemove', function () {
-    pageForm.fillAddress();
+  pin.addEventListener('mousemove', function () {
+    fillAddress();
   });
 
   mapPins.map.addEventListener('mouseup', function (evt) {
