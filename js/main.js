@@ -1,6 +1,6 @@
 'use strict';
 
-(function (pageForm, pageMap, usersAd, primaryPin) {
+(function (pageForm, pageMap, usersAd, primaryPin, Service) {
   var mainPin = primaryPin.mainPin;
   var mapPins = pageMap.mapPins;
   var ads = usersAd;
@@ -14,6 +14,18 @@
   var initOffCords = pageMap.initOffSetCoords;
   var roomNumber = pageForm.roomNumber;
   var roomNumberChange = pageForm.roomNumberChange;
+
+
+  function Spinner(url) {
+    this.element = url;
+    this.status = false;
+  }
+
+  Spinner.prototype.show = function () {
+    this.element.classList.toggle('loader--show')
+  }
+
+  var spinner = new Spinner(document.querySelector('.loader'));
 
   var fillAddress = function () {
     var pinPosition = primaryPin.getMainPinPosition();
@@ -65,22 +77,58 @@
     initOffCords();
   });
 
-  mainPin.addEventListener('click', function () {
-    // меняет состояние карты
-    pageMap.changeMapStatus();
-    // меняем состояние форм
-    pageForm.changeFormStatus();
-    // меняем адрес
-    fillAddress();
-    // меняем состояние страницы
-    appStatus = !appStatus;
+  var service = new Service ('https://js.dump.academy/keksobooking/data');
 
-    if (appStatus) {
-      ads.renderAds();
-    } else {
-      ads.removeAds();
-      priceInput.restoreDefaultSetting();
-      nameInput.restoreDefaultSetting();
-    }
+
+  var loadData = function () {
+    spinner.show();
+  }
+
+  var loadedData = function () {
+    setTimeout(() => {
+      spinner.show();
+      var arr = JSON.parse(service.http.responseText)
+      // меняет состояние карты
+      pageMap.changeMapStatus();
+      // меняем состояние форм
+      pageForm.changeFormStatus();
+      // меняем адрес
+      fillAddress();
+      // меняем состояние страницы
+      appStatus = !appStatus;
+      if (appStatus) {
+        ads.renderAds(arr);
+      } else {
+        ads.removeAds();
+        priceInput.restoreDefaultSetting();
+        nameInput.restoreDefaultSetting();
+      }
+    }, 4000);
+  }
+
+  service.http.addEventListener('progress', loadData);
+
+  service.http.addEventListener('load', loadedData);
+
+  mainPin.addEventListener('click', function () {
+    service.createRequest();
+
+
+    // // меняет состояние карты
+    // pageMap.changeMapStatus();
+    // // меняем состояние форм
+    // pageForm.changeFormStatus();
+    // // меняем адрес
+    // fillAddress();
+    // // меняем состояние страницы
+    // appStatus = !appStatus;
+
+    // if (appStatus) {
+    //   ads.renderAds();
+    // } else {
+    //   ads.removeAds();
+    //   priceInput.restoreDefaultSetting();
+    //   nameInput.restoreDefaultSetting();
+    // }
   });
-}(window.form, window.map, window.data, window.mainPin));
+}(window.form, window.map, window.data, window.mainPin, window.service));

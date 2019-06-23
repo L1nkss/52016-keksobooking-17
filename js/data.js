@@ -12,14 +12,17 @@ window.getRandomInt = function (min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
-(function () {
+(function (Service) {
   var AD_COUNT = 8; // количество объявлений
   var IMAGE_COUNT = 8;
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+  var infoTemplate = document.querySelector('#card').content.querySelector('.popup');
   var pinList = document.querySelector('.map__pins');
   var ads = [];
+  // var service = new Service ('https://js.dump.academy/keksobooking/data');
+  // service.createRequest();
   /**
      * Генератор случайного объявления
      *
@@ -70,9 +73,36 @@ window.getRandomInt = function (min, max) {
     return randomAds;
   };
 
-  ads = getRandomAds(AD_COUNT);
+  //ads = getRandomAds(AD_COUNT);
 
-  var renderAds = function () {
+  // service.http.addEventListener('progress', function() {
+  //   console.log('loading');
+  // })
+
+  // service.http.addEventListener('load', function (evt) {
+  //   ads = JSON.parse(evt.target.responseText);
+  // })
+
+  // service.http.addEventListener('error', function (evt) {
+  //   console.log('error');
+  // })
+
+  // PopUP с подробной информацией
+
+  var createPopup = function (ad) {
+    var fragment = document.createDocumentFragment();
+    var adElement = infoTemplate.cloneNode(true);
+    console.log(ad);
+    adElement.querySelector('.popup__avatar').src = ad.author.avatar;
+    adElement.querySelector('.popup__text--address').textContent = ad.offer.address;
+    adElement.querySelector('.popup__title').textContent = ad.offer.title;
+    adElement.querySelector('.popup__text--price').textContent = ad.offer.title + "<span>/ночь</span>"
+    adElement.querySelector('.popup__type').textContent = ad.offer.type;
+
+    pinList.appendChild(adElement);
+  }
+
+  var renderAds = function (ads) {
     var fragment = document.createDocumentFragment();
     ads.forEach(function (ad) {
       var left = ad.location.x + PIN_WIDTH / 2;
@@ -85,6 +115,9 @@ window.getRandomInt = function (min, max) {
       adElement.style = 'left: ' + left + 'px; top: ' + top + 'px;';
       adElement.querySelector('img').src = avatar;
       adElement.querySelector('img').alt = type;
+      adElement.addEventListener('click', function (evt) {
+        createPopup(ad);
+      })
       fragment.appendChild(adElement);
     });
     pinList.appendChild(fragment);
@@ -103,4 +136,4 @@ window.getRandomInt = function (min, max) {
     renderAds: renderAds,
     removeAds: removeAds
   };
-}());
+}(window.service));
