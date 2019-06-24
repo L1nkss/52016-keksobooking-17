@@ -2,6 +2,12 @@
 
 (function (mainPin) {
   var pin = mainPin;
+  var MapLimit = {
+    TOP: 130,
+    RIGHT: 1200,
+    BOTTOM: 630,
+    LEFT: 0
+  };
 
   function Map(element) {
     this.map = element;
@@ -12,12 +18,6 @@
     this.offset = {
       x: 0,
       y: 0
-    };
-    this.MapLimit = {
-      TOP: 130,
-      RIGHT: this.map.clientWidth,
-      BOTTOM: 630,
-      LEFT: 0
     };
   }
 
@@ -38,7 +38,7 @@
     /**
      * Проверям выходит ли пин за границы, которые описаны в объекте MapPins.MapLimit
      */
-    if (evt.clientX - mapPins.offset.x > mapPins.MapLimit.LEFT && evt.clientX - mapPins.offset.x < mapPins.MapLimit.RIGHT - mainPin.width && evt.clientY - mapPins.offset.y > mapPins.MapLimit.TOP && evt.clientY - mapPins.offset.y < mapPins.MapLimit.BOTTOM) {
+    if (evt.clientX - mapPins.offset.x > MapLimit.LEFT && evt.clientX - mapPins.offset.x < MapLimit.RIGHT - mainPin.width && evt.clientY - mapPins.offset.y > MapLimit.TOP && evt.clientY - mapPins.offset.y < MapLimit.BOTTOM) {
       pin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
     }
   };

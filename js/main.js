@@ -33,7 +33,8 @@
   pin.addEventListener('mousedown', function (evt) {
     // активируем страницу при первом зажатии главного пина
     activatePage();
-    mapPins.map.addEventListener('mousemove', mapPins.onPinMouseMove);
+    // mapPins.map.addEventListener('mousemove', mapPins.onPinMouseMove);
+    document.body.addEventListener('mousemove', mapPins.onPinMouseMove);
     var x = evt.clientX - parseInt(evt.currentTarget.style.left, 10);
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
 
@@ -44,10 +45,11 @@
     fillAddress();
   });
 
-  mapPins.map.addEventListener('mouseup', function (evt) {
+  // mapPins.map.addEventListener('mouseup', function (evt) {
+  document.body.addEventListener('mouseup', function (evt) {
     evt.preventDefault();
-    evt.currentTarget.removeEventListener('mousemove', mapPins.onPinMouseMove);
-    mapPins.initOffsetCoords();
+    document.body.removeEventListener('mousemove', mapPins.onPinMouseMove);
+    // mapPins.initOffsetCoords();
   });
 
 })(window.form, window.map, window.data, window.mainPin);
