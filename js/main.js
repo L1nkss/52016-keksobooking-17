@@ -6,7 +6,7 @@
 
     if (!appStatus) {
       // меняет состояние карты
-      pageMap.mainMap.changeMapStatus();
+      pageMap.map.changeMapStatus();
       // меняем состояние форм
       pageForm.changeFormStatus();
       // меняем адрес

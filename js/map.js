@@ -58,11 +58,11 @@
     }
   };
 
-  var mainMap = new Map(document.querySelector('.map'));
+  var map = new Map(document.querySelector('.map'));
   var mapPins = new MapPins(document.querySelector('.map__pins'));
 
   window.map = {
-    mainMap: mainMap,
+    map: map,
     mapPins: mapPins,
   };
 })(window.mainPin);
