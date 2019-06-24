@@ -1,12 +1,27 @@
 'use strict';
 
 (function (mainPin) {
-  var pin = mainPin;
   var MapLimit = {
     TOP: 130,
     RIGHT: 1200,
     BOTTOM: 630,
     LEFT: 0
+  };
+
+  var isValidX = function (mouseX) {
+    if (mouseX - mapPins.offset.x > MapLimit.LEFT && mouseX - mapPins.offset.x < MapLimit.RIGHT - mainPin.width) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  var isValidY = function (mouseY) {
+    if (mouseY - mapPins.offset.y > MapLimit.TOP && mouseY - mapPins.offset.y < MapLimit.BOTTOM) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   function Map(element) {
@@ -36,10 +51,10 @@
 
   MapPins.prototype.onPinMouseMove = function (evt) {
     /**
-     * Проверям выходит ли пин за границы, которые описаны в объекте MapPins.MapLimit
+     * Проверям выходит ли пин за границы MapLimit
      */
-    if (evt.clientX - mapPins.offset.x > MapLimit.LEFT && evt.clientX - mapPins.offset.x < MapLimit.RIGHT - mainPin.width && evt.clientY - mapPins.offset.y > MapLimit.TOP && evt.clientY - mapPins.offset.y < MapLimit.BOTTOM) {
-      pin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
+    if (isValidX(evt.clientX) && isValidY(evt.clientY)) {
+      mainPin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
     }
   };
 

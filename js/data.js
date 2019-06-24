@@ -8,8 +8,7 @@
   var mapMaxY = 630;
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinList = document.querySelector('.map__pins');
-  var getRandomAds = randomAds.getRandomAds;
-  var ads = getRandomAds(AD_COUNT);
+  var ads = randomAds.getRandomAds(AD_COUNT);
 
   var checkCoords = function (posX, posY) {
     if (posX + PIN_WIDTH > 1200) {
