@@ -9,7 +9,7 @@
   };
 
   var isValidX = function (mouseX) {
-    if (mouseX - mapPins.offset.x > MapLimit.LEFT && mouseX - mapPins.offset.x < MapLimit.RIGHT - mainPin.width) {
+    if (mouseX - mapPins.offset.x >= MapLimit.LEFT && mouseX - mapPins.offset.x <= MapLimit.RIGHT - mainPin.width) {
       return true;
     } else {
       return false;
