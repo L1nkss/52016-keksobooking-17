@@ -7,7 +7,7 @@
     this.isActive = false;
     this.activeHeight = element.clientHeight + 22;
     this.disabledHeight = element.clientHeight;
-    this.width = element.clientWidth;
+    this.width = 62;
     this.position = {
       x: null,
       y: null

@@ -4,10 +4,7 @@
   var IMAGE_COUNT = 8;
   var mapMinY = 130;
   var mapMaxY = 630;
-  var getRandomInt = utilities.getRandomInt;
-  var getRandomArrayElement = utilities.getRandomArrayElement;
-  var generateUniqImage = utilities.generateUniqImage;
-  var imageNumber = generateUniqImage(IMAGE_COUNT);
+  var imageNumber = utilities.generateUniqImage(IMAGE_COUNT);
 
   /**
    * Генератор случайного объявления
@@ -33,11 +30,11 @@
         avatar: imageString
       },
       offer: {
-        type: getRandomArrayElement(types)
+        type: utilities.getRandomArrayElement(types)
       },
       location: {
-        x: getRandomInt(0, mapWidth),
-        y: getRandomInt(mapMinY, mapMaxY)
+        x: utilities.getRandomInt(0, mapWidth),
+        y: utilities.getRandomInt(mapMinY, mapMaxY)
       }
     };
   };

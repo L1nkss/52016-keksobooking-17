@@ -1,7 +1,28 @@
 'use strict';
 
 (function (mainPin) {
-  var pin = mainPin;
+  var MapLimit = {
+    TOP: 130,
+    RIGHT: 1200,
+    BOTTOM: 630,
+    LEFT: 0
+  };
+
+  var isValidX = function (mouseX) {
+    if (mouseX - mapPins.offset.x >= MapLimit.LEFT && mouseX - mapPins.offset.x <= MapLimit.RIGHT - mainPin.width) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  var isValidY = function (mouseY) {
+    if (mouseY - mapPins.offset.y > MapLimit.TOP && mouseY - mapPins.offset.y < MapLimit.BOTTOM) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   function Map(element) {
     this.map = element;
@@ -12,12 +33,6 @@
     this.offset = {
       x: 0,
       y: 0
-    };
-    this.MapLimit = {
-      TOP: 130,
-      RIGHT: this.map.clientWidth,
-      BOTTOM: 630,
-      LEFT: 0
     };
   }
 
@@ -36,18 +51,18 @@
 
   MapPins.prototype.onPinMouseMove = function (evt) {
     /**
-     * Проверям выходит ли пин за границы, которые описаны в объекте MapPins.MapLimit
+     * Проверям выходит ли пин за границы MapLimit
      */
-    if (evt.clientX - mapPins.offset.x > mapPins.MapLimit.LEFT && evt.clientX - mapPins.offset.x < mapPins.MapLimit.RIGHT - mainPin.width && evt.clientY - mapPins.offset.y > mapPins.MapLimit.TOP && evt.clientY - mapPins.offset.y < mapPins.MapLimit.BOTTOM) {
-      pin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
+    if (isValidX(evt.clientX) && isValidY(evt.clientY)) {
+      mainPin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
     }
   };
 
-  var mainMap = new Map(document.querySelector('.map'));
+  var map = new Map(document.querySelector('.map'));
   var mapPins = new MapPins(document.querySelector('.map__pins'));
 
   window.map = {
-    mainMap: mainMap,
+    map: map,
     mapPins: mapPins,
   };
 })(window.mainPin);
