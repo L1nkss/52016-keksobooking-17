@@ -154,6 +154,13 @@
     changeGuestCapacity(RoomCounts[evt.target.value]);
   });
 
+  adFormStatus.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    var formData = new FormData (this);
+    console.log(formData);
+    console.log('данные отправлены');
+  })
+
   window.form = {
     fillAddress: fillAddress,
     changeFormStatus: changeFormStatus,

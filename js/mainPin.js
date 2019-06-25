@@ -8,6 +8,12 @@
     this.activeHeight = element.clientHeight + 22;
     this.disabledHeight = element.clientHeight;
     this.width = element.clientWidth;
+    // StartPosition необходим, чтобы запомнить стартовые точки пина, для возвращения пина в начальную координату.
+    // Position отслеживает текущее положение на карте
+    this.startPosition = {
+      x: null,
+      y: null
+    }
     this.position = {
       x: null,
       y: null
@@ -15,7 +21,10 @@
 
     this.pin.addEventListener('click', this.onPinClick.bind(this));
 
+    // задаём стартовую позицию пина и запоминаём её.
     this.calculatePotision();
+    this.startPosition.x = this.position.x;
+    this.startPosition.y = this.position.y;
   }
 
   Pin.prototype.calculatePotision = function () {
@@ -45,6 +54,7 @@
   };
 
   var mainPin = new Pin(document.querySelector('.map__pin--main'));
+  console.log(mainPin);
 
   window.mainPin = mainPin;
 })();
