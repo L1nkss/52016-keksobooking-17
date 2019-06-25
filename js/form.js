@@ -1,24 +1,37 @@
 'use strict';
 
-(function () {
+(function (mainPin) {
   var adFormStatus = document.querySelector('.ad-form');
-  var addressInput = document.getElementById('address');
+  var addressInput = document.querySelector('#address');
   var mapFilter = document.querySelectorAll('.map__filter');
   var adForm = document.querySelectorAll('.ad-form__element');
   var mapFeatures = document.querySelector('.map__features');
-  var nameInput = document.getElementById('title');
+  var nameInput = document.querySelector('#title');
   var nameInputText = document.querySelector('.title-label');
-  var priceInput = document.getElementById('price');
+  var priceInput = document.querySelector('#price');
   var priceInputText = document.querySelector('.price-label');
-  var houseType = document.getElementById('type');
-  var timein = document.getElementById('timein');
-  var timeout = document.getElementById('timeout');
+  var houseType = document.querySelector('#type');
+  var timein = document.querySelector('#timein');
+  var timeout = document.querySelector('#timeout');
   var roomNumber = document.querySelector('#room_number');
+  var capacity = document.querySelector('#capacity');
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
     HOUSE: 5000,
     PALACE: 10000
+  };
+  var RoomCounts = {
+    1: [1],
+    2: [1, 2],
+    3: [1, 2, 3],
+    100: [0]
+  };
+  var GuestCounts = {
+    3: 'для 3 гостей',
+    2: 'для 2 гостей',
+    1: 'для 1 гостя',
+    0: 'не для гостей'
   };
 
   function ReqNameInput(element, text) {
@@ -26,68 +39,49 @@
     this.isValid = false;
     this.label = text;
     this.labelText = text.textContent;
-
-    ReqNameInput.prototype.checkInputValid = function () {
-      if (this.input.checkValidity()) {
-        this.isValid = true;
-      } else {
-        this.isValid = false;
-      }
-    };
-
-    ReqNameInput.prototype.restoreDefaultSetting = function () {
-      this.input.classList.remove('invalid-value');
-      this.label.textContent = this.labelText;
-    };
-
-    ReqNameInput.prototype.showErrorMessage = function (valueCount) {
-      var minValue = 30;
-      var left = minValue - valueCount;
-      return 'Минимальное количество символов ' + minValue + ' Осталось ' + left;
-    };
-
-    ReqNameInput.prototype.inputValid = function (count) {
-      this.checkInputValid();
-      if (this.isValid) {
-        this.restoreDefaultSetting();
-      } else {
-        this.label.textContent = this.showErrorMessage(count);
-        this.input.classList.add('invalid-value');
-      }
-    };
   }
 
   function ReqNumberInput(element, text) {
-    this.input = element;
-    this.isValid = false;
-    this.label = text;
-    this.labelText = text.textContent;
-
-    ReqNumberInput.prototype.checkInputValid = function () {
-      if (this.input.checkValidity()) {
-        this.isValid = true;
-        this.restoreDefaultSetting();
-      } else {
-        this.isValid = false;
-        this.label.textContent = this.showErrorMessage();
-        this.input.classList.add('invalid-value');
-      }
-    };
-
-    ReqNumberInput.prototype.setMinValue = function (value) {
-      this.input.min = value;
-      this.input.placeholder = value;
-    };
-
-    ReqNumberInput.prototype.restoreDefaultSetting = function () {
-      this.input.classList.remove('invalid-value');
-      this.label.textContent = this.labelText;
-    };
-
-    ReqNumberInput.prototype.showErrorMessage = function () {
-      return 'Минимальная цена за ночь: ' + this.input.min;
-    };
+    ReqNameInput.call(this, element, text);
   }
+
+  // наследуем ReqNumberInput от ReqNameInput
+  ReqNumberInput.prototype = Object.create(ReqNameInput.prototype);
+  ReqNumberInput.prototype.constructor = ReqNumberInput;
+
+  // Цепочка прототипов
+  ReqNameInput.prototype.checkInputValid = function (count) {
+    if (this.input.checkValidity()) {
+      this.isValid = true;
+      this.restoreDefaultSetting();
+    } else {
+      this.isValid = false;
+      this.label.textContent = this.showErrorMessage(count);
+      this.input.classList.add('invalid-value');
+    }
+  };
+  ReqNameInput.prototype.restoreDefaultSetting = function () {
+    this.input.classList.remove('invalid-value');
+    this.label.textContent = this.labelText;
+  };
+
+  ReqNameInput.prototype.showErrorMessage = function (valueCount) {
+    var minValue = 30;
+    var left = minValue - valueCount;
+    return 'Минимальное количество символов ' + minValue + ' Осталось ' + left;
+  };
+
+  ReqNumberInput.prototype.setMinValue = function (value) {
+    this.input.min = value;
+    this.input.placeholder = value;
+  };
+
+  ReqNumberInput.prototype.showErrorMessage = function () {
+    return 'Минимальная цена за ночь: ' + this.input.min;
+  };
+
+  var headerInput = new ReqNameInput(nameInput, nameInputText);
+  var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
 
   var syncTime = function (firstElement, secondElement) {
 
@@ -96,8 +90,9 @@
     }
   };
 
-  var fillAddress = function (x, y) {
-    addressInput.value = x + ', ' + y;
+  var fillAddress = function () {
+    var pinPosition = mainPin.getPosition();
+    addressInput.value = pinPosition.x + ', ' + pinPosition.y;
   };
 
   var changeFormStatus = function () {
@@ -120,18 +115,50 @@
     element.checkInputValid();
   };
 
+  var createOption = function (index) {
+    var option = document.createElement('option');
+    option.text = GuestCounts[index];
+    option.value = index;
+
+    return option;
+  };
+
+  var changeGuestCapacity = function (rooms) {
+    capacity.length = 0;
+    rooms.forEach(function (el) {
+      capacity.add(createOption(el));
+    });
+  };
+
+  timein.addEventListener('change', function (evt) {
+    syncTime(evt.target, timeout);
+  });
+
+  timeout.addEventListener('change', function (evt) {
+    syncTime(evt.target, timein);
+  });
+
+  headerInput.input.addEventListener('input', function (evt) {
+    headerInput.checkInputValid(evt.target.value.length);
+  });
+
+  pricePerNightInput.input.addEventListener('input', function () {
+    pricePerNightInput.checkInputValid();
+  });
+
+  houseType.addEventListener('change', function (evt) {
+    changeHouseType(evt.target.value, pricePerNightInput);
+  });
+
+  roomNumber.addEventListener('change', function (evt) {
+    changeGuestCapacity(RoomCounts[evt.target.value]);
+  });
+
   window.form = {
     fillAddress: fillAddress,
     changeFormStatus: changeFormStatus,
-    nameInput: new ReqNameInput(nameInput, nameInputText),
-    priceInput: new ReqNumberInput(priceInput, priceInputText),
-    houseType: houseType,
-    roomNumber: roomNumber,
-    changeHouseType: changeHouseType,
-    visitTimes: {
-      timeIn: timein,
-      timeOut: timeout,
-      syncTime: syncTime
-    }
+    headerInput: headerInput,
+    pricePerNightInput: pricePerNightInput
   };
-}());
+})(window.mainPin);
+

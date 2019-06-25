@@ -1,24 +1,21 @@
+'use strict';
+
 (function () {
-  function adServise (url) {
+  function AdServise (url) {
     this.url = url;
     this.status = 0;
     this.data = [];
     this.http = new XMLHttpRequest();
-    this.http.addEventListener('progress', this.test);
   }
 
-  adServise.prototype.createRequest = function () {
+  AdServise.prototype.createRequest = function () {
     this.http.open('GET', this.url);
     this.http.send();
-  }
+  };
 
-  adServise.prototype.fillData = function (arr) {
+  AdServise.prototype.fillData = function (arr) {
     this.data = arr;
-  }
+  };
 
-  adServise.prototype.test = function (callback) {
-    callback();
-  }
-
-  window.service = adServise;
+  window.service = AdServise;
 })();
