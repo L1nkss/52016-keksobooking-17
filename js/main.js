@@ -31,16 +31,16 @@
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
 
     pageMap.mapPins.initOffsetCoords(x, y);
-  });
 
-  mainPin.pin.addEventListener('mousemove', function () {
-    pageForm.fillAddress();
-  });
+    mainPin.pin.addEventListener('mousemove', function () {
+      pageForm.fillAddress();
+    });
 
-  document.addEventListener('mouseup', function (evt) {
-    evt.preventDefault();
-    document.removeEventListener('mousemove', pageMap.mapPins.onPinMouseMove);
-    pageMap.mapPins.initOffsetCoords();
+    document.addEventListener('mouseup', function (evtUp) {
+      evtUp.preventDefault();
+      document.removeEventListener('mousemove', pageMap.mapPins.onPinMouseMove);
+      pageMap.mapPins.initOffsetCoords();
+    });
   });
 
 })(window.form, window.map, window.data, window.mainPin);
