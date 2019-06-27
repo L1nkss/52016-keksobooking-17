@@ -8,7 +8,7 @@
     PALACE: 'Дворец'
   };
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-  var successTemplate = document.querySelector('#success').content.querySelector('.success');
+  // var successTemplate = document.querySelector('#success').content.querySelector('.success');
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
@@ -32,12 +32,6 @@
 
   var errorMessage = function () {
     var element = errorTemplate.cloneNode(true);
-
-    return element;
-  };
-
-  var successMessage = function () {
-    var element = successTemplate.cloneNode(true);
 
     return element;
   };

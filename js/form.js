@@ -7,6 +7,20 @@
     HOUSE: 5000,
     PALACE: 10000
   };
+
+  var RoomCounts = {
+    1: [1],
+    2: [1, 2],
+    3: [1, 2, 3],
+    100: [0]
+  };
+
+  var GuestCounts = {
+    3: 'для 3 гостей',
+    2: 'для 2 гостей',
+    1: 'для 1 гостя',
+    0: 'не для гостей'
+  };
   var adFormStatus = document.querySelector('.ad-form');
   var addressInput = document.querySelector('#address');
   var mapFilter = document.querySelectorAll('.map__filter');
@@ -21,18 +35,6 @@
   var timeout = document.querySelector('#timeout');
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
-  var RoomCounts = {
-    1: [1],
-    2: [1, 2],
-    3: [1, 2, 3],
-    100: [0]
-  };
-  var GuestCounts = {
-    3: 'для 3 гостей',
-    2: 'для 2 гостей',
-    1: 'для 1 гостя',
-    0: 'не для гостей'
-  };
 
   function ReqNameInput(element, text) {
     this.input = element;
