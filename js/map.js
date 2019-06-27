@@ -9,19 +9,15 @@
   };
 
   var isValidX = function (mouseX) {
-    if (mouseX - mapPins.offset.x >= MapLimit.LEFT && mouseX - mapPins.offset.x <= MapLimit.RIGHT - mainPin.width) {
-      return true;
-    } else {
-      return false;
-    }
+    var left = mouseX - mapPins.offset.x >= MapLimit.LEFT;
+    var right = mouseX - mapPins.offset.x <= MapLimit.RIGHT - mainPin.width;
+    return left && right;
   };
 
   var isValidY = function (mouseY) {
-    if (mouseY - mapPins.offset.y > MapLimit.TOP && mouseY - mapPins.offset.y < MapLimit.BOTTOM) {
-      return true;
-    } else {
-      return false;
-    }
+    var top = mouseY - mapPins.offset.y > MapLimit.TOP;
+    var bottom = mouseY - mapPins.offset.y < MapLimit.BOTTOM;
+    return top && bottom;
   };
 
   function Map(element) {
@@ -49,12 +45,12 @@
     this.offset.y = y || 0;
   };
 
-  MapPins.prototype.onPinMouseMove = function (evt) {
+  MapPins.prototype.onPinMouseMove = function (evt, callback) {
     /**
      * Проверям выходит ли пин за границы MapLimit
      */
     if (isValidX(evt.clientX) && isValidY(evt.clientY)) {
-      mainPin.onMouseMove(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
+      callback(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
     }
   };
 

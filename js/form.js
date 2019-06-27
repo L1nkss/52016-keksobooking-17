@@ -1,6 +1,12 @@
 'use strict';
 
 (function (mainPin) {
+  var TypeOfHousePrice = {
+    BUNGALO: 0,
+    FLAT: 1000,
+    HOUSE: 5000,
+    PALACE: 10000
+  };
   var adFormStatus = document.querySelector('.ad-form');
   var addressInput = document.querySelector('#address');
   var mapFilter = document.querySelectorAll('.map__filter');
@@ -15,12 +21,6 @@
   var timeout = document.querySelector('#timeout');
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
-  var TypeOfHousePrice = {
-    BUNGALO: 0,
-    FLAT: 1000,
-    HOUSE: 5000,
-    PALACE: 10000
-  };
   var RoomCounts = {
     1: [1],
     2: [1, 2],
@@ -54,11 +54,14 @@
     if (this.input.checkValidity()) {
       this.isValid = true;
       this.restoreDefaultSetting();
-    } else {
-      this.isValid = false;
-      this.label.textContent = this.showErrorMessage(count);
-      this.input.classList.add('invalid-value');
+      return;
     }
+
+    this.isValid = false;
+    this.label.textContent = this.showErrorMessage(count);
+    this.input.classList.add('invalid-value');
+
+
   };
   ReqNameInput.prototype.restoreDefaultSetting = function () {
     this.input.classList.remove('invalid-value');
@@ -84,7 +87,6 @@
   var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
 
   var syncTime = function (firstElement, secondElement) {
-
     if (firstElement.value !== secondElement.value) {
       secondElement.value = firstElement.value;
     }
@@ -152,6 +154,10 @@
 
   roomNumber.addEventListener('change', function (evt) {
     changeGuestCapacity(RoomCounts[evt.target.value]);
+  });
+
+  adFormStatus.addEventListener('submit', function (evt) {
+    evt.preventDefault();
   });
 
   window.form = {

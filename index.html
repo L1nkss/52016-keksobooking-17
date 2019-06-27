@@ -33,6 +33,8 @@
             <text><textPath xlink:href="#tophalf" startOffset="0">Поставь меня куда-нибудь</textPath></text>
           </svg>
         </button>
+        <!-- Спиннер при загрузке данных -->
+        <div class="loader">Loading...</div>
       </div>
 
       <!-- Фильтрация объявлений -->
@@ -84,7 +86,7 @@
     <!-- Форма объявления -->
     <section class="notice">
       <h2 class="notice__title">Ваше объявление</h2>
-      <form class="ad-form ad-form--disabled disabled-form disabled-events" method="post" enctype="multipart/form-data" autocomplete="off">
+      <form class="ad-form ad-form--disabled disabled-form disabled-events" method="post" action="https://js.dump.academy/keksobooking"enctype="multipart/form-data" autocomplete="off">
         <fieldset class="ad-form-header">
           <legend class="ad-form-header__title">Ваша фотография (для карты)</legend>
           <div class="ad-form-header__upload">
@@ -214,16 +216,16 @@
       <p class="popup__text popup__text--capacity">2 комнаты для 3 гостей</p>
       <p class="popup__text popup__text--time">Заезд после 14:00, выезд до 10:00</p>
       <ul class="popup__features">
-        <li class="popup__feature popup__feature--wifi"></li>
+        <!-- <li class="popup__feature popup__feature--wifi"></li>
         <li class="popup__feature popup__feature--dishwasher"></li>
         <li class="popup__feature popup__feature--parking"></li>
         <li class="popup__feature popup__feature--washer"></li>
         <li class="popup__feature popup__feature--elevator"></li>
-        <li class="popup__feature popup__feature--conditioner"></li>
+        <li class="popup__feature popup__feature--conditioner"></li> -->
       </ul>
       <p class="popup__description">Великолепная квартира-студия в центре Токио. Подходит как туристам, так и бизнесменам. Квартира полностью укомплектована и недавно отремонтирована.</p>
       <div class="popup__photos">
-        <img src="" class="popup__photo" width="45" height="40" alt="Фотография жилья">
+        <!-- <img src="" class="popup__photo" width="45" height="40" alt="Фотография жилья"> -->
       </div>
     </article>
   </template>
@@ -249,6 +251,8 @@
   </template>
 
   <script src="js/utilities.js"></script>
+  <script src="js/card.js"></script>
+  <script src="js/load.js"></script>
   <script src="js/randomAds.js"></script>
   <script src="js/data.js"></script>
   <script src="js/mainPin.js"></script>

@@ -13,6 +13,18 @@
     return Math.floor(Math.random() * (max - min)) + min;
   };
 
+  /**
+   *
+   * @param {string} url элемент на странице для отображения загрузки данных
+   */
+  // function Spinner(url) {
+  //   this.element = url;
+  // }
+
+  // Spinner.prototype.show = function () {
+  //   this.element.classList.toggle('loader--show');
+  // };
+
   var getRandomArrayElement = function (arr) {
     return arr[getRandomInt(0, arr.length - 1)];
   };
