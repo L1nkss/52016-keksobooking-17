@@ -1312,3 +1312,21 @@ fieldset {
     box-shadow: 0 2.5em 0 0;
   }
 }
+
+.message-block {
+  width: 100%;
+  padding: 8px 0;
+  background-color: red;
+  position: absolute;
+  top: -34px;
+  z-index: 2;
+  transform: 0.6s;
+  text-align: center;
+  color: white;
+  animation: error-message 1s forwards ease-in-out 1;
+}
+
+@keyframes error-message {
+  from { top: -34px;}
+  to {top: 0;}
+}

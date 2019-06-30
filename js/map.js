@@ -1,6 +1,6 @@
 'use strict';
 
-(function (mainPin) {
+(function () {
   var MapLimit = {
     TOP: 130,
     RIGHT: 1200,
@@ -8,9 +8,9 @@
     LEFT: 0
   };
 
-  var isValidX = function (mouseX) {
+  var isValidX = function (mouseX, width) {
     var left = mouseX - mapPins.offset.x >= MapLimit.LEFT;
-    var right = mouseX - mapPins.offset.x <= MapLimit.RIGHT - mainPin.width;
+    var right = mouseX - mapPins.offset.x <= MapLimit.RIGHT - width;
     return left && right;
   };
 
@@ -49,9 +49,10 @@
     /**
      * Проверям выходит ли пин за границы MapLimit
      */
-    if (isValidX(evt.clientX) && isValidY(evt.clientY)) {
-      callback(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
-    }
+    // if (isValidX(evt.clientX) && isValidY(evt.clientY)) {
+    //   callback(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
+    // }
+    return isValidX(evt.clientX, callback) && isValidY(evt.clientY)
   };
 
   var map = new Map(document.querySelector('.map'));
@@ -61,4 +62,4 @@
     map: map,
     mapPins: mapPins,
   };
-})(window.mainPin);
+})();

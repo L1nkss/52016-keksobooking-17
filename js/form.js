@@ -1,6 +1,6 @@
 'use strict';
 
-(function (mainPin) {
+(function (Service, card) {
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -35,6 +35,7 @@
   var timeout = document.querySelector('#timeout');
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
+  var main = document.querySelector('main');
 
   function ReqNameInput(element, text) {
     this.input = element;
@@ -88,14 +89,25 @@
   var headerInput = new ReqNameInput(nameInput, nameInputText);
   var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
 
+  /**
+   * Функции OnSuccess и onError для отправки данных с формы
+   */
+
+   var onSuccess = function () {
+    main.appendChild(card.renderSuccessMessage());
+   }
+
+   var onError = function () {
+    main.appendChild(card.renderErrorMessage());
+   }
+
   var syncTime = function (firstElement, secondElement) {
     if (firstElement.value !== secondElement.value) {
       secondElement.value = firstElement.value;
     }
   };
 
-  var fillAddress = function () {
-    var pinPosition = mainPin.getPosition();
+  var fillAddress = function (pinPosition) {
     addressInput.value = pinPosition.x + ', ' + pinPosition.y;
   };
 
@@ -134,6 +146,8 @@
     });
   };
 
+  var restorePosition = function (){};
+
   timein.addEventListener('change', function (evt) {
     syncTime(evt.target, timeout);
   });
@@ -160,7 +174,15 @@
 
   adFormStatus.addEventListener('submit', function (evt) {
     evt.preventDefault();
+    var data = new FormData(evt.target);
+    Service(evt.target.action, 'POST', onSuccess, onError, data);
   });
+
+  adFormStatus.addEventListener('reset', function (evt) {
+    headerInput.restoreDefaultSetting();
+    pricePerNightInput.restoreDefaultSetting();
+
+  })
 
   window.form = {
     fillAddress: fillAddress,
@@ -168,5 +190,5 @@
     headerInput: headerInput,
     pricePerNightInput: pricePerNightInput
   };
-})(window.mainPin);
+})(window.load, window.card);
 

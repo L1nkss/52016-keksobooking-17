@@ -6,7 +6,6 @@
   var mapMinY = 130;
   var mapMaxY = 630;
   var pinList = document.querySelector('.map__pins');
-  var prevCard;
 
   var checkCoords = function (posX, posY) {
     if (posX + PIN_WIDTH > 1200) {
@@ -35,34 +34,21 @@
       avatar: ad.author.avatar,
       validCoords: checkCoords(ad.location.x + PIN_WIDTH / 2, ad.location.y + PIN_HEIGHT)
     };
-    return card.pin(data);
+    return card.renderPin(data);
   };
 
-  var onPinClickCallback = function (ad, callback) {
+  var onPinClickCallback = function (ad) {
     return function () {
-      var pinCard = card.pinInformation(ad, callback);
-      if (prevCard) {
-        pinList.removeChild(prevCard);
-      }
+      var pinCard = card.renderPinInformation(ad);
       pinList.appendChild(pinCard);
-      prevCard = pinCard;
-    };
-  };
+    }
+  }
 
-  /**
-   * Функция для удаления информации об объявлении
-   * Удаляет карточку со страницы и обнуляет предыдущее значение(prevCard)
-   */
-
-  var pinCardDelete = function (pinCard) {
-    pinList.removeChild(pinCard);
-    prevCard = '';
-  };
 
   var renderAds = function (ads) {
     var fragment = document.createDocumentFragment();
     ads.forEach(function (ad) {
-      var onPinClickShow = onPinClickCallback(ad, pinCardDelete);
+      var onPinClickShow = onPinClickCallback(ad);
       var pin = renderPin(ad);
       pin.addEventListener('click', onPinClickShow);
       fragment.appendChild(pin);
@@ -80,7 +66,24 @@
   };
 
   window.data = {
-    renderAds: renderAds,
-    removeAds: removeAds
+    renderAds: renderAds
   };
 })(window.card);
+
+
+// var sayWord = function (word, number) {
+//   console.log(`${word} и ${number}`);
+// }
+
+// var sayNumber = function (numbe) {
+//   console.log(`number is ${numbe}`);
+// }
+
+// var cards = {
+//   sayWord: sayWord,
+//   sayNumber: sayNumber
+// };
+
+
+
+// console.log(cards['sayWord']('Привет', 25));
