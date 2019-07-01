@@ -56,7 +56,7 @@
   ReqNameInput.prototype.checkInputValid = function (count) {
     if (this.input.checkValidity()) {
       this.isValid = true;
-      this.restoreDefaultSetting();
+      this.setDefault();
       return;
     }
 
@@ -66,9 +66,15 @@
 
 
   };
-  ReqNameInput.prototype.restoreDefaultSetting = function () {
+  ReqNameInput.prototype.setDefault = function () {
     this.input.classList.remove('invalid-value');
     this.label.textContent = this.labelText;
+  };
+
+  ReqNameInput.prototype.restoreDefaultSettings = function () {
+    this.input.classList.remove('invalid-value');
+    this.label.textContent = this.labelText;
+    this.input.value = '';
   };
 
   ReqNameInput.prototype.showErrorMessage = function (valueCount) {
@@ -95,11 +101,13 @@
 
    var onSuccess = function () {
     main.appendChild(card.renderSuccessMessage());
-   }
+    changeFormStatus();
+    restoreDefaultForm();
+   };
 
    var onError = function () {
     main.appendChild(card.renderErrorMessage());
-   }
+   };
 
   var syncTime = function (firstElement, secondElement) {
     if (firstElement.value !== secondElement.value) {
@@ -146,7 +154,10 @@
     });
   };
 
-  var restorePosition = function (){};
+  var restoreDefaultForm = function () {
+    headerInput.restoreDefaultSettings();
+    pricePerNightInput.restoreDefaultSettings();
+  };
 
   timein.addEventListener('change', function (evt) {
     syncTime(evt.target, timeout);
@@ -179,10 +190,8 @@
   });
 
   adFormStatus.addEventListener('reset', function (evt) {
-    headerInput.restoreDefaultSetting();
-    pricePerNightInput.restoreDefaultSetting();
-
-  })
+    restoreDefaultForm();
+  });
 
   window.form = {
     fillAddress: fillAddress,

@@ -7,9 +7,10 @@
   function Pin(element) {
     this.pin = element;
     this.isActive = false;
-    this.activeHeight = element.clientHeight + 22;
-    this.disabledHeight = element.clientHeight;
-    this.width = 62;
+    // получаем высоту изображения
+    this.height = this.pin.querySelector('img').offsetHeight;
+    // получаем ширину изображения
+    this.width = this.pin.querySelector('img').offsetWidth;
     this.position = {
       x: null,
       y: null
@@ -30,20 +31,26 @@
    * Получить позиция pina'a в зависимости от статуса pin'a (true или false)
    */
   Pin.prototype.calculatePotision = function () {
-    this.position.x = Math.floor(this.pin.offsetLeft + this.width / 2);
-    this.position.y = Math.floor(this.isActive ? this.pin.offsetTop + (this.activeHeight / 2) : this.pin.offsetTop + this.disabledHeight / 2);
+    var width = (this.pin.offsetLeft + this.width / 2);
+    var height = (this.pin.offsetTop + this.height);
+    /**
+     * Если страница активна добавляем 22px (размер кончика pina).
+     * Если страница заблокирована, берём обычную высоту
+     */
+    this.position.x = Math.floor(width);
+    this.position.y = Math.floor(this.isActive ? height + 22 : height);
   };
 
   Pin.prototype.calculateStartPotision = function () {
     this.StartPosition.x = Math.floor(this.pin.offsetLeft);
     this.StartPosition.y = Math.floor(this.pin.offsetTop);
-  }
+  };
 
   Pin.prototype.restoreDefaultPosition = function() {
     this.position.x = this.StartPosition.x;
     this.position.y = this.StartPosition.y;
     form.fillAddress(this.position.x, this.position.y);
-  }
+  };
 
   Pin.prototype.getPosition = function () {
     return {
@@ -64,7 +71,7 @@
     map.mapPins.initOffsetCoords(x, y);
 
     document.addEventListener('mouseup', onMouseUp);
-  }
+  };
 
   Pin.prototype.onMouseMove = function (newPositionX, newPositionY) {
     this.pin.style.left = newPositionX + 'px';
