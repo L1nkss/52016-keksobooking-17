@@ -37,14 +37,16 @@
     return card.renderPin(data);
   };
 
+  // callback функция для создания карточек объявлений.
   var onPinClickCallback = function (ad) {
     return function () {
       var pinCard = card.renderPinInformation(ad);
       pinList.appendChild(pinCard);
-    }
-  }
+    };
+  };
 
 
+  // рендер объявления
   var renderAds = function (ads) {
     var fragment = document.createDocumentFragment();
     ads.forEach(function (ad) {
@@ -56,6 +58,7 @@
     pinList.appendChild(fragment);
   };
 
+  // удалить все объявления
   var removeAds = function () {
     var arrayPins = document.querySelectorAll('.map__pin');
     arrayPins.forEach(function (el, index) {
@@ -66,24 +69,7 @@
   };
 
   window.data = {
-    renderAds: renderAds
+    renderAds: renderAds,
+    removeAds: removeAds
   };
 })(window.card);
-
-
-// var sayWord = function (word, number) {
-//   console.log(`${word} и ${number}`);
-// }
-
-// var sayNumber = function (numbe) {
-//   console.log(`number is ${numbe}`);
-// }
-
-// var cards = {
-//   sayWord: sayWord,
-//   sayNumber: sayNumber
-// };
-
-
-
-// console.log(cards['sayWord']('Привет', 25));

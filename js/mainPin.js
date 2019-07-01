@@ -1,8 +1,9 @@
 'use strict';
 
-(function (map, form, main, Service, card, usersAd) {
+(function (map, form, service, card, usersAd) {
   var spinner = document.querySelector('.loader');
-  var main = document.querySelector('.map');
+  var pinMap = document.querySelector('.map');
+  var adFormStatus = document.querySelector('.ad-form');
 
   function Pin(element) {
     this.pin = element;
@@ -18,27 +19,30 @@
     this.StartPosition = {
       x: null,
       y: null
-    }
+    };
 
     this.changePinStatus = this.changePinStatus.bind(this);
+    this.restoreDefaultPosition = this.restoreDefaultPosition.bind(this);
     this.pin.addEventListener('mousedown', this.onMouseDown);
 
     this.calculatePotision();
     this.calculateStartPotision();
   }
 
+  /*                    Прототипы класса Pin                               */
+  /* --------------------------------------------------------------------- */
   /**
    * Получить позиция pina'a в зависимости от статуса pin'a (true или false)
    */
   Pin.prototype.calculatePotision = function () {
     var width = (this.pin.offsetLeft + this.width / 2);
-    var height = (this.pin.offsetTop + this.height);
     /**
      * Если страница активна добавляем 22px (размер кончика pina).
-     * Если страница заблокирована, берём обычную высоту
+     * Если страница заблокирована, берём половину высоты.
      */
+    var height = this.isActive ? this.height + 22 : this.height / 2;
     this.position.x = Math.floor(width);
-    this.position.y = Math.floor(this.isActive ? height + 22 : height);
+    this.position.y = Math.floor(this.pin.offsetTop + height);
   };
 
   Pin.prototype.calculateStartPotision = function () {
@@ -46,10 +50,10 @@
     this.StartPosition.y = Math.floor(this.pin.offsetTop);
   };
 
-  Pin.prototype.restoreDefaultPosition = function() {
+  Pin.prototype.restoreDefaultPosition = function () {
     this.position.x = this.StartPosition.x;
     this.position.y = this.StartPosition.y;
-    form.fillAddress(this.position.x, this.position.y);
+    this.onMouseMove(this.position.x, this.position.y);
   };
 
   Pin.prototype.getPosition = function () {
@@ -81,25 +85,27 @@
 
 
   /**
-   * Меням статус пина на активный и удаяем eventListener
+   * Меням статус пина на активный и рассчитываем новое положение
    */
   Pin.prototype.changePinStatus = function () {
     this.isActive = !this.isActive;
     this.calculatePotision();
   };
 
+  /* --------------------------------------------------------------------- */
   var mainPin = new Pin(document.querySelector('.map__pin--main'));
   form.fillAddress(mainPin.getPosition());
 
   /**
-   * Функция checkCoords проверяет расположение пина на карте(не выходит ли за границы). И вызывает фукнцию fillAddress для заполнения в форме поля Адрес
+   * Функция checkCoords проверяет расположение пина на карте(не выходит ли за границы). И вызывает * функцию fillAddress для заполнения в форме поля Адрес
    */
+
   var checkCoords = function (evt) {
     if (map.mapPins.onPinMouseMove(evt, mainPin.width)) {
       mainPin.onMouseMove(evt.clientX - map.mapPins.offset.x, evt.clientY - map.mapPins.offset.y);
       form.fillAddress(mainPin.getPosition());
     }
-  }
+  };
 
   /**
    *
@@ -115,19 +121,52 @@
     form.changeFormStatus();
     // рендерим объявления
     usersAd.renderAds(data);
-  }
-
-  var onError = function (code, status) {
-    main.appendChild(card.renderErrorData(code, status));
   };
 
+  var onError = function (code, status) {
+    pinMap.appendChild(card.renderErrorData(code, status));
+  };
+
+  /**
+   * Функция restoreDefaultPosition возвращает пин в начальную точку и заполняет Address
+   */
+  var restoreDefaultPosition = function () {
+    mainPin.restoreDefaultPosition();
+    form.fillAddress(mainPin.getPosition());
+  };
+
+
+  /**
+   * Функция активации страницы
+   * Если страница не активна. Делаем запрос на сервер и меняет статус pin'a
+   */
   var activatePage = function () {
     if (!mainPin.isActive) {
-      Service('https://js.dump.academy/keksobooking/data', 'GET', onSuccess, onError);
+      service('https://js.dump.academy/keksobooking/data', 'GET', onSuccess, onError);
       spinner.classList.toggle('loader--show');
       mainPin.changePinStatus();
+      return;
     }
-  }
+  };
+
+  /**
+   * Функция деактивации страницы
+   * Меняет все поля на начальные и блокирует страницу
+   */
+  var disactivatePage = function () {
+    // возвращает пин в начальную точку
+    restoreDefaultPosition();
+    // меняет статус Pin'a
+    mainPin.changePinStatus();
+    // меняем статус карты
+    map.map.changeMapStatus();
+    // удаляем карточки
+    usersAd.removeAds();
+    // если есть открытые карточки, закрываем её
+    card.changePrevCard();
+    // меняем статус pina
+    mainPin.changePinStatus();
+  };
 
   var onMouseUp = function (evt) {
     evt.preventDefault();
@@ -135,4 +174,15 @@
     map.mapPins.initOffsetCoords();
   };
 
-})(window.map, window.form, window.main, window.load, window.card, window.data);
+  // callback функции для обработчика формы
+  var setDefaultPageStatus = function () {
+    mainPin.changePinStatus();
+    disactivatePage();
+  };
+  var onFormReset = form.formReset(restoreDefaultPosition);
+  var onFormSubmit = form.formSubmit(setDefaultPageStatus);
+
+  adFormStatus.addEventListener('reset', onFormReset);
+  adFormStatus.addEventListener('submit', onFormSubmit);
+
+})(window.map, window.form, window.load, window.card, window.data);

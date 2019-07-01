@@ -15,7 +15,7 @@
   };
 
   var isValidY = function (mouseY) {
-    var top = mouseY - mapPins.offset.y > MapLimit.TOP;
+    var top = mouseY - mapPins.offset.y >= MapLimit.TOP;
     var bottom = mouseY - mapPins.offset.y < MapLimit.BOTTOM;
     return top && bottom;
   };
@@ -49,10 +49,7 @@
     /**
      * Проверям выходит ли пин за границы MapLimit
      */
-    // if (isValidX(evt.clientX) && isValidY(evt.clientY)) {
-    //   callback(evt.clientX - mapPins.offset.x, evt.clientY - mapPins.offset.y);
-    // }
-    return isValidX(evt.clientX, callback) && isValidY(evt.clientY)
+    return isValidX(evt.clientX, callback) && isValidY(evt.clientY);
   };
 
   var map = new Map(document.querySelector('.map'));

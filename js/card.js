@@ -20,22 +20,22 @@
    * Если при удалении карточки, если при удалении карточки переменная prevCard существует, то удаляем этот элемент со страница
    * В противном случае, добавляем новую карточку, которая только открылась
    */
+
   var getPrevCardElement = function () {
     var prevCard = '';
 
     return function (card) {
       if (prevCard) {
-        // parentElement = prevCard.parentElement;
-        // parentElement.removeChild(prevCard);
         prevCard.remove();
         prevCard = '';
         return;
       }
 
       prevCard = card;
-    }
-  }
+    };
+  };
 
+  // передаём сюда функцию.
   var changePrevCard = getPrevCardElement();
 
 
@@ -62,60 +62,54 @@
    * В функции мы создаём обработчики событий, которые могут возникнуть у шаблонов
    * В каждом обработчике мы удаляем обработчик у document
    * Если у шаблона есть button, то мы добавляем и ему обработчик, в противном случае пропускаем создание.
+   * В каждом обработчике удаляем событие для document
    */
-var closePopup = function (element) {
-  var button = element.querySelector('button');
-  var onDocumentClick = function () {
-    // var parentElement = element.parentNode;
-    // parentElement.removeChild(element);
-    element.remove();
-    removeListeners();
-  }
 
-  var onEscPress = function (evt) {
-    var ESC_CODE = 27;
-    if (evt.keyCode === ESC_CODE) {
-      // var parentElement = element.parentNode;
-      // parentElement.removeChild(element);
+  var closePopup = function (element) {
+    var button = element.querySelector('button');
+    var onDocumentClick = function () {
       element.remove();
       removeListeners();
-    }
-  }
+    };
 
-  var removeListeners = function () {
-    document.removeEventListener('click', onDocumentClick);
-    document.removeEventListener('keydown', onEscPress);
+    var onEscPress = function (evt) {
+      var ESC_CODE = 27;
+      if (evt.keyCode === ESC_CODE) {
+        element.remove();
+        removeListeners();
+      }
+    };
+
+    var removeListeners = function () {
+      document.removeEventListener('click', onDocumentClick);
+      document.removeEventListener('keydown', onEscPress);
+    };
+    if (button) {
+      var onButtonClick = function (evt) {
+        evt.stopPropagation();
+        element.remove();
+        removeListeners();
+      };
+
+      button.addEventListener('click', onButtonClick);
+    }
+    document.addEventListener('click', onDocumentClick);
+    document.addEventListener('keydown', onEscPress);
   };
-
-  if (button) {
-    console.log('зашли сюда')
-    var onButtonClick = function (evt) {
-      evt.stopPropagation();
-      // var parentElement = element.parentNode;
-      // parentElement.removeChild(element);
-      element.remove();
-      removeListeners();
-    }
-
-    button.addEventListener('click', onButtonClick);
-  }
-
-  document.addEventListener('click', onDocumentClick);
-  document.addEventListener('keydown', onEscPress);
-}
 
   /**
    *
    * @param {string} code Код ошибки, который возник при запросе
    * @param {string} errorText Сообщение, которое будет написано
    * Функция renderErrorData выводит кастомное сообщение об ошибки при проблемах с запросом на сервер.
-   */
+  */
+
   var renderErrorData = function (code, errorText) {
     var element = errorDataTemplate.cloneNode(true);
-    element.textContent +=  code + '. ' + errorText;
+    element.textContent += code + '. ' + errorText;
 
     return element;
-  }
+  };
 
   // карточка ошибки
   var renderErrorMessage = function () {
@@ -153,9 +147,9 @@ var closePopup = function (element) {
       {query: '.popup__text--capacity', value: guestsRooms},
       {query: '.popup__description', value: ad.offer.description},
       {query: '.popup__text--price', value: priceText}
-    ]
+    ];
 
-    textContent.forEach( function(el) {
+    textContent.forEach(function (el) {
       element.querySelector(el.query).textContent = el.value;
     });
 
@@ -176,7 +170,7 @@ var closePopup = function (element) {
         changePrevCard();
         document.removeEventListener('keydown', onKeyDown);
       }
-    }
+    };
 
     element.querySelector('.popup__close').addEventListener('click', changePrevCard);
     document.addEventListener('keydown', onKeyDown);
@@ -199,6 +193,7 @@ var closePopup = function (element) {
     renderPin: renderPin,
     renderPinInformation: renderPinInformation,
     renderErrorData: renderErrorData,
-    renderSuccessMessage: renderSuccessMessage
+    renderSuccessMessage: renderSuccessMessage,
+    changePrevCard: changePrevCard
   };
 })();

@@ -1,6 +1,6 @@
 'use strict';
 
-(function (Service, card) {
+(function (service, card) {
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -12,7 +12,8 @@
     1: [1],
     2: [1, 2],
     3: [1, 2, 3],
-    100: [0]
+    100: [0],
+    default: [3, 2, 1, 0]
   };
 
   var GuestCounts = {
@@ -21,6 +22,7 @@
     1: 'для 1 гостя',
     0: 'не для гостей'
   };
+
   var adFormStatus = document.querySelector('.ad-form');
   var addressInput = document.querySelector('#address');
   var mapFilter = document.querySelectorAll('.map__filter');
@@ -36,6 +38,8 @@
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
   var main = document.querySelector('main');
+  var description = document.querySelector('#description');
+  var features = document.querySelector('.features');
 
   function ReqNameInput(element, text) {
     this.input = element;
@@ -99,15 +103,9 @@
    * Функции OnSuccess и onError для отправки данных с формы
    */
 
-   var onSuccess = function () {
-    main.appendChild(card.renderSuccessMessage());
-    changeFormStatus();
-    restoreDefaultForm();
-   };
-
-   var onError = function () {
+  var onError = function () {
     main.appendChild(card.renderErrorMessage());
-   };
+  };
 
   var syncTime = function (firstElement, secondElement) {
     if (firstElement.value !== secondElement.value) {
@@ -154,50 +152,95 @@
     });
   };
 
+  /**
+   * Возвращает форму в исходной состояние
+   */
   var restoreDefaultForm = function () {
+    var featuresItems = features.querySelectorAll('input');
     headerInput.restoreDefaultSettings();
     pricePerNightInput.restoreDefaultSettings();
+    description.value = '';
+    changeGuestCapacity(RoomCounts['default']);
+    timein.value = '12:00';
+    syncTime(timein, timeout);
+
+    featuresItems.forEach(function (item) {
+      item.checked = false;
+    });
   };
 
-  timein.addEventListener('change', function (evt) {
+  // Callback функции для обработчиков
+  /* ------------------------------------------------------------ */
+
+  var onTimeinChange = function (evt) {
     syncTime(evt.target, timeout);
-  });
+  };
 
-  timeout.addEventListener('change', function (evt) {
+  var onTimeoutChange = function (evt) {
     syncTime(evt.target, timein);
-  });
+  };
 
-  headerInput.input.addEventListener('input', function (evt) {
+  var onHeaderInput = function (evt) {
     headerInput.checkInputValid(evt.target.value.length);
-  });
+  };
 
-  pricePerNightInput.input.addEventListener('input', function () {
+  var onPricePerNightInput = function () {
     pricePerNightInput.checkInputValid();
-  });
+  };
 
-  houseType.addEventListener('change', function (evt) {
+  var onHouseTypeChange = function (evt) {
     changeHouseType(evt.target.value, pricePerNightInput);
-  });
+  };
 
-  roomNumber.addEventListener('change', function (evt) {
+  var onRoomNumberChange = function (evt) {
     changeGuestCapacity(RoomCounts[evt.target.value]);
-  });
+  };
 
-  adFormStatus.addEventListener('submit', function (evt) {
-    evt.preventDefault();
-    var data = new FormData(evt.target);
-    Service(evt.target.action, 'POST', onSuccess, onError, data);
-  });
+  var formReset = function (callback) {
 
-  adFormStatus.addEventListener('reset', function (evt) {
-    restoreDefaultForm();
-  });
+    return function (evt) {
+      evt.preventDefault();
+      restoreDefaultForm();
+      callback();
+    };
+  };
+
+  var formSubmit = function (callback) {
+    var onSuccess = function () {
+      main.appendChild(card.renderSuccessMessage());
+      restoreDefaultForm();
+      changeFormStatus();
+      callback();
+    };
+
+    return function (evt) {
+      evt.preventDefault();
+      var data = new FormData(evt.target);
+      service(evt.target.action, 'POST', onSuccess, onError, data);
+    };
+  };
+
+  /* ------------------------------------------------------------ */
+
+  timein.addEventListener('change', onTimeinChange);
+
+  timeout.addEventListener('change', onTimeoutChange);
+
+  headerInput.input.addEventListener('input', onHeaderInput);
+
+  pricePerNightInput.input.addEventListener('input', onPricePerNightInput);
+
+  houseType.addEventListener('change', onHouseTypeChange);
+
+  roomNumber.addEventListener('change', onRoomNumberChange);
 
   window.form = {
     fillAddress: fillAddress,
     changeFormStatus: changeFormStatus,
     headerInput: headerInput,
-    pricePerNightInput: pricePerNightInput
+    pricePerNightInput: pricePerNightInput,
+    formReset: formReset,
+    formSubmit: formSubmit
   };
 })(window.load, window.card);
 
