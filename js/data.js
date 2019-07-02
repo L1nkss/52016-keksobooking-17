@@ -6,6 +6,23 @@
   var mapMinY = 130;
   var mapMaxY = 630;
   var pinList = document.querySelector('.map__pins');
+  var activeCard = null;
+
+  /**
+   * Функция checkActiveCard проверяет какой пин сейчас активен и добавляет класс map__pin--active
+   * У другого пина убирает этот класс
+   * @param {DOM} card функция принимает DOM элемент pin
+   */
+  var checkActiveCard = function (card) {
+    if (card !== activeCard && activeCard) {
+      card.classList.add('map__pin--active');
+      activeCard.classList.remove('map__pin--active');
+      activeCard = card;
+      return;
+    }
+
+    activeCard = card;
+  }
 
   var checkCoords = function (posX, posY) {
     if (posX + PIN_WIDTH > 1200) {
@@ -39,10 +56,10 @@
 
   // callback функция для создания карточек объявлений.
   var onPinClickCallback = function (ad) {
-
     return function () {
       var pinCard = card.renderPinInformation(ad);
       if (pinCard) {
+        checkActiveCard(this);
         pinList.appendChild(pinCard);
       }
     };

@@ -15,6 +15,10 @@
   var prevCard = null;
 
 
+  var checkIfCardIsActive = function () {
+    return prevCard ? true : false;
+  }
+
   /**
    * Функция getPrevCardElement возвращает другую функцию(замыкается).
    * Сначала проверяем передали мы карточку или пустой параметр.
@@ -183,12 +187,12 @@
     element.querySelector('.popup__close').addEventListener('click', onPopupClick);
     document.addEventListener('keydown', onKeyDown);
 
+    // Если элемент совпадает с элементом в prevCard, То ничего не рендерим
     if (element.isEqualNode(prevCard)) {
       return null;
     }
 
     changePrevCard(element);
-
     return element;
   };
 
@@ -208,6 +212,6 @@
     renderPinInformation: renderPinInformation,
     renderErrorData: renderErrorData,
     renderSuccessMessage: renderSuccessMessage,
-    changePrevCard: changePrevCard
+    changePrevCard: changePrevCard,
   };
 })();
