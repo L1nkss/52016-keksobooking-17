@@ -1,6 +1,6 @@
 'use strict';
 
-(function (map, form, service, card, usersAd) {
+(function (map, form, createRequest, card, usersAd) {
   var spinner = document.querySelector('.loader');
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
@@ -142,7 +142,7 @@
    */
   var activatePage = function () {
     if (!mainPin.isActive) {
-      service('https://js.dump.academy/keksobooking/data', 'GET', onSuccess, onError);
+      createRequest('https://js.dump.academy/keksobooking/data', 'GET', onSuccess, onError);
       spinner.classList.toggle('loader--show');
       mainPin.changePinStatus();
       return;

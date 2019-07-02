@@ -1,6 +1,6 @@
 'use strict';
 
-(function (service, card) {
+(function (createRequest, card) {
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -13,7 +13,7 @@
     2: [1, 2],
     3: [1, 2, 3],
     100: [0],
-    default: [3, 2, 1, 0]
+    DEFAULT: [3, 2, 1, 0]
   };
 
   var GuestCounts = {
@@ -160,7 +160,7 @@
     headerInput.restoreDefaultSettings();
     pricePerNightInput.restoreDefaultSettings();
     description.value = '';
-    changeGuestCapacity(RoomCounts['default']);
+    changeGuestCapacity(RoomCounts['DEFAULT']);
     timein.value = '12:00';
     syncTime(timein, timeout);
 
@@ -216,7 +216,7 @@
     return function (evt) {
       evt.preventDefault();
       var data = new FormData(evt.target);
-      service(evt.target.action, 'POST', onSuccess, onError, data);
+      createRequest(evt.target.action, 'POST', onSuccess, onError, data);
     };
   };
 

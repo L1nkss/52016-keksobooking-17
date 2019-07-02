@@ -39,9 +39,12 @@
 
   // callback функция для создания карточек объявлений.
   var onPinClickCallback = function (ad) {
+
     return function () {
       var pinCard = card.renderPinInformation(ad);
-      pinList.appendChild(pinCard);
+      if (pinCard) {
+        pinList.appendChild(pinCard);
+      }
     };
   };
 

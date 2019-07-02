@@ -12,26 +12,35 @@
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
   var errorDataTemplate = document.querySelector('#data-error').content.querySelector('.message-block');
+  var prevCard = null;
 
 
   /**
    * Функция getPrevCardElement возвращает другую функцию(замыкается).
-   * Функция сохраняет текущую карточку, которая открыта на страница (подробная информация)
-   * Если при удалении карточки, если при удалении карточки переменная prevCard существует, то удаляем этот элемент со страница
-   * В противном случае, добавляем новую карточку, которая только открылась
+   * Сначала проверяем передали мы карточку или пустой параметр.
+   * Если передали карточку, то проверяем существует ли предыдущее значение.
+   * Если значение существует, удаляем его со страницы и в prevCard записываем card.
+   * Если prevCard не сущесвует, просто записываем туда новое значение
+   * Если мы передали пустой параметр, то проверяем существование prevCard и удаляем со страницы
    */
 
   var getPrevCardElement = function () {
-    var prevCard = '';
 
     return function (card) {
-      if (prevCard) {
+      if (card && prevCard) {
         prevCard.remove();
-        prevCard = '';
+        prevCard = card;
+        return;
+      } else if (card) {
+        prevCard = card;
         return;
       }
 
-      prevCard = card;
+      if (prevCard) {
+        prevCard.remove();
+        prevCard = null;
+        return;
+      }
     };
   };
 
@@ -57,12 +66,11 @@
   };
 
   /**
-   *
-   * @param {DOM element} element шаблон ошибки или успеха
    * В функции мы создаём обработчики событий, которые могут возникнуть у шаблонов
    * В каждом обработчике мы удаляем обработчик у document
-   * Если у шаблона есть button, то мы добавляем и ему обработчик, в противном случае пропускаем создание.
+   * Если у шаблона есть button, то мы добавляем и ему обработчик, в противном случае пропускаем   создание.
    * В каждом обработчике удаляем событие для document
+   * @param {DOM element} element шаблон ошибки или успеха
    */
 
   var closePopup = function (element) {
@@ -98,10 +106,9 @@
   };
 
   /**
-   *
+   * Функция renderErrorData выводит кастомное сообщение об ошибки при проблемах с запросом на сервер.
    * @param {string} code Код ошибки, который возник при запросе
    * @param {string} errorText Сообщение, которое будет написано
-   * Функция renderErrorData выводит кастомное сообщение об ошибки при проблемах с запросом на сервер.
   */
 
   var renderErrorData = function (code, errorText) {
@@ -129,8 +136,6 @@
 
   // карточка с подробной информацией
   var renderPinInformation = function (ad) {
-    // Если есть открытая карточка, то удаляем её
-    changePrevCard();
     var element = cardTemplate.cloneNode(true);
     var imageGallery = element.querySelector('.popup__photos');
     var features = element.querySelector('.popup__features');
@@ -161,8 +166,7 @@
       features.appendChild(renderFeaturesList(feature));
     });
 
-    // записываем в prevCard ново созданный элемент
-    changePrevCard(element);
+    element.querySelector('.popup__avatar').src = ad.author.avatar;
 
     var onKeyDown = function (evt) {
       var ESC_KEYCODE = 27;
@@ -172,8 +176,18 @@
       }
     };
 
-    element.querySelector('.popup__close').addEventListener('click', changePrevCard);
+    var onPopupClick = function () {
+      changePrevCard();
+    };
+
+    element.querySelector('.popup__close').addEventListener('click', onPopupClick);
     document.addEventListener('keydown', onKeyDown);
+
+    if (element.isEqualNode(prevCard)) {
+      return null;
+    }
+
+    changePrevCard(element);
 
     return element;
   };
