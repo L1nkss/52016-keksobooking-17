@@ -1,6 +1,6 @@
 'use strict';
 
-(function () {
+(function (utilities) {
   var HouseTypes = {
     BUNGALO: 'Бунгало',
     FLAT: 'Квартира',
@@ -85,8 +85,7 @@
     };
 
     var onEscPress = function (evt) {
-      var ESC_CODE = 27;
-      if (evt.keyCode === ESC_CODE) {
+    if (utilities.isEscPress(evt.keyCode)) {
         element.remove();
         removeListeners();
       }
@@ -173,8 +172,7 @@
     element.querySelector('.popup__avatar').src = ad.author.avatar;
 
     var onKeyDown = function (evt) {
-      var ESC_KEYCODE = 27;
-      if (evt.keyCode === ESC_KEYCODE) {
+      if (utilities.isEscPress(evt.keyCode)) {
         changePrevCard();
         document.removeEventListener('keydown', onKeyDown);
       }
@@ -214,4 +212,4 @@
     renderSuccessMessage: renderSuccessMessage,
     changePrevCard: changePrevCard,
   };
-})();
+})(window.utilities);

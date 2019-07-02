@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var ESC_CODE = 27;
 /**
  * Получить случайное число
  *
@@ -42,9 +43,14 @@
     return uniqArray;
   };
 
+  var isEscPress = function (key) {
+    return key === ESC_CODE ? true : false;
+  }
+
   window.utilities = {
     getRandomInt: getRandomInt,
     getRandomArrayElement: getRandomArrayElement,
-    generateUniqImage: generateUniqImage
+    generateUniqImage: generateUniqImage,
+    isEscPress: isEscPress
   };
 })();
