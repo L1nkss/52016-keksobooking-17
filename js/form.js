@@ -93,7 +93,17 @@
   };
 
   ReqNumberInput.prototype.showErrorMessage = function () {
-    return 'Минимальная цена за ночь: ' + this.input.min;
+    var minError = 'Минимальная цена за ночь: ' + this.input.min;
+    var maxError = 'Максим. цена за ночь: ' + this.input.max;
+    if (parseInt(this.input.value) < this.input.min) {
+      return minError;
+    }
+
+    if (parseInt(this.input.value) > this.input.max) {
+      return maxError;
+    }
+
+    return this.labelText;
   };
 
   var headerInput = new ReqNameInput(nameInput, nameInputText);
@@ -184,7 +194,7 @@
     headerInput.checkInputValid(evt.target.value.length);
   };
 
-  var onPricePerNightInput = function () {
+  var onPricePerNightInput = function (evt) {
     pricePerNightInput.checkInputValid();
   };
 
