@@ -16,12 +16,16 @@
     DEFAULT: [3, 2, 1, 0]
   };
 
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
   var GuestCounts = {
     3: 'для 3 гостей',
     2: 'для 2 гостей',
     1: 'для 1 гостя',
     0: 'не для гостей'
   };
+
+  var DRAG_EVENTS = ['drop', 'dragenter', 'dragleave', 'dragover'];
 
   var adFormStatus = document.querySelector('.ad-form');
   var addressInput = document.querySelector('#address');
@@ -40,6 +44,9 @@
   var main = document.querySelector('main');
   var description = document.querySelector('#description');
   var features = document.querySelector('.features');
+  var avatarLoader = document.querySelector('#avatar');
+  var avatarDropZone = document.querySelector('.ad-form-header__drop-zone');
+  var userAvatar = document.querySelector('.ad-form-header__preview > img');
 
   function ReqNameInput(element, text) {
     this.input = element;
@@ -162,6 +169,11 @@
     });
   };
 
+  var preventDefaultEvents = function (evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+  };
+
   /**
    * Возвращает форму в исходной состояние
    */
@@ -170,6 +182,7 @@
     headerInput.restoreDefaultSettings();
     pricePerNightInput.restoreDefaultSettings();
     description.value = '';
+    userAvatar.src = 'img/muffin-grey.svg';
     changeGuestCapacity(RoomCounts['DEFAULT']);
     timein.value = '12:00';
     syncTime(timein, timeout);
@@ -178,6 +191,13 @@
       item.checked = false;
     });
   };
+
+
+  // для всех событий drag & drop убираем стандартное действие браузера и прекращаем поднятие.
+  // делаем это на элемента DropZone аватарки.
+  DRAG_EVENTS.forEach(function (el) {
+    avatarDropZone.addEventListener(el, preventDefaultEvents);
+  });
 
   // Callback функции для обработчиков
   /* ------------------------------------------------------------ */
@@ -194,7 +214,7 @@
     headerInput.checkInputValid(evt.target.value.length);
   };
 
-  var onPricePerNightInput = function (evt) {
+  var onPricePerNightInput = function () {
     pricePerNightInput.checkInputValid();
   };
 
@@ -230,6 +250,39 @@
     };
   };
 
+  var imageLoad = function (file) {
+    var fileName = file.name.toLowerCase();
+    var matches = FILE_TYPES.some(function (el) {
+      return fileName.endsWith(el);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function () {
+        userAvatar.src = reader.result;
+      });
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  var onImageLoad = function (evt) {
+    var file = evt.target.files[0];
+    imageLoad(file);
+  };
+
+  var onImageDrop = function (evt) {
+    var dt = evt.dataTransfer;
+    var files = dt.files;
+    var file = files[0];
+    imageLoad(file);
+  };
+
+  var onToggleDropZone = function () {
+    avatarDropZone.classList.toggle('ad-form-header__drop-zone--dragenter');
+  };
+
   /* ------------------------------------------------------------ */
 
   timein.addEventListener('change', onTimeinChange);
@@ -243,6 +296,15 @@
   houseType.addEventListener('change', onHouseTypeChange);
 
   roomNumber.addEventListener('change', onRoomNumberChange);
+
+  // Загрузка аватарки и картинок(обработчики)
+  avatarLoader.addEventListener('change', onImageLoad);
+
+  avatarDropZone.addEventListener('dragenter', onToggleDropZone);
+
+  avatarDropZone.addEventListener('dragleave', onToggleDropZone);
+
+  avatarDropZone.addEventListener('drop', onImageDrop);
 
   window.form = {
     fillAddress: fillAddress,

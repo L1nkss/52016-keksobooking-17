@@ -11,18 +11,18 @@
   /**
    * Функция checkActiveCard проверяет какой пин сейчас активен и добавляет класс map__pin--active
    * У другого пина убирает этот класс
-   * @param {DOM} card функция принимает DOM элемент pin
+   * @param {DOM} clickedCard функция принимает DOM элемент pin
    */
-  var checkActiveCard = function (card) {
-    if (card !== activeCard && activeCard) {
-      card.classList.add('map__pin--active');
+  var checkActiveCard = function (clickedCard) {
+    if (clickedCard !== activeCard && activeCard) {
+      clickedCard.classList.add('map__pin--active');
       activeCard.classList.remove('map__pin--active');
-      activeCard = card;
+      activeCard = clickedCard;
       return;
     }
 
-    activeCard = card;
-  }
+    activeCard = clickedCard;
+  };
 
   var checkCoords = function (posX, posY) {
     if (posX + PIN_WIDTH > 1200) {
@@ -55,11 +55,11 @@
   };
 
   // callback функция для создания карточек объявлений.
-  var onPinClickCallback = function (ad) {
+  var onPinClickCallback = function (ad, pin) {
     return function () {
       var pinCard = card.renderPinInformation(ad);
       if (pinCard) {
-        checkActiveCard(this);
+        checkActiveCard(pin);
         pinList.appendChild(pinCard);
       }
     };
@@ -70,8 +70,8 @@
   var renderAds = function (ads) {
     var fragment = document.createDocumentFragment();
     ads.forEach(function (ad) {
-      var onPinClickShow = onPinClickCallback(ad);
       var pin = renderPin(ad);
+      var onPinClickShow = onPinClickCallback(ad, pin);
       pin.addEventListener('click', onPinClickShow);
       fragment.appendChild(pin);
     });

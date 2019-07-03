@@ -17,7 +17,7 @@
 
   var checkIfCardIsActive = function () {
     return prevCard ? true : false;
-  }
+  };
 
   /**
    * Функция getPrevCardElement возвращает другую функцию(замыкается).
@@ -85,7 +85,7 @@
     };
 
     var onEscPress = function (evt) {
-    if (utilities.isEscPress(evt.keyCode)) {
+      if (utilities.isEscPress(evt.keyCode)) {
         element.remove();
         removeListeners();
       }
@@ -161,9 +161,18 @@
       element.querySelector(el.query).textContent = el.value;
     });
 
+    // Если нет изображений или дополнительных удобств, то удаляем разметку с карточки
+    if (ad.offer.photos.length === 0) {
+      imageGallery.remove();
+    }
+
     ad.offer.photos.forEach(function (image) {
       imageGallery.appendChild(renderImage(image));
     });
+
+    if (ad.offer.features.length === 0) {
+      features.remove();
+    }
 
     ad.offer.features.forEach(function (feature) {
       features.appendChild(renderFeaturesList(feature));

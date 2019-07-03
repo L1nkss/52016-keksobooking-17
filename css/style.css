@@ -1330,3 +1330,8 @@ fieldset {
   from { top: -34px;}
   to {top: 0;}
 }
+
+/* Класс для drag and drop */
+.ad-form-header__drop-zone--dragenter {
+  border-color: rgb(255, 86, 53);
+}

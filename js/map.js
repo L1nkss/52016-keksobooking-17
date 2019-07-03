@@ -16,7 +16,8 @@
 
   var isValidY = function (mouseY) {
     var top = mouseY - mapPins.offset.y >= MapLimit.TOP;
-    var bottom = mouseY - mapPins.offset.y < MapLimit.BOTTOM;
+    var bottom = mouseY - mapPins.offset.y <= MapLimit.BOTTOM;
+
     return top && bottom;
   };
 
@@ -45,11 +46,11 @@
     this.offset.y = y || 0;
   };
 
-  MapPins.prototype.onPinMouseMove = function (evt, callback) {
+  MapPins.prototype.onPinMouseMove = function (evt, pinWidth) {
     /**
      * Проверям выходит ли пин за границы MapLimit
      */
-    return isValidX(evt.clientX, callback) && isValidY(evt.clientY);
+    return isValidX(evt.clientX, pinWidth) && isValidY(evt.clientY);
   };
 
   var map = new Map(document.querySelector('.map'));

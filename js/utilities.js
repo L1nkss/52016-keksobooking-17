@@ -2,7 +2,7 @@
 
 (function () {
   var ESC_CODE = 27;
-/**
+  /**
  * Получить случайное число
  *
  * @param {number} min - начальное число
@@ -45,7 +45,7 @@
 
   var isEscPress = function (key) {
     return key === ESC_CODE ? true : false;
-  }
+  };
 
   window.utilities = {
     getRandomInt: getRandomInt,
