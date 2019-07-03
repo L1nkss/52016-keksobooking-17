@@ -44,7 +44,7 @@
   };
 
   var isEscPress = function (key) {
-    return key === ESC_CODE ? true : false;
+    return key === ESC_CODE;
   };
 
   window.utilities = {

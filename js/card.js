@@ -14,11 +14,6 @@
   var errorDataTemplate = document.querySelector('#data-error').content.querySelector('.message-block');
   var prevCard = null;
 
-
-  var checkIfCardIsActive = function () {
-    return prevCard ? true : false;
-  };
-
   /**
    * Функция getPrevCardElement возвращает другую функцию(замыкается).
    * Сначала проверяем передали мы карточку или пустой параметр.
@@ -28,28 +23,22 @@
    * Если мы передали пустой параметр, то проверяем существование prevCard и удаляем со страницы
    */
 
-  var getPrevCardElement = function () {
+  var changePrevCard = function (card) {
+    if (card && prevCard) {
+      prevCard.remove();
+      prevCard = card;
+      return;
+    } else if (card) {
+      prevCard = card;
+      return;
+    }
 
-    return function (card) {
-      if (card && prevCard) {
-        prevCard.remove();
-        prevCard = card;
-        return;
-      } else if (card) {
-        prevCard = card;
-        return;
-      }
-
-      if (prevCard) {
-        prevCard.remove();
-        prevCard = null;
-        return;
-      }
-    };
+    if (prevCard) {
+      prevCard.remove();
+      prevCard = null;
+      return;
+    }
   };
-
-  // передаём сюда функцию.
-  var changePrevCard = getPrevCardElement();
 
 
   var renderImage = function (image) {

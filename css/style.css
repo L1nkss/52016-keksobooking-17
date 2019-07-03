@@ -1332,6 +1332,12 @@ fieldset {
 }
 
 /* Класс для drag and drop */
-.ad-form-header__drop-zone--dragenter {
+.dragenter {
   border-color: rgb(255, 86, 53);
+}
+
+.ad-form__photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

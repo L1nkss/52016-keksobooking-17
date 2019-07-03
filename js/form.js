@@ -45,7 +45,9 @@
   var description = document.querySelector('#description');
   var features = document.querySelector('.features');
   var avatarLoader = document.querySelector('#avatar');
+  var imagesLoader = document.querySelector('#images');
   var avatarDropZone = document.querySelector('.ad-form-header__drop-zone');
+  var imagesDropZone = document.querySelector('.ad-form__drop-zone');
   var userAvatar = document.querySelector('.ad-form-header__preview > img');
 
   function ReqNameInput(element, text) {
@@ -82,7 +84,7 @@
     this.label.textContent = this.labelText;
   };
 
-  ReqNameInput.prototype.restoreDefaultSettings = function () {
+  ReqNameInput.prototype.restoreDefault = function () {
     this.input.classList.remove('invalid-value');
     this.label.textContent = this.labelText;
     this.input.value = '';
@@ -102,11 +104,11 @@
   ReqNumberInput.prototype.showErrorMessage = function () {
     var minError = 'Минимальная цена за ночь: ' + this.input.min;
     var maxError = 'Максим. цена за ночь: ' + this.input.max;
-    if (parseInt(this.input.value) < this.input.min) {
+    if (parseInt(this.input.value, 10) < this.input.min) {
       return minError;
     }
 
-    if (parseInt(this.input.value) > this.input.max) {
+    if (parseInt(this.input.value, 10) > this.input.max) {
       return maxError;
     }
 
@@ -174,29 +176,65 @@
     evt.stopPropagation();
   };
 
+  // Удаление всех загруженных фотографий.
+  var removeImages = function () {
+    var gallery = document.querySelector('.ad-form__photo-container');
+    var images = Array.from(gallery.children);
+    images.forEach(function (el) {
+      if (el.className === 'ad-form__photo') {
+        el.remove();
+      }
+    });
+  };
+
   /**
-   * Возвращает форму в исходной состояние
+   * Возвращает значения по умолчанию для полей формы.
    */
   var restoreDefaultForm = function () {
     var featuresItems = features.querySelectorAll('input');
-    headerInput.restoreDefaultSettings();
-    pricePerNightInput.restoreDefaultSettings();
+    headerInput.restoreDefault();
+    pricePerNightInput.restoreDefault();
     description.value = '';
     userAvatar.src = 'img/muffin-grey.svg';
     changeGuestCapacity(RoomCounts['DEFAULT']);
     timein.value = '12:00';
     syncTime(timein, timeout);
 
+    removeImages();
+
     featuresItems.forEach(function (item) {
       item.checked = false;
     });
   };
 
+  /**
+   * Функция createLoadedImage создаёт карточку с загруженной фотографией жилища.
+   * И вставляет в галлерею.
+   * @param {object} file принимает fileReader файл с изобраджений
+   */
+  var createLoadedImage = function (file) {
+    var gallery = document.querySelector('.ad-form__photo-container');
+    var div = document.createElement('div');
+    var image = document.createElement('img');
+    div.className = 'ad-form__photo';
+    image.src = file;
+    image.alt = 'Изображение жилища';
+    image.width = '40';
+    image.height = '44';
+    div.appendChild(image);
+    gallery.insertAdjacentElement('beforeend', div);
+  };
+
 
   // для всех событий drag & drop убираем стандартное действие браузера и прекращаем поднятие.
-  // делаем это на элемента DropZone аватарки.
+  // делаем это на элемента DropZone аватарки и изображений.
+
   DRAG_EVENTS.forEach(function (el) {
     avatarDropZone.addEventListener(el, preventDefaultEvents);
+  });
+
+  DRAG_EVENTS.forEach(function (el) {
+    imagesDropZone.addEventListener(el, preventDefaultEvents);
   });
 
   // Callback функции для обработчиков
@@ -250,7 +288,9 @@
     };
   };
 
-  var imageLoad = function (file) {
+  // Callback функции и вспомогательные функции для загрузки изображений.
+  /* ------------------------------------------------------------ */
+  var avatarLoad = function (file) {
     var fileName = file.name.toLowerCase();
     var matches = FILE_TYPES.some(function (el) {
       return fileName.endsWith(el);
@@ -267,6 +307,52 @@
     }
   };
 
+  var setupMultiplyReader = function (img) {
+    var fileName = img.name.toLowerCase();
+    var matches = FILE_TYPES.some(function (el) {
+      return fileName.endsWith(el);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function () {
+        createLoadedImage(reader.result);
+      });
+
+      reader.readAsDataURL(img);
+    }
+  };
+
+  var imageLoad = function (file) {
+    var fileName = file.name.toLowerCase();
+    var matches = FILE_TYPES.some(function (el) {
+      return fileName.endsWith(el);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function () {
+        createLoadedImage(reader.result);
+      });
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  var onAvatarLoad = function (evt) {
+    var file = evt.target.files[0];
+    avatarLoad(file);
+  };
+
+  var onAvatarDrop = function (evt) {
+    var dt = evt.dataTransfer;
+    var files = dt.files;
+    var file = files[0];
+    avatarLoad(file);
+  };
+
   var onImageLoad = function (evt) {
     var file = evt.target.files[0];
     imageLoad(file);
@@ -275,12 +361,14 @@
   var onImageDrop = function (evt) {
     var dt = evt.dataTransfer;
     var files = dt.files;
-    var file = files[0];
-    imageLoad(file);
+
+    for (var i = 0; i < files.length; i++) {
+      setupMultiplyReader(files[i]);
+    }
   };
 
-  var onToggleDropZone = function () {
-    avatarDropZone.classList.toggle('ad-form-header__drop-zone--dragenter');
+  var onToggleDropZone = function (evt) {
+    evt.target.classList.toggle('dragenter');
   };
 
   /* ------------------------------------------------------------ */
@@ -297,14 +385,23 @@
 
   roomNumber.addEventListener('change', onRoomNumberChange);
 
-  // Загрузка аватарки и картинок(обработчики)
-  avatarLoader.addEventListener('change', onImageLoad);
+  // Обработчики загрузки аватарки пользователя
+  avatarLoader.addEventListener('change', onAvatarLoad);
 
   avatarDropZone.addEventListener('dragenter', onToggleDropZone);
 
   avatarDropZone.addEventListener('dragleave', onToggleDropZone);
 
-  avatarDropZone.addEventListener('drop', onImageDrop);
+  avatarDropZone.addEventListener('drop', onAvatarDrop);
+
+  // Обработчики загрузки изображений жилища
+  imagesLoader.addEventListener('change', onImageLoad);
+
+  imagesDropZone.addEventListener('dragenter', onToggleDropZone);
+
+  imagesDropZone.addEventListener('dragleave', onToggleDropZone);
+
+  imagesDropZone.addEventListener('drop', onImageDrop);
 
   window.form = {
     fillAddress: fillAddress,

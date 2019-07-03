@@ -57,5 +57,5 @@
     }
   };
 
-  window.load = request;
+  window.request = request;
 })();

@@ -59,5 +59,9 @@
   window.map = {
     map: map,
     mapPins: mapPins,
+    validCoods: {
+      isValidX: isValidX,
+      isValidY: isValidY
+    }
   };
 })();

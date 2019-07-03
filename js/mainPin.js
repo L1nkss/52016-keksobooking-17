@@ -101,7 +101,9 @@
    */
 
   var checkCoords = function (evt) {
-    if (map.mapPins.onPinMouseMove(evt, mainPin.width)) {
+    var validX = map.validCoods.isValidX;
+    var validY = map.validCoods.isValidY;
+    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY)) {
       mainPin.onMouseMove(evt.clientX - map.mapPins.offset.x, evt.clientY - map.mapPins.offset.y);
       form.fillAddress(mainPin.getPosition());
     }
@@ -185,4 +187,4 @@
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);
 
-})(window.map, window.form, window.load, window.card, window.data);
+})(window.map, window.form, window.request, window.card, window.data);
