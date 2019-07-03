@@ -46,13 +46,6 @@
     this.offset.y = y || 0;
   };
 
-  MapPins.prototype.onPinMouseMove = function (evt, pinWidth) {
-    /**
-     * Проверям выходит ли пин за границы MapLimit
-     */
-    return isValidX(evt.clientX, pinWidth) && isValidY(evt.clientY);
-  };
-
   var map = new Map(document.querySelector('.map'));
   var mapPins = new MapPins(document.querySelector('.map__pins'));
 
