@@ -1257,3 +1257,87 @@ fieldset {
 .disabled-events {
   pointer-events: none;
 }
+
+/* Лоадер */
+.loader,
+.loader:before,
+.loader:after {
+  border-radius: 50%;
+  width: 2.5em;
+  height: 2.5em;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation: load7 1.8s infinite ease-in-out;
+  animation: load7 1.8s infinite ease-in-out;
+}
+.loader {
+  color: rgb(255, 86, 53);
+  font-size: 10px;
+  position: absolute;
+  left: 49%;
+  top: 66%;
+  text-indent: -9999em;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+  display: none;
+}
+.loader:before,
+.loader:after {
+  content: '';
+  position: absolute;
+  top: 0;
+}
+.loader:before {
+  left: -3.5em;
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+.loader:after {
+  left: 3.5em;
+}
+.loader--show {
+  display: block;
+}
+
+@keyframes load7 {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 2.5em 0 -1.3em;
+  }
+  40% {
+    box-shadow: 0 2.5em 0 0;
+  }
+}
+
+.message-block {
+  width: 100%;
+  padding: 8px 0;
+  background-color: red;
+  position: absolute;
+  top: -34px;
+  z-index: 2;
+  transform: 0.6s;
+  text-align: center;
+  color: white;
+  animation: error-message 1s forwards ease-in-out 1;
+}
+
+@keyframes error-message {
+  from { top: -34px;}
+  to {top: 0;}
+}
+
+/* Класс для drag and drop */
+.dragenter {
+  border-color: rgb(255, 86, 53);
+}
+
+.ad-form__photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

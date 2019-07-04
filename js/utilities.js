@@ -1,7 +1,8 @@
 'use strict';
 
 (function () {
-/**
+  var ESC_CODE = 27;
+  /**
  * Получить случайное число
  *
  * @param {number} min - начальное число
@@ -12,6 +13,18 @@
   var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
   };
+
+  /**
+   *
+   * @param {string} url элемент на странице для отображения загрузки данных
+   */
+  // function Spinner(url) {
+  //   this.element = url;
+  // }
+
+  // Spinner.prototype.show = function () {
+  //   this.element.classList.toggle('loader--show');
+  // };
 
   var getRandomArrayElement = function (arr) {
     return arr[getRandomInt(0, arr.length - 1)];
@@ -30,9 +43,14 @@
     return uniqArray;
   };
 
+  var isEscPress = function (key) {
+    return key === ESC_CODE;
+  };
+
   window.utilities = {
     getRandomInt: getRandomInt,
     getRandomArrayElement: getRandomArrayElement,
-    generateUniqImage: generateUniqImage
+    generateUniqImage: generateUniqImage,
+    isEscPress: isEscPress
   };
 })();

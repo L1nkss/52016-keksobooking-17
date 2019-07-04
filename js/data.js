@@ -1,14 +1,28 @@
 'use strict';
 
-(function (randomAds) {
-  var AD_COUNT = 8; // количество объявлений
+(function (card) {
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
   var mapMinY = 130;
   var mapMaxY = 630;
-  var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinList = document.querySelector('.map__pins');
-  var ads = randomAds.getRandomAds(AD_COUNT);
+  var activeCard = null;
+
+  /**
+   * Функция checkActiveCard проверяет какой пин сейчас активен и добавляет класс map__pin--active
+   * У другого пина убирает этот класс
+   * @param {DOM} clickedCard функция принимает DOM элемент pin
+   */
+  var checkActiveCard = function (clickedCard) {
+    if (clickedCard !== activeCard && activeCard) {
+      clickedCard.classList.add('map__pin--active');
+      activeCard.classList.remove('map__pin--active');
+      activeCard = clickedCard;
+      return;
+    }
+
+    activeCard = clickedCard;
+  };
 
   var checkCoords = function (posX, posY) {
     if (posX + PIN_WIDTH > 1200) {
@@ -30,27 +44,41 @@
   };
 
   var renderPin = function (ad) {
-    var left = ad.location.x + PIN_WIDTH / 2;
-    var top = ad.location.y + PIN_HEIGHT;
-    var type = ad.offer.type;
-    var avatar = ad.author.avatar;
-    var adElement = adTemplate.cloneNode(true);
-
-    var validCoords = checkCoords(left, top);
-    adElement.style = 'left: ' + validCoords.left + 'px; top: ' + validCoords.top + 'px;';
-    adElement.querySelector('img').src = avatar;
-    adElement.querySelector('img').alt = type;
-    return adElement;
+    var data = {
+      left: ad.location.x + PIN_WIDTH / 2,
+      top: ad.location.y + PIN_HEIGHT,
+      type: ad.offer.type,
+      avatar: ad.author.avatar,
+      validCoords: checkCoords(ad.location.x + PIN_WIDTH / 2, ad.location.y + PIN_HEIGHT)
+    };
+    return card.renderPin(data);
   };
 
-  var renderAds = function () {
+  // callback функция для создания карточек объявлений.
+  var onPinClickCallback = function (ad, pin) {
+    return function () {
+      var pinCard = card.renderPinInformation(ad);
+      if (pinCard) {
+        checkActiveCard(pin);
+        pinList.appendChild(pinCard);
+      }
+    };
+  };
+
+
+  // рендер объявления
+  var renderAds = function (ads) {
     var fragment = document.createDocumentFragment();
     ads.forEach(function (ad) {
-      fragment.appendChild(renderPin(ad));
+      var pin = renderPin(ad);
+      var onPinClickShow = onPinClickCallback(ad, pin);
+      pin.addEventListener('click', onPinClickShow);
+      fragment.appendChild(pin);
     });
     pinList.appendChild(fragment);
   };
 
+  // удалить все объявления
   var removeAds = function () {
     var arrayPins = document.querySelectorAll('.map__pin');
     arrayPins.forEach(function (el, index) {
@@ -64,4 +92,4 @@
     renderAds: renderAds,
     removeAds: removeAds
   };
-})(window.randomAds);
+})(window.card);
