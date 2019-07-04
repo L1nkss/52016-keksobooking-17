@@ -44,6 +44,7 @@
   };
 
   var renderPin = function (ad) {
+    console.log(ad);
     var data = {
       left: ad.location.x + PIN_WIDTH / 2,
       top: ad.location.y + PIN_HEIGHT,

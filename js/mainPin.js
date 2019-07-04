@@ -103,7 +103,7 @@
   var checkCoords = function (evt) {
     var validX = map.validCoods.isValidX;
     var validY = map.validCoods.isValidY;
-    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY, mainPin.height)) {
+    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY, mainPin.height0)) {
       mainPin.onMouseMove(evt.clientX - map.mapPins.offset.x, evt.clientY - map.mapPins.offset.y);
       form.fillAddress(mainPin.getPosition());
     }
