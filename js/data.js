@@ -14,6 +14,7 @@
   var pinList = document.querySelector('.map__pins');
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+  // объект для хранения активного пина на странице(хранится DOM Элемент пина и карточки)
   var activeCard = {
     information: null,
     DomElement: null
@@ -41,6 +42,7 @@
       {query: '.popup__text--price', value: priceText}
     ];
 
+    element.querySelector('.popup__avatar').src = ad.author.avatar;
     textContent.forEach(function (el) {
       element.querySelector(el.query).textContent = el.value;
     });
@@ -61,8 +63,6 @@
     ad.offer.features.forEach(function (feature) {
       features.appendChild(utilities.renderFeaturesList(feature));
     });
-
-    element.querySelector('.popup__avatar').src = ad.author.avatar;
 
 
     element.querySelector('.popup__close').addEventListener('click', onPopupClick);

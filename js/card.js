@@ -23,40 +23,40 @@
    * Если мы передали пустой параметр, то проверяем существование prevCard и удаляем со страницы
    */
 
-  var changePrevCard = function (card) {
-    if (card && prevCard) {
-      prevCard.remove();
-      prevCard = card;
-      return;
-    } else if (card) {
-      prevCard = card;
-      return;
-    }
+  // var changePrevCard = function (card) {
+  //   if (card && prevCard) {
+  //     prevCard.remove();
+  //     prevCard = card;
+  //     return;
+  //   } else if (card) {
+  //     prevCard = card;
+  //     return;
+  //   }
 
-    if (prevCard) {
-      prevCard.remove();
-      prevCard = null;
-      return;
-    }
-  };
+  //   if (prevCard) {
+  //     prevCard.remove();
+  //     prevCard = null;
+  //     return;
+  //   }
+  // };
 
 
-  var renderImage = function (image) {
-    var img = document.createElement('img');
-    img.src = image;
-    img.width = 45;
-    img.height = 40;
-    img.alt = 'Фотография жилья';
-    img.classList = 'popup__photo';
-    return img;
-  };
+  // var renderImage = function (image) {
+  //   var img = document.createElement('img');
+  //   img.src = image;
+  //   img.width = 45;
+  //   img.height = 40;
+  //   img.alt = 'Фотография жилья';
+  //   img.classList = 'popup__photo';
+  //   return img;
+  // };
 
-  var renderFeaturesList = function (feature) {
-    var li = document.createElement('li');
-    li.classList = 'popup__feature popup__feature--' + feature;
+  // var renderFeaturesList = function (feature) {
+  //   var li = document.createElement('li');
+  //   li.classList = 'popup__feature popup__feature--' + feature;
 
-    return li;
-  };
+  //   return li;
+  // };
 
   /**
    * В функции мы создаём обработчики событий, которые могут возникнуть у шаблонов
@@ -127,87 +127,87 @@
   };
 
   // карточка с подробной информацией
-  var renderPinInformation = function (ad) {
-    var element = cardTemplate.cloneNode(true);
-    var imageGallery = element.querySelector('.popup__photos');
-    var features = element.querySelector('.popup__features');
-    var price = ad.offer.price;
-    var guestsRooms = ad.offer.rooms + ' комнаты для ' + ad.offer.guests + ' гостей';
-    var priceText = price + ' ₽/ночь';
-    var time = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
-    var textContent = [
-      {query: '.popup__avatar', value: ad.author.avatar},
-      {query: '.popup__title', value: ad.offer.title},
-      {query: '.popup__text--address', value: ad.offer.address},
-      {query: '.popup__type', value: HouseTypes[ad.offer.type.toUpperCase()]},
-      {query: '.popup__text--time', value: time},
-      {query: '.popup__text--capacity', value: guestsRooms},
-      {query: '.popup__description', value: ad.offer.description},
-      {query: '.popup__text--price', value: priceText}
-    ];
+  // var renderPinInformation = function (ad) {
+  //   var element = cardTemplate.cloneNode(true);
+  //   var imageGallery = element.querySelector('.popup__photos');
+  //   var features = element.querySelector('.popup__features');
+  //   var price = ad.offer.price;
+  //   var guestsRooms = ad.offer.rooms + ' комнаты для ' + ad.offer.guests + ' гостей';
+  //   var priceText = price + ' ₽/ночь';
+  //   var time = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
+  //   var textContent = [
+  //     {query: '.popup__avatar', value: ad.author.avatar},
+  //     {query: '.popup__title', value: ad.offer.title},
+  //     {query: '.popup__text--address', value: ad.offer.address},
+  //     {query: '.popup__type', value: HouseTypes[ad.offer.type.toUpperCase()]},
+  //     {query: '.popup__text--time', value: time},
+  //     {query: '.popup__text--capacity', value: guestsRooms},
+  //     {query: '.popup__description', value: ad.offer.description},
+  //     {query: '.popup__text--price', value: priceText}
+  //   ];
 
-    textContent.forEach(function (el) {
-      element.querySelector(el.query).textContent = el.value;
-    });
+  //   textContent.forEach(function (el) {
+  //     element.querySelector(el.query).textContent = el.value;
+  //   });
 
-    // Если нет изображений или дополнительных удобств, то удаляем разметку с карточки
-    if (ad.offer.photos.length === 0) {
-      imageGallery.remove();
-    }
+  //   // Если нет изображений или дополнительных удобств, то удаляем разметку с карточки
+  //   if (ad.offer.photos.length === 0) {
+  //     imageGallery.remove();
+  //   }
 
-    ad.offer.photos.forEach(function (image) {
-      imageGallery.appendChild(renderImage(image));
-    });
+  //   ad.offer.photos.forEach(function (image) {
+  //     imageGallery.appendChild(renderImage(image));
+  //   });
 
-    if (ad.offer.features.length === 0) {
-      features.remove();
-    }
+  //   if (ad.offer.features.length === 0) {
+  //     features.remove();
+  //   }
 
-    ad.offer.features.forEach(function (feature) {
-      features.appendChild(renderFeaturesList(feature));
-    });
+  //   ad.offer.features.forEach(function (feature) {
+  //     features.appendChild(renderFeaturesList(feature));
+  //   });
 
-    element.querySelector('.popup__avatar').src = ad.author.avatar;
+  //   element.querySelector('.popup__avatar').src = ad.author.avatar;
 
-    var onKeyDown = function (evt) {
-      if (utilities.isEscPress(evt.keyCode)) {
-        changePrevCard();
-        document.removeEventListener('keydown', onKeyDown);
-      }
-    };
+  //   var onKeyDown = function (evt) {
+  //     if (utilities.isEscPress(evt.keyCode)) {
+  //       changePrevCard();
+  //       document.removeEventListener('keydown', onKeyDown);
+  //     }
+  //   };
 
-    var onPopupClick = function () {
-      changePrevCard();
-    };
+  //   var onPopupClick = function () {
+  //     changePrevCard();
+  //   };
 
-    element.querySelector('.popup__close').addEventListener('click', onPopupClick);
-    document.addEventListener('keydown', onKeyDown);
+  //   element.querySelector('.popup__close').addEventListener('click', onPopupClick);
+  //   document.addEventListener('keydown', onKeyDown);
 
-    // Если элемент совпадает с элементом в prevCard, То ничего не рендерим
-    if (element.isEqualNode(prevCard)) {
-      return null;
-    }
+  //   // Если элемент совпадает с элементом в prevCard, То ничего не рендерим
+  //   if (element.isEqualNode(prevCard)) {
+  //     return null;
+  //   }
 
-    changePrevCard(element);
-    return element;
-  };
+  //   changePrevCard(element);
+  //   return element;
+  // };
 
   // создание пинов на карте
-  var renderPin = function (ad) {
-    var element = adTemplate.cloneNode(true);
-    element.style = 'left: ' + ad.validCoords.left + 'px; top: ' + ad.validCoords.top + 'px;';
-    element.querySelector('img').src = ad.avatar;
-    element.querySelector('img').alt = ad.type;
+  // var renderPin = function (ad) {
+  //   var element = adTemplate.cloneNode(true);
+  //   element.style = 'left: ' + ad.validCoords.left + 'px; top: ' + ad.validCoords.top + 'px;';
+  //   element.querySelector('img').src = ad.avatar;
+  //   element.querySelector('img').alt = ad.type;
 
-    return element;
-  };
+  //   return element;
+  // };
 
   window.card = {
     renderErrorMessage: renderErrorMessage,
-    renderPin: renderPin,
-    renderPinInformation: renderPinInformation,
+    // renderPin: renderPin,
+    // renderPinInformation: renderPinInformation,
     renderErrorData: renderErrorData,
     renderSuccessMessage: renderSuccessMessage,
-    changePrevCard: changePrevCard,
+    // changePrevCard: changePrevCard,
   };
 })(window.utilities);

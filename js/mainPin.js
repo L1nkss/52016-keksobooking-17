@@ -40,9 +40,10 @@
      * Если страница активна добавляем 22px (размер кончика pina).
      * Если страница заблокирована, берём половину высоты.
      */
-    var height = this.isActive ? this.height + 22 : this.height / 2;
+    //var height = this.isActive ? this.height + 22 : this.height / 2;
     this.position.x = Math.floor(width);
-    this.position.y = Math.floor(this.pin.offsetTop + height);
+    this.position.y = Math.floor(this.pin.offsetTop + this.height);
+
   };
 
   Pin.prototype.calculateStartPotision = function () {
@@ -89,6 +90,7 @@
    */
   Pin.prototype.changePinStatus = function () {
     this.isActive = !this.isActive;
+    this.height = this.isActive ? this.height + 22 : this.height / 2;
     this.calculatePotision();
   };
 
@@ -103,7 +105,7 @@
   var checkCoords = function (evt) {
     var validX = map.validCoods.isValidX;
     var validY = map.validCoods.isValidY;
-    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY, mainPin.height0)) {
+    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY, mainPin.height)) {
       mainPin.onMouseMove(evt.clientX - map.mapPins.offset.x, evt.clientY - map.mapPins.offset.y);
       form.fillAddress(mainPin.getPosition());
     }
