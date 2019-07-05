@@ -1,6 +1,6 @@
 'use strict';
 
-(function (createRequest, card) {
+(function (createRequest, notify) {
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -123,7 +123,7 @@
    */
 
   var onError = function () {
-    main.appendChild(card.renderErrorMessage());
+    main.appendChild(notify.renderErrorMessage());
   };
 
   var syncTime = function (firstElement, secondElement) {
@@ -275,7 +275,7 @@
 
   var formSubmit = function (callback) {
     var onSuccess = function () {
-      main.appendChild(card.renderSuccessMessage());
+      main.appendChild(notify.renderSuccessMessage());
       restoreDefaultForm();
       changeFormStatus();
       callback();
@@ -411,5 +411,5 @@
     formReset: formReset,
     formSubmit: formSubmit
   };
-})(window.load, window.card);
+})(window.request, window.notify);
 

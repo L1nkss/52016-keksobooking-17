@@ -74,20 +74,16 @@
   // создание пинов на карте
   var renderPin = function (pin) {
     var element = adTemplate.cloneNode(true);
-    //pin.checkCoords();
     element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
     element.querySelector('img').src = pin.ad.author.avatar;
     element.querySelector('img').alt = pin.ad.offer.type;
     pin.element = element;
-
-    // return element;
   };
 
   function Pin(ad) {
     this.ad = ad;
     this.width = PIN_WIDTH;
     this.height = PIN_HEIGHT;
-    this.isActive = false;
     this.element = null;
     this.position = {
       left: this.ad.location.x,
@@ -95,7 +91,6 @@
     };
 
     this.onPinClick = Pin.prototype.pinClick.bind(this);
-    // Pin.prototype.onPinClick = this.test;
   }
 
   Pin.prototype.checkCoords = function () {
@@ -115,7 +110,6 @@
 
   Pin.prototype.pinClick = function () {
     var pinInformation = renderPinInformation(this.ad);
-    // activeCard = this.element;
     var flagCard = checkActiveCard(this.element, pinInformation);
     if (flagCard) {
       pinList.appendChild(pinInformation);
@@ -148,74 +142,26 @@
     if (clickedCard === activeCard.DomElement) {
       return false;
     }
-    // if (clickedCard !== activeCard && activeCard) {
-    //   clickedCard.classList.add('map__pin--active');
-    //   activeCard.classList.remove('map__pin--active');
-    //   activeCard = clickedCard;
-    //   return;
-    // }
-
-    // activeCard = clickedCard;
   };
 
-  var onPopupClick = function () {
+  // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
+  var clearActiveCard = function () {
     activeCard.DomElement.classList.remove('map__pin--active');
     activeCard.DomElement = null;
     activeCard.information.remove();
     activeCard.information = null;
+  }
+
+  var onPopupClick = function () {
+    clearActiveCard();
   };
 
   var onPopupKeyDown = function (evt) {
     if (utilities.isEscPress(evt.keyCode)) {
-      activeCard.DomElement.classList.remove('map__pin--active');
-      activeCard.DomElement = null;
-      activeCard.information.remove();
-      activeCard.information = null;
+      clearActiveCard();
       document.removeEventListener('keydown', onPopupKeyDown);
     }
   };
-
-  // var checkCoords = function (posX, posY) {
-  //   if (posX + PIN_WIDTH > 1200) {
-  //     posX = 1200 - PIN_WIDTH / 2;
-  //   } else if (posX < 0) {
-  //     posX = 0;
-  //   }
-
-  //   if (posY + PIN_HEIGHT > mapMaxY) {
-  //     posY = mapMaxY - PIN_HEIGHT;
-  //   } else if (posY < mapMinY) {
-  //     posX = mapMinY;
-  //   }
-
-  //   return {
-  //     top: posY,
-  //     left: posX
-  //   };
-  // };
-
-  // var renderPin = function (ad) {
-
-  //   var data = {
-  //     left: ad.location.x + PIN_WIDTH / 2,
-  //     top: ad.location.y + PIN_HEIGHT,
-  //     type: ad.offer.type,
-  //     avatar: ad.author.avatar,
-  //     validCoords: checkCoords(ad.location.x + PIN_WIDTH / 2, ad.location.y + PIN_HEIGHT)
-  //   };
-  //   return card.renderPin(data);
-  // };
-
-  // callback функция для создания карточек объявлений.
-  // var onPinClickCallback = function (ad, pin) {
-  //   return function () {
-  //     var pinCard = card.renderPinInformation(ad);
-  //     if (pinCard) {
-  //       checkActiveCard(pin);
-  //       pinList.appendChild(pinCard);
-  //     }
-  //   };
-  // };
 
 
   // рендер объявления

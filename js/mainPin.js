@@ -1,6 +1,6 @@
 'use strict';
 
-(function (map, form, createRequest, card, usersAd) {
+(function (map, form, createRequest, notify, usersAd) {
   var spinner = document.querySelector('.loader');
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
@@ -128,7 +128,7 @@
   };
 
   var onError = function (code, status) {
-    pinMap.appendChild(card.renderErrorData(code, status));
+    pinMap.appendChild(notify.renderErrorData(code, status));
   };
 
   /**
@@ -167,7 +167,7 @@
     // удаляем карточки
     usersAd.removeAds();
     // если есть открытые карточки, закрываем её
-    card.changePrevCard();
+    notify.changePrevCard();
     // меняем статус pina
     mainPin.changePinStatus();
   };
@@ -189,4 +189,4 @@
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);
 
-})(window.map, window.form, window.request, window.card, window.data);
+})(window.map, window.form, window.request, window.notify, window.data);
