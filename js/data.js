@@ -7,10 +7,14 @@
     HOUSE: 'Дом',
     PALACE: 'Дворец'
   };
+  var MapRestriction = {
+    TOP: 130,
+    RIGHT: 1200,
+    BOTTOM: 630,
+    LEFT: 0
+  };
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
-  var mapMinY = 130;
-  var mapMaxY = 630;
   var pinList = document.querySelector('.map__pins');
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
@@ -93,17 +97,20 @@
     this.onPinClick = Pin.prototype.pinClick.bind(this);
   }
 
+  /**
+   * Проверяем позиции пина на карте. Если пин выходит за границы, то отрисовываем его на границы у которой он выходит
+   */
   Pin.prototype.checkCoords = function () {
-    if (this.position.left + this.width > 1200) {
-      this.position.left = 1200 - PIN_WIDTH / 2;
-    } else if (this.position.left < 0) {
-      this.position.left = 0;
+    if (this.position.left + this.width > MapRestriction.RIGHT) {
+      this.position.left = MapRestriction.RIGHT - PIN_WIDTH / 2;
+    } else if (this.position.left < MapRestriction.LEFT) {
+      this.position.left = MapRestriction.LEFT;
     }
 
-    if (this.position.top + this.height > mapMaxY) {
-      this.position.top = mapMaxY - this.height;
-    } else if (this.position.top < mapMinY) {
-      this.position.top = mapMinY;
+    if (this.position.top + this.height > MapRestriction.BOTTOM) {
+      this.position.top = MapRestriction.BOTTOM - this.height;
+    } else if (this.position.top < MapRestriction.TOP) {
+      this.position.top = MapRestriction.TOP;
     }
     this.element.style = 'left: ' + this.position.left + 'px; top: ' + this.position.top + 'px;';
   };
@@ -118,30 +125,33 @@
 
   /**
    * Функция checkActiveCard проверяет какой пин сейчас активен и добавляет класс map__pin--active
-   * У другого пина убирает этот класс
+   * У другого пина убирает этот класс.
+   * Если мы кликнули на тот же самый элемент, то не перересовываем карточку.
    * @param {DOM} clickedCard функция принимает DOM элемент pin
    * @param {DOM} informationCard карточка с подробной информацие
+   * @return {boolean} возвращает true - если необходимо перерисовывать карточку и false - если нет
    */
   var checkActiveCard = function (clickedCard, informationCard) {
-    if (!activeCard.DomElement) {
+    var setNewActiveCard = function () {
       activeCard.DomElement = clickedCard;
       activeCard.information = informationCard;
       activeCard.DomElement.classList.add('map__pin--active');
+    };
+
+    if (!activeCard.DomElement) {
+      setNewActiveCard();
       return true;
     }
 
     if (clickedCard !== activeCard.DomElement) {
       activeCard.DomElement.classList.remove('map__pin--active');
       activeCard.information.remove();
-      activeCard.DomElement = clickedCard;
-      activeCard.information = informationCard;
-      activeCard.DomElement.classList.add('map__pin--active');
+      setNewActiveCard();
       return true;
     }
 
-    if (clickedCard === activeCard.DomElement) {
-      return false;
-    }
+    // Если активная карта пуста и активная карта не равна, той которую мы кликнули, возвращаем false
+    return false;
   };
 
   // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
@@ -150,7 +160,7 @@
     activeCard.DomElement = null;
     activeCard.information.remove();
     activeCard.information = null;
-  }
+  };
 
   var onPopupClick = function () {
     clearActiveCard();
@@ -164,22 +174,21 @@
   };
 
 
-  // рендер объявления
+  /**
+   * Функция renderAds генерирует пины на карту.
+   * renderPin(pin) - создаёт пины на карте
+   * pin.checkCoords() - проверяет координаты пинов. Если пин выходит за границу, перерисовывает в зону карты.
+   * @param {array} ads массив данных, полученных с сервера
+   */
   var renderAds = function (ads) {
     var fragment = document.createDocumentFragment();
     ads.forEach(function (ad) {
-      //var pin = renderPin(ad);
-      /* тест */
-      var pin2 = new Pin(ad);
-      renderPin(pin2);
-      pins.push(pin2);
-      pin2.checkCoords();
-      pin2.element.addEventListener('click', pin2.onPinClick);
-      /* ---------------------- */
-      // var onPinClickShow = onPinClickCallback(ad, pin);
-      // pin.addEventListener('click', onPinClickShow);
-      // fragment.appendChild(pin);
-      fragment.appendChild(pin2.element);
+      var pin = new Pin(ad);
+      renderPin(pin);
+      pins.push(pin);
+      pin.checkCoords();
+      pin.element.addEventListener('click', pin.onPinClick);
+      fragment.appendChild(pin.element);
     });
     pinList.appendChild(fragment);
   };

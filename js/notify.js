@@ -75,5 +75,5 @@
     renderErrorData: renderErrorData,
     renderErrorMessage: renderErrorMessage,
     renderSuccessMessage: renderSuccessMessage
-  }
+  };
 })(window.utilities);

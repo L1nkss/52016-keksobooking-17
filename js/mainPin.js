@@ -36,11 +36,6 @@
    */
   Pin.prototype.calculatePotision = function () {
     var width = (this.pin.offsetLeft + this.width / 2);
-    /**
-     * Если страница активна добавляем 22px (размер кончика pina).
-     * Если страница заблокирована, берём половину высоты.
-     */
-    //var height = this.isActive ? this.height + 22 : this.height / 2;
     this.position.x = Math.floor(width);
     this.position.y = Math.floor(this.pin.offsetTop + this.height);
 
@@ -87,6 +82,7 @@
 
   /**
    * Меням статус пина на активный и рассчитываем новое положение
+   * Если пин активен, добавляем 22px, если нет берём центр пина.
    */
   Pin.prototype.changePinStatus = function () {
     this.isActive = !this.isActive;
