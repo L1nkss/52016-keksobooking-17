@@ -47,10 +47,29 @@
     return key === ESC_CODE;
   };
 
+  var renderImage = function (image) {
+    var img = document.createElement('img');
+    img.src = image;
+    img.width = 45;
+    img.height = 40;
+    img.alt = 'Фотография жилья';
+    img.classList = 'popup__photo';
+    return img;
+  };
+
+  var renderFeaturesList = function (feature) {
+    var li = document.createElement('li');
+    li.classList = 'popup__feature popup__feature--' + feature;
+
+    return li;
+  };
+
   window.utilities = {
     getRandomInt: getRandomInt,
     getRandomArrayElement: getRandomArrayElement,
     generateUniqImage: generateUniqImage,
-    isEscPress: isEscPress
+    isEscPress: isEscPress,
+    renderImage: renderImage,
+    renderFeaturesList: renderFeaturesList
   };
 })();

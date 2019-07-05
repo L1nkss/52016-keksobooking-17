@@ -9,8 +9,8 @@
   };
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
   var successTemplate = document.querySelector('#success').content.querySelector('.success');
-  var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-  var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+  // var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+  // var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
   var errorDataTemplate = document.querySelector('#data-error').content.querySelector('.message-block');
   var prevCard = null;
 
