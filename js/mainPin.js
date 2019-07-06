@@ -1,6 +1,6 @@
 'use strict';
 
-(function (map, form, createRequest, card, usersAd) {
+(function (map, form, createRequest, notify, usersAd) {
   var spinner = document.querySelector('.loader');
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
@@ -36,13 +36,9 @@
    */
   Pin.prototype.calculatePotision = function () {
     var width = (this.pin.offsetLeft + this.width / 2);
-    /**
-     * Если страница активна добавляем 22px (размер кончика pina).
-     * Если страница заблокирована, берём половину высоты.
-     */
-    var height = this.isActive ? this.height + 22 : this.height / 2;
     this.position.x = Math.floor(width);
-    this.position.y = Math.floor(this.pin.offsetTop + height);
+    this.position.y = Math.floor(this.pin.offsetTop + this.height);
+
   };
 
   Pin.prototype.calculateStartPotision = function () {
@@ -86,9 +82,11 @@
 
   /**
    * Меням статус пина на активный и рассчитываем новое положение
+   * Если пин активен, добавляем 22px, если нет берём центр пина.
    */
   Pin.prototype.changePinStatus = function () {
     this.isActive = !this.isActive;
+    this.height = this.isActive ? this.height + 22 : this.height / 2;
     this.calculatePotision();
   };
 
@@ -103,7 +101,7 @@
   var checkCoords = function (evt) {
     var validX = map.validCoods.isValidX;
     var validY = map.validCoods.isValidY;
-    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY)) {
+    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY, mainPin.height)) {
       mainPin.onMouseMove(evt.clientX - map.mapPins.offset.x, evt.clientY - map.mapPins.offset.y);
       form.fillAddress(mainPin.getPosition());
     }
@@ -126,7 +124,7 @@
   };
 
   var onError = function (code, status) {
-    pinMap.appendChild(card.renderErrorData(code, status));
+    pinMap.appendChild(notify.renderErrorData(code, status));
   };
 
   /**
@@ -165,7 +163,7 @@
     // удаляем карточки
     usersAd.removeAds();
     // если есть открытые карточки, закрываем её
-    card.changePrevCard();
+    notify.changePrevCard();
     // меняем статус pina
     mainPin.changePinStatus();
   };
@@ -187,4 +185,4 @@
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);
 
-})(window.map, window.form, window.request, window.card, window.data);
+})(window.map, window.form, window.request, window.notify, window.data);

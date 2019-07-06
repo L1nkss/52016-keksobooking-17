@@ -14,9 +14,9 @@
     return left && right;
   };
 
-  var isValidY = function (mouseY) {
-    var top = mouseY - mapPins.offset.y >= MapLimit.TOP;
-    var bottom = mouseY - mapPins.offset.y <= MapLimit.BOTTOM;
+  var isValidY = function (mouseY, height) {
+    var top = mouseY - mapPins.offset.y >= MapLimit.TOP - height;
+    var bottom = mouseY - mapPins.offset.y <= MapLimit.BOTTOM - height;
 
     return top && bottom;
   };
