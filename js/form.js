@@ -8,10 +8,6 @@
     PALACE: 10000
   };
 
-  // тест
-  var filesTest = [];
-  var filesArray = [];
-
   var RoomCounts = {
     1: [1],
     2: [1, 2],
@@ -328,23 +324,6 @@
     }
   };
 
-  var imageLoad = function (file) {
-    var fileName = file.name.toLowerCase();
-    var matches = FILE_TYPES.some(function (el) {
-      return fileName.endsWith(el);
-    });
-
-    if (matches) {
-      var reader = new FileReader();
-
-      reader.addEventListener('load', function () {
-        createLoadedImage(reader.result);
-      });
-
-      reader.readAsDataURL(file);
-    }
-  };
-
   var onAvatarLoad = function (evt) {
     var file = evt.target.files[0];
     avatarLoad(file);
@@ -359,7 +338,6 @@
 
   var onImageLoad = function (evt) {
     var files = evt.target.files;
-    filesTest.push(evt.target.files);
 
     for (var i = 0; i < files.length; i++) {
       setupMultiplyReader(files[i]);

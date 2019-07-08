@@ -13,7 +13,7 @@
   var coords = {
     posX: null,
     posY: null
-  }
+  };
 
   /**
    * Функция CalculateCoords рассчитывает положение пина на карте
@@ -24,37 +24,37 @@
    * @param {number} mouseY положение мыши по оси Y
    * @param {number} width ширина пина
    * @param {number} height высота пина
+   * @return {object} Возвращаем объект координат.
    */
-  var calculateCoords = function(mouseX, mouseY, width, height) {
+  var calculateCoords = function (mouseX, mouseY, width, height) {
     var posX = mouseX - mapPins.offset.x;
     var posY = mouseY - mapPins.offset.y;
     // Проверяем находимся ли мы внутри карты или нет
     var isValidX = posX >= MapLimit.LEFT && posX < MapLimit.RIGHT - width;
     var isValidY = posY >= MapLimit.TOP - height && posY <= MapLimit.BOTTOM - height;
     // установить граничные значение для оси.
-    var mouseLeavesMap = function(mouseX, mouseY) {
+    var mouseLeavesMap = function () {
       if (!isBorderSet) {
-        if (mouseX > MapLimit.RIGHT - width) {
+        if (posX > MapLimit.RIGHT - width) {
           coords.posX = MapLimit.RIGHT - width;
         }
 
-        if (mouseX < MapLimit.LEFT) {
+        if (posX < MapLimit.LEFT) {
           coords.posX = MapLimit.LEFT;
         }
 
-        if (mouseY < MapLimit.TOP - height) {
+        if (posY < MapLimit.TOP - height) {
           coords.posY = MapLimit.TOP - height;
         }
 
-        if (mouseY > MapLimit.BOTTOM - height) {
+        if (posY > MapLimit.BOTTOM - height) {
           coords.posY = MapLimit.BOTTOM - height;
         }
         isBorderSet = true;
       }
-    }
+    };
 
-
-    isPinInsideMap =  isValidX && isValidY;
+    isPinInsideMap = isValidX && isValidY;
 
     if (isPinInsideMap) {
       coords.posX = posX;
@@ -63,9 +63,9 @@
       return coords;
     }
 
-    mouseLeavesMap(posX, posY);
+    mouseLeavesMap();
     return coords;
-  }
+  };
 
   function Map(element) {
     this.map = element;
@@ -98,10 +98,6 @@
   window.map = {
     map: map,
     mapPins: mapPins,
-    // validCoods: {
-    //   isValidX: isValidX,
-    //   isValidY: isValidY
-    // },
     calculateCoords: calculateCoords
   };
 })();
