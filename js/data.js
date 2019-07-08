@@ -156,10 +156,12 @@
 
   // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
   var clearActiveCard = function () {
-    activeCard.DomElement.classList.remove('map__pin--active');
-    activeCard.DomElement = null;
-    activeCard.information.remove();
-    activeCard.information = null;
+    if (activeCard.DomElement) {
+      activeCard.DomElement.classList.remove('map__pin--active');
+      activeCard.DomElement = null;
+      activeCard.information.remove();
+      activeCard.information = null;
+    }
   };
 
   var onPopupClick = function () {
@@ -205,6 +207,7 @@
 
   window.data = {
     renderAds: renderAds,
-    removeAds: removeAds
+    removeAds: removeAds,
+    clearActiveCard: clearActiveCard
   };
 })(window.utilities);
