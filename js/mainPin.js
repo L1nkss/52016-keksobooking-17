@@ -1,6 +1,7 @@
 'use strict';
 
 (function (map, form, createRequest, notify, usersAd) {
+  // острый конец пина
   var PIN_TIP = 22;
   var spinner = document.querySelector('.loader');
   var pinMap = document.querySelector('.map');
@@ -47,6 +48,7 @@
     this.StartPosition.y = Math.floor(this.pin.offsetTop);
   };
 
+  // вернуть пин на начальную позицию
   Pin.prototype.restoreDefaultPosition = function () {
     this.position.x = this.StartPosition.x;
     this.position.y = this.StartPosition.y;
@@ -107,9 +109,8 @@
   };
 
   /**
-   *
-   * @param {array} data массив с загруженными данными
    *  onSuccess и onError - callback функции при запросе на сервер
+   * @param {array} data массив с загруженными данными
    */
   var onSuccess = function (data) {
     // убираем spinner

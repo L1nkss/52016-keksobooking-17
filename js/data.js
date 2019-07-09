@@ -25,6 +25,23 @@
   };
   var pins = [];
 
+  var renderImage = function (image) {
+    var img = document.createElement('img');
+    img.src = image;
+    img.width = 45;
+    img.height = 40;
+    img.alt = 'Фотография жилья';
+    img.classList = 'popup__photo';
+    return img;
+  };
+
+  var renderFeaturesList = function (feature) {
+    var li = document.createElement('li');
+    li.classList = 'popup__feature popup__feature--' + feature;
+
+    return li;
+  };
+
 
   // карточка с подробной информацией
   var renderPinInformation = function (ad) {
@@ -57,7 +74,7 @@
     }
 
     ad.offer.photos.forEach(function (image) {
-      imageGallery.appendChild(utilities.renderImage(image));
+      imageGallery.appendChild(renderImage(image));
     });
 
     if (ad.offer.features.length === 0) {
@@ -65,7 +82,7 @@
     }
 
     ad.offer.features.forEach(function (feature) {
-      features.appendChild(utilities.renderFeaturesList(feature));
+      features.appendChild(renderFeaturesList(feature));
     });
 
 
