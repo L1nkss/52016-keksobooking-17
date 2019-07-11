@@ -179,7 +179,7 @@
     mainPin.changePinStatus();
     disactivatePage();
   };
-  var onFormReset = form.formReset(restoreDefaultPosition);
+  var onFormReset = form.formReset(setDefaultPageStatus);
   var onFormSubmit = form.formSubmit(setDefaultPageStatus);
 
   adFormStatus.addEventListener('reset', onFormReset);

@@ -269,6 +269,7 @@
     return function (evt) {
       evt.preventDefault();
       restoreDefaultForm();
+      changeFormStatus();
       callback();
     };
   };
