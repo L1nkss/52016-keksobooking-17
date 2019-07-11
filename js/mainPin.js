@@ -1,6 +1,8 @@
 'use strict';
 
 (function (map, form, createRequest, notify, usersAd) {
+  // острый конец пина
+  var PIN_TIP = 22;
   var spinner = document.querySelector('.loader');
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
@@ -46,6 +48,7 @@
     this.StartPosition.y = Math.floor(this.pin.offsetTop);
   };
 
+  // вернуть пин на начальную позицию
   Pin.prototype.restoreDefaultPosition = function () {
     this.position.x = this.StartPosition.x;
     this.position.y = this.StartPosition.y;
@@ -82,11 +85,11 @@
 
   /**
    * Меням статус пина на активный и рассчитываем новое положение
-   * Если пин активен, добавляем 22px, если нет берём центр пина.
+   * Если пин активирован, добавляем высоте 22px(так как рассчёт коордит идёт от острого конца пина), если нет берём центр пина.
    */
   Pin.prototype.changePinStatus = function () {
     this.isActive = !this.isActive;
-    this.height = this.isActive ? this.height + 22 : this.height / 2;
+    this.height = this.isActive ? this.height + PIN_TIP : this.height / 2;
     this.calculatePotision();
   };
 
@@ -99,18 +102,15 @@
    */
 
   var checkCoords = function (evt) {
-    var validX = map.validCoods.isValidX;
-    var validY = map.validCoods.isValidY;
-    if (validX(evt.clientX, mainPin.width) && validY(evt.clientY, mainPin.height)) {
-      mainPin.onMouseMove(evt.clientX - map.mapPins.offset.x, evt.clientY - map.mapPins.offset.y);
-      form.fillAddress(mainPin.getPosition());
-    }
+    var coords = map.calculateCoords(evt.clientX, evt.clientY, mainPin.width, mainPin.height);
+
+    mainPin.onMouseMove(coords.posX, coords.posY);
+    form.fillAddress(mainPin.getPosition());
   };
 
   /**
-   *
-   * @param {array} data массив с загруженными данными
    *  onSuccess и onError - callback функции при запросе на сервер
+   * @param {array} data массив с загруженными данными
    */
   var onSuccess = function (data) {
     // убираем spinner
@@ -163,7 +163,7 @@
     // удаляем карточки
     usersAd.removeAds();
     // если есть открытые карточки, закрываем её
-    notify.changePrevCard();
+    usersAd.clearActiveCard();
     // меняем статус pina
     mainPin.changePinStatus();
   };

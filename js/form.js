@@ -324,23 +324,6 @@
     }
   };
 
-  var imageLoad = function (file) {
-    var fileName = file.name.toLowerCase();
-    var matches = FILE_TYPES.some(function (el) {
-      return fileName.endsWith(el);
-    });
-
-    if (matches) {
-      var reader = new FileReader();
-
-      reader.addEventListener('load', function () {
-        createLoadedImage(reader.result);
-      });
-
-      reader.readAsDataURL(file);
-    }
-  };
-
   var onAvatarLoad = function (evt) {
     var file = evt.target.files[0];
     avatarLoad(file);
@@ -354,8 +337,11 @@
   };
 
   var onImageLoad = function (evt) {
-    var file = evt.target.files[0];
-    imageLoad(file);
+    var files = evt.target.files;
+
+    for (var i = 0; i < files.length; i++) {
+      setupMultiplyReader(files[i]);
+    }
   };
 
   var onImageDrop = function (evt) {

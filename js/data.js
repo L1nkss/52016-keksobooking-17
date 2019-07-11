@@ -25,6 +25,23 @@
   };
   var pins = [];
 
+  var renderImage = function (image) {
+    var img = document.createElement('img');
+    img.src = image;
+    img.width = 45;
+    img.height = 40;
+    img.alt = 'Фотография жилья';
+    img.classList = 'popup__photo';
+    return img;
+  };
+
+  var renderFeaturesList = function (feature) {
+    var li = document.createElement('li');
+    li.classList = 'popup__feature popup__feature--' + feature;
+
+    return li;
+  };
+
 
   // карточка с подробной информацией
   var renderPinInformation = function (ad) {
@@ -57,7 +74,7 @@
     }
 
     ad.offer.photos.forEach(function (image) {
-      imageGallery.appendChild(utilities.renderImage(image));
+      imageGallery.appendChild(renderImage(image));
     });
 
     if (ad.offer.features.length === 0) {
@@ -65,7 +82,7 @@
     }
 
     ad.offer.features.forEach(function (feature) {
-      features.appendChild(utilities.renderFeaturesList(feature));
+      features.appendChild(renderFeaturesList(feature));
     });
 
 
@@ -156,10 +173,12 @@
 
   // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
   var clearActiveCard = function () {
-    activeCard.DomElement.classList.remove('map__pin--active');
-    activeCard.DomElement = null;
-    activeCard.information.remove();
-    activeCard.information = null;
+    if (activeCard.DomElement) {
+      activeCard.DomElement.classList.remove('map__pin--active');
+      activeCard.DomElement = null;
+      activeCard.information.remove();
+      activeCard.information = null;
+    }
   };
 
   var onPopupClick = function () {
@@ -205,6 +224,7 @@
 
   window.data = {
     renderAds: renderAds,
-    removeAds: removeAds
+    removeAds: removeAds,
+    clearActiveCard: clearActiveCard
   };
 })(window.utilities);

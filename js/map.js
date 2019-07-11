@@ -8,17 +8,67 @@
     LEFT: 0
   };
 
-  var isValidX = function (mouseX, width) {
-    var left = mouseX - mapPins.offset.x >= MapLimit.LEFT;
-    var right = mouseX - mapPins.offset.x <= MapLimit.RIGHT - width;
-    return left && right;
+  // находится ли пин внутри карты
+  var isPinInsideMap = false;
+  // установили ли мы граничные значения для пина.
+  var isBorderSet = false;
+  var coords = {
+    posX: null,
+    posY: null
   };
 
-  var isValidY = function (mouseY, height) {
-    var top = mouseY - mapPins.offset.y >= MapLimit.TOP - height;
-    var bottom = mouseY - mapPins.offset.y <= MapLimit.BOTTOM - height;
+  /**
+   * Функция calculateCoords рассчитывает положение пина на карте
+   * posX и posY - координаты пина внутри карты.
+   * Функция mouseLeaveMap рассчитывает координаты осей, если мышь вышла за границы.
+   * Если переменная isBorderSet - true, значит мы уже рассчитали координаты и мышь находится за границей карты, следовательно не надо считать ещё раз.
+   * @param {number} mouseX положение мыши по оси X
+   * @param {number} mouseY положение мыши по оси Y
+   * @param {number} width ширина пина
+   * @param {number} height высота пина
+   * @return {object} Возвращаем объект координат.
+   */
+  var calculateCoords = function (mouseX, mouseY, width, height) {
+    var posX = mouseX - mapPins.offset.x;
+    var posY = mouseY - mapPins.offset.y;
+    // Проверяем находимся ли мы внутри карты или нет
+    var isValidX = posX >= MapLimit.LEFT && posX < MapLimit.RIGHT - width;
+    var isValidY = posY >= MapLimit.TOP - height && posY <= MapLimit.BOTTOM - height;
+    // установить граничные значение для оси.
+    var mouseLeavesMap = function () {
+      if (!isBorderSet) {
+        if (posX > MapLimit.RIGHT - width) {
+          coords.posX = MapLimit.RIGHT - width;
+        }
 
-    return top && bottom;
+        if (posX < MapLimit.LEFT) {
+          coords.posX = MapLimit.LEFT;
+        }
+
+        if (posY < MapLimit.TOP - height) {
+          coords.posY = MapLimit.TOP - height;
+        }
+
+        if (posY > MapLimit.BOTTOM - height) {
+          coords.posY = MapLimit.BOTTOM - height;
+        }
+        isBorderSet = true;
+      }
+    };
+
+    // проверяем что мы внутри карты
+    isPinInsideMap = isValidX && isValidY;
+
+    // Если внутри карты, задаём координатам положения мыши и устанавливаем переменной isBorderSet -false
+    if (isPinInsideMap) {
+      coords.posX = posX;
+      coords.posY = posY;
+      isBorderSet = false;
+      return coords;
+    }
+
+    mouseLeavesMap();
+    return coords;
   };
 
   function Map(element) {
@@ -52,9 +102,6 @@
   window.map = {
     map: map,
     mapPins: mapPins,
-    validCoods: {
-      isValidX: isValidX,
-      isValidY: isValidY
-    }
+    calculateCoords: calculateCoords
   };
 })();

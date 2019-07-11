@@ -53,6 +53,7 @@
     } else {
       http.addEventListener('load', sendCompleted);
       http.open(method, url);
+
       http.send(body);
     }
   };
