@@ -1,6 +1,6 @@
 'use strict';
 
-(function (utilities) {
+(function (utilities, filter) {
   var HouseTypes = {
     BUNGALO: 'Бунгало',
     FLAT: 'Квартира',
@@ -15,9 +15,11 @@
   };
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
+  var PIN_COUNT = 5 // количество пинов на карте.
   var pinList = document.querySelector('.map__pins');
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+  var formFilter = document.querySelector('.map__filters');
   // объект для хранения активного пина на странице(хранится DOM Элемент пина и карточки)
   var activeCard = {
     information: null,
@@ -25,144 +27,19 @@
   };
   var pins = [];
   var filteredPins = [];
-  var test = [];
 
+  var debounce = function(callback) {
+    var lastTimeout = null;
+    var time = 1000;
 
-  /*                                       ТЕСТ ФИЛЬТРАЦИЯ                                         */
-  var formFilter = document.querySelector('.map__filters');
-  var housingType = document.querySelector('#housing-type');
-  var housingPrice = document.querySelector('#housing-price');
-  var housingRooms = document.querySelector('#housing-rooms');
-  var housingGuests = document.querySelector('#housing-guests');
-  var housingFeatures = document.querySelector('#housing-features');
+    return function() {
+      if (lastTimeout) {
+        window.clearTimeout(lastTimeout);
+      }
 
-  var filterPrice = function(element) {
-    var price = housingPrice.value;
-    // var elementPrice = element.ad.offer.price;
-    if (price === 'any') {
-      return element;
-    }
-
-    if (price === 'middle') {
-      return element.ad.offer.price >= 10000 && element.ad.offer.price < 50000;
-    }
-
-    if (price === 'low') {
-      return element.ad.offer.price < 10000;
-    }
-
-    if (price === 'high') {
-      return element.ad.offer.price > 50000;
-    }
-  };
-
-  var filterType = function(element) {
-    var type = housingType.value;
-    var elementType = element.ad.offer.type;
-
-    if (type === 'any') {
-      return element
-    }
-
-    if (type === 'palace') {
-      return elementType === type;
-    }
-
-    if (type === 'flat') {
-      return elementType === type;
-    }
-
-    if (type === 'house') {
-      return elementType === type;
-    }
-
-    if (type === 'bungalo') {
-      return elementType === type;
+      lastTimeout = window.setTimeout(callback, time);
     }
   }
-
-  var filterRooms = function(element) {
-    var rooms = housingRooms.value;
-    var elementType = element.ad.offer.rooms;
-
-
-    if (rooms === 'any') {
-      return element
-    }
-
-    if (rooms === '1') {
-      return elementType === 1;
-    }
-
-    if (rooms === '2') {
-      return elementType === 2;
-    }
-
-    if (rooms === '3') {
-      return elementType === 3;
-    }
-  }
-
-  var filterGuests = function(element) {
-    var guests = housingGuests.value;
-    var elementType = element.ad.offer.guests;
-
-    if (guests === 'any') {
-      return element;
-    }
-
-    if (guests === '1') {
-      return elementType === 1
-    }
-
-    if (guests === '2') {
-      return elementType === 2;
-    }
-
-    if (guests === '0') {
-      return elementType === 0;
-    }
-  }
-
-  var filterFeatures = function(element) {
-    var featuresChecked = Array.prototype.slice.call(housingFeatures.querySelectorAll('input:checked'));
-    var features = featuresChecked.map(function(feature) {
-      return feature.value;
-    })
-    var elementFeatures = element.ad.offer.features;
-
-    if (features.length === 0) {
-      return element;
-    }
-
-    var testF = function(feature) {
-      return elementFeatures.indexOf(feature) !== -1;
-    }
-
-
-    if (features.every(testF)) {
-      return element;
-    }
-  };
-
-  var filter = function(element) {
-    return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
-  }
-
-  formFilter.addEventListener('change', function() {
-    filteredPins = pins.filter(filter);
-    console.log(filteredPins);
-    // Тест
-    removeAds();
-    var fragment = document.createDocumentFragment();
-    filteredPins.forEach(function(pin) {
-      renderPin(pin);
-      pin.element.addEventListener('click', pin.onPinClick);
-      fragment.appendChild(pin.element);
-    })
-    pinList.appendChild(fragment);
-  });
-  /*---------------------------------------------------------------------------------------------- */
 
   var renderImage = function (image) {
     var img = document.createElement('img');
@@ -233,11 +110,16 @@
 
   // создание пинов на карте
   var renderPin = function (pin) {
-    var element = adTemplate.cloneNode(true);
-    element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
-    element.querySelector('img').src = pin.ad.author.avatar;
-    element.querySelector('img').alt = pin.ad.offer.type;
-    pin.element = element;
+    if (!pin.element) {
+      var element = adTemplate.cloneNode(true);
+      element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
+      element.querySelector('img').src = pin.ad.author.avatar;
+      element.querySelector('img').alt = pin.ad.offer.type;
+      pin.element = element;
+      pin.checkCoords();
+    }
+    // pin.element.addEventListener('click', pin.onPinClick);
+
   };
 
   function Pin(ad) {
@@ -278,6 +160,10 @@
       pinList.appendChild(pinInformation);
     }
   };
+
+  Pin.prototype.deleteElement = function () {
+    this.element.remove();
+  }
 
   /**
    * Функция checkActiveCard проверяет какой пин сейчас активен и добавляет класс map__pin--active
@@ -331,6 +217,26 @@
     }
   };
 
+  var addPinsInMap = function() {
+    // var fragment = document.createDocumentFragment();
+    filteredPins = pins.filter(filter.filter).slice(0, PIN_COUNT);
+    // filteredPins = pins.filter(filter.filter);
+    for (var i = 0; i < PIN_COUNT; i++) {
+      if (filteredPins[i]) {
+        // renderPin(filteredPins[i]);
+        // fragment.appendChild(filteredPins[i].element);
+        addPinToMap(filteredPins[i]);
+      }
+    }
+    // pinList.appendChild(fragment);
+  }
+
+  var addPinToMap = function(pin) {
+    // renderPin(pin);
+    pin.element.addEventListener('click', pin.onPinClick);
+    pinList.appendChild(pin.element);
+  }
+
 
   /**
    * Функция renderAds генерирует пины на карту.
@@ -339,31 +245,58 @@
    * @param {array} ads массив данных, полученных с сервера
    */
   var renderAds = function (ads) {
-    var fragment = document.createDocumentFragment();
-    ads.forEach(function (ad) {
-      var pin = new Pin(ad);
-      renderPin(pin);
-      pins.push(pin);
-      pin.checkCoords();
-      pin.element.addEventListener('click', pin.onPinClick);
-      fragment.appendChild(pin.element);
-    });
-    pinList.appendChild(fragment);
+
+    if (pins.length === 0) {
+      ads.forEach(function (ad) {
+        var pin = new Pin(ad);
+        renderPin(pin);
+        pins.push(pin);
+      });
+    }
+
+    addPinsInMap();
   };
 
   // удалить все объявления
   var removeAds = function () {
-    var arrayPins = document.querySelectorAll('.map__pin');
+
+    filteredPins.forEach(function (pin) {
+      pin.deleteElement();
+    })
+  };
+
+  var redrawAds = function() {
+    var arrayPins = Array.prototype.slice.call(document.querySelectorAll('.map__pin'));
+
+    filteredPins.forEach(function (pin) {
+      var pinID = arrayPins.indexOf(pin.element);
+      if (pinID === -1) {
+        addPinToMap(pin);
+        return;
+      }
+      arrayPins.splice(pinID, 1);
+    })
+
     arrayPins.forEach(function (el, index) {
       if (index !== 0) {
         el.remove();
       }
     });
-  };
+  }
+
+  var debounceAds = debounce(redrawAds);
+
+  var onFilterChange = function() {
+    filteredPins = pins.filter(filter.filter).slice(0, PIN_COUNT);
+    // redrawAds();
+    debounceAds();
+  }
+
+  formFilter.addEventListener('change', onFilterChange);
 
   window.data = {
     renderAds: renderAds,
     removeAds: removeAds,
     clearActiveCard: clearActiveCard
   };
-})(window.utilities);
+})(window.utilities, window.filter);
