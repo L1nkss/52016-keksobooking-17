@@ -15,7 +15,7 @@
   };
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
-  var PIN_COUNT = 5 // количество пинов на карте.
+  var PIN_COUNT = 5; // количество пинов на карте.
   var pinList = document.querySelector('.map__pins');
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
@@ -23,23 +23,25 @@
   // объект для хранения активного пина на странице(хранится DOM Элемент пина и карточки)
   var activeCard = {
     information: null,
-    DomElement: null
+    domElement: null
   };
   var pins = [];
+  // отфильтрованные пины.
   var filteredPins = [];
 
-  var debounce = function(callback) {
+  // функция для отображения пинов через 1с(устранение дребезга)
+  var debounce = function (callback) {
     var lastTimeout = null;
     var time = 1000;
 
-    return function() {
+    return function () {
       if (lastTimeout) {
         window.clearTimeout(lastTimeout);
       }
 
       lastTimeout = window.setTimeout(callback, time);
-    }
-  }
+    };
+  };
 
   var renderImage = function (image) {
     var img = document.createElement('img');
@@ -108,18 +110,14 @@
     return element;
   };
 
-  // создание пинов на карте
+  // создание первоночального пина в объекте PIN(как пин будет выглядить на карте)
   var renderPin = function (pin) {
-    if (!pin.element) {
-      var element = adTemplate.cloneNode(true);
-      element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
-      element.querySelector('img').src = pin.ad.author.avatar;
-      element.querySelector('img').alt = pin.ad.offer.type;
-      pin.element = element;
-      pin.checkCoords();
-    }
-    // pin.element.addEventListener('click', pin.onPinClick);
-
+    var element = adTemplate.cloneNode(true);
+    element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
+    element.querySelector('img').src = pin.ad.author.avatar;
+    element.querySelector('img').alt = pin.ad.offer.type;
+    pin.element = element;
+    pin.checkCoords();
   };
 
   function Pin(ad) {
@@ -163,7 +161,7 @@
 
   Pin.prototype.deleteElement = function () {
     this.element.remove();
-  }
+  };
 
   /**
    * Функция checkActiveCard проверяет какой пин сейчас активен и добавляет класс map__pin--active
@@ -175,18 +173,18 @@
    */
   var checkActiveCard = function (clickedCard, informationCard) {
     var setNewActiveCard = function () {
-      activeCard.DomElement = clickedCard;
+      activeCard.domElement = clickedCard;
       activeCard.information = informationCard;
-      activeCard.DomElement.classList.add('map__pin--active');
+      activeCard.domElement.classList.add('map__pin--active');
     };
 
-    if (!activeCard.DomElement) {
+    if (!activeCard.domElement) {
       setNewActiveCard();
       return true;
     }
 
-    if (clickedCard !== activeCard.DomElement) {
-      activeCard.DomElement.classList.remove('map__pin--active');
+    if (clickedCard !== activeCard.domElement) {
+      activeCard.domElement.classList.remove('map__pin--active');
       activeCard.information.remove();
       setNewActiveCard();
       return true;
@@ -198,9 +196,9 @@
 
   // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
   var clearActiveCard = function () {
-    if (activeCard.DomElement) {
-      activeCard.DomElement.classList.remove('map__pin--active');
-      activeCard.DomElement = null;
+    if (activeCard.domElement) {
+      activeCard.domElement.classList.remove('map__pin--active');
+      activeCard.domElement = null;
       activeCard.information.remove();
       activeCard.information = null;
     }
@@ -217,31 +215,31 @@
     }
   };
 
-  var addPinsInMap = function() {
-    // var fragment = document.createDocumentFragment();
-    filteredPins = pins.filter(filter.filter).slice(0, PIN_COUNT);
-    // filteredPins = pins.filter(filter.filter);
+  // добавить пины на карту
+  var addPinsInMap = function () {
+    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
+
     for (var i = 0; i < PIN_COUNT; i++) {
+      // если в массиве отфильтрованных массив, есть элемент, добавляем на карту.
       if (filteredPins[i]) {
-        // renderPin(filteredPins[i]);
-        // fragment.appendChild(filteredPins[i].element);
         addPinToMap(filteredPins[i]);
       }
     }
-    // pinList.appendChild(fragment);
-  }
+  };
 
-  var addPinToMap = function(pin) {
-    // renderPin(pin);
+  /**
+   * Функция addPinToMap добавляем пин на карту.
+   * @param {object} pin принимает объект pin
+   */
+  var addPinToMap = function (pin) {
     pin.element.addEventListener('click', pin.onPinClick);
     pinList.appendChild(pin.element);
-  }
+  };
 
 
   /**
-   * Функция renderAds генерирует пины на карту.
-   * renderPin(pin) - создаёт пины на карте
-   * pin.checkCoords() - проверяет координаты пинов. Если пин выходит за границу, перерисовывает в зону карты.
+   * Если длина массива pins = 0, создаём новые пины(первое получение данных с сервера).
+   * Если массив уже заполнен, просто генерим пины на карту.
    * @param {array} ads массив данных, полученных с сервера
    */
   var renderAds = function (ads) {
@@ -262,12 +260,17 @@
 
     filteredPins.forEach(function (pin) {
       pin.deleteElement();
-    })
+    });
   };
 
-  var redrawAds = function() {
+  // перерисовка объявлений на карте.
+  var redrawAds = function () {
+    // получить все пины, которые находятся на карте.
     var arrayPins = Array.prototype.slice.call(document.querySelectorAll('.map__pin'));
 
+    // проверям отфильтрованный массив и пины, которые есть на карте
+    // Если Пина, нет на карте, но есть в отфильтрованном массиве, добавляем на карту
+    // Если пин на карте и в отфильтрованном массиве, то удаляем его из всех пинов на карте(для будующего удаления с карты)
     filteredPins.forEach(function (pin) {
       var pinID = arrayPins.indexOf(pin.element);
       if (pinID === -1) {
@@ -275,22 +278,36 @@
         return;
       }
       arrayPins.splice(pinID, 1);
-    })
+    });
 
+    // удаляем все лишние пины с карты.
     arrayPins.forEach(function (el, index) {
       if (index !== 0) {
         el.remove();
       }
     });
-  }
+
+    clearActiveCard();
+  };
 
   var debounceAds = debounce(redrawAds);
 
-  var onFilterChange = function() {
-    filteredPins = pins.filter(filter.filter).slice(0, PIN_COUNT);
-    // redrawAds();
+  var onFilterChange = function () {
+    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
     debounceAds();
-  }
+  };
+
+  // var testF2 = function (evt) {
+  //   return function (element) {
+  //     return filter.filter(element, evt);
+  //   };
+  // };
+
+  // var onFilterChange = function (evt) {
+  //   // var testF = testF2(evt);
+  //   filteredPins = pins.filter(testF);
+  //   debounceAds();
+  // };
 
   formFilter.addEventListener('change', onFilterChange);
 

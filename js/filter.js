@@ -1,129 +1,107 @@
 'use strict';
 
-(function() {
-  /*                                       ТЕСТ ФИЛЬТРАЦИЯ                                         */
-  var formFilter = document.querySelector('.map__filters');
+(function () {
   var housingType = document.querySelector('#housing-type');
   var housingPrice = document.querySelector('#housing-price');
   var housingRooms = document.querySelector('#housing-rooms');
   var housingGuests = document.querySelector('#housing-guests');
   var housingFeatures = document.querySelector('#housing-features');
 
-  var filterPrice = function(element) {
+  var filterPrice = function (element) {
     var price = housingPrice.value;
-    // var elementPrice = element.ad.offer.price;
-    if (price === 'any') {
-      return element;
-    }
+    var elementPrice = element.ad.offer.price;
+    var result = false;
 
     if (price === 'middle') {
-      return element.ad.offer.price >= 10000 && element.ad.offer.price < 50000;
+      result = elementPrice >= 10000 && elementPrice < 50000;
     }
 
     if (price === 'low') {
-      return element.ad.offer.price < 10000;
+      result = elementPrice < 10000;
     }
 
     if (price === 'high') {
-      return element.ad.offer.price > 50000;
+      result = elementPrice > 50000;
     }
+
+    return price === 'any' ? true : result;
   };
 
-  var filterType = function(element) {
+  var filterType = function (element) {
     var type = housingType.value;
     var elementType = element.ad.offer.type;
 
-    if (type === 'any') {
-      return element
-    }
-
-    if (type === 'palace') {
-      return elementType === type;
-    }
-
-    if (type === 'flat') {
-      return elementType === type;
-    }
-
-    if (type === 'house') {
-      return elementType === type;
-    }
-
-    if (type === 'bungalo') {
-      return elementType === type;
-    }
-  }
-
-  var filterRooms = function(element) {
-    var rooms = housingRooms.value;
-    var elementType = element.ad.offer.rooms;
-
-
-    if (rooms === 'any') {
-      return element
-    }
-
-    if (rooms === '1') {
-      return elementType === 1;
-    }
-
-    if (rooms === '2') {
-      return elementType === 2;
-    }
-
-    if (rooms === '3') {
-      return elementType === 3;
-    }
-  }
-
-  var filterGuests = function(element) {
-    var guests = housingGuests.value;
-    var elementType = element.ad.offer.guests;
-
-    if (guests === 'any') {
-      return element;
-    }
-
-    if (guests === '1') {
-      return elementType === 1
-    }
-
-    if (guests === '2') {
-      return elementType === 2;
-    }
-
-    if (guests === '0') {
-      return elementType === 0;
-    }
-  }
-
-  var filterFeatures = function(element) {
-    var featuresChecked = Array.prototype.slice.call(housingFeatures.querySelectorAll('input:checked'));
-    var features = featuresChecked.map(function(feature) {
-      return feature.value;
-    })
-    var elementFeatures = element.ad.offer.features;
-
-    if (features.length === 0) {
-      return element;
-    }
-
-    var testF = function(feature) {
-      return elementFeatures.indexOf(feature) !== -1;
-    }
-
-
-    if (features.every(testF)) {
-      return element;
-    }
+    return type === 'any' ? element : elementType === type;
   };
 
-  var filter = function(element) {
-    return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
-  }
+  var filterRooms = function (element) {
+    var rooms = housingRooms.value;
+    var elementRooms = element.ad.offer.rooms;
 
-  window.filter = {
-    filter: filter
-  }
-  /*---------------------------------------------------------------------------------------------- */
+    return rooms === 'any' ? element : elementRooms.toString() === rooms;
+  };
+
+  var filterGuests = function (element) {
+    var guests = housingGuests.value;
+    var elementGuests = element.ad.offer.guests;
+
+    return guests === 'any' ? element : elementGuests.toString() === guests;
+  };
+
+  // получение элемента по доп. функциям дома.
+  var filterFeatures = function (element) {
+    var featuresChecked = Array.prototype.slice.call(housingFeatures.querySelectorAll('input:checked'));
+    var elementFeatures = element.ad.offer.features;
+    var result = false;
+    var features = featuresChecked.map(function (feature) {
+      return feature.value;
+    });
+    // callback функция для функции получения всех features в фильтрации
+    var getFeatures = function (feature) {
+      return elementFeatures.indexOf(feature) !== -1;
+    };
+
+    if (features.length === 0) {
+      result = true;
+    }
+
+    // если у всех выбранных функций есть каждый элемент у элемента, возвращаем true;
+    if (features.every(getFeatures)) {
+      result = true;
+    }
+
+    return result;
+  };
+  /* ---------------------------- Тест ---------------------------------------- */
+
+  // var filterTypes = {
+  //   'housing-type': filterType,
+  //   'housing-price': filterPrice,
+  //   'housing-rooms': filterRooms,
+  //   'housing-guests': filterGuests,
+  //   'housing-features': filterFeatures
+  // };
+
+  // var filterF = function(ID, element) {
+  //   // return filterTypes[ID](element);
+  //   filterTypes[ID](element);
+  // };
+
+  /* -------------------------------------------------------------------------- */
+
+  var filter = function (element) {
+    return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
+  };
+  // var filter = function(element, evt) {
+  //   // console.log(element);
+  //   // console.log(evt.target);
+  //   // console.log(evt.target.id);
+  //   var ID = evt.target.id
+  //   filterF(ID, element);
+  //   return element.isFiltered ? element : null;
+  //   // return filterF(ID, element);
+  //   // return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
+  // }
+
+  window.filter = filter;
 })();
