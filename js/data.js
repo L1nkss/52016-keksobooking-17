@@ -216,30 +216,20 @@
   };
 
   // добавить пины на карту
-  var addPinsInMap = function () {
-    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
+  var addPinsOnMap = function () {
+    var fragment = document.createDocumentFragment();
 
-    for (var i = 0; i < PIN_COUNT; i++) {
-      // если в массиве отфильтрованных массив, есть элемент, добавляем на карту.
-      if (filteredPins[i]) {
-        addPinToMap(filteredPins[i]);
-      }
-    }
+    filteredPins.forEach(function (pin) {
+      pin.element.addEventListener('click', pin.onPinClick);
+      fragment.appendChild(pin.element);
+    });
+
+    pinList.appendChild(fragment);
   };
-
-  /**
-   * Функция addPinToMap добавляем пин на карту.
-   * @param {object} pin принимает объект pin
-   */
-  var addPinToMap = function (pin) {
-    pin.element.addEventListener('click', pin.onPinClick);
-    pinList.appendChild(pin.element);
-  };
-
 
   /**
    * Если длина массива pins = 0, создаём новые пины(первое получение данных с сервера).
-   * Если массив уже заполнен, просто генерим пины на карту.
+   * Если массив уже заполнен, просто добавляем пины на карту.
    * @param {array} ads массив данных, полученных с сервера
    */
   var renderAds = function (ads) {
@@ -252,7 +242,9 @@
       });
     }
 
-    addPinsInMap();
+    // получаем первые 5 значений пинов по фильтрам.
+    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
+    addPinsOnMap();
   };
 
   // удалить все объявления
@@ -268,17 +260,21 @@
     // получить все пины, которые находятся на карте.
     var arrayPins = Array.prototype.slice.call(document.querySelectorAll('.map__pin'));
 
-    // проверям отфильтрованный массив и пины, которые есть на карте
-    // Если Пина, нет на карте, но есть в отфильтрованном массиве, добавляем на карту
-    // Если пин на карте и в отфильтрованном массиве, то удаляем его из всех пинов на карте(для будующего удаления с карты)
-    filteredPins.forEach(function (pin) {
+
+    // Проходим по отфильтрованному массиву.
+    // Если на карте нет элемента, который должен быть отрисован. Добавляем его в массив
+    // Если элемент есть на карте, то удаляем его с карты, но в новый массив не заносим.
+    filteredPins = filteredPins.filter(function (pin) {
       var pinID = arrayPins.indexOf(pin.element);
       if (pinID === -1) {
-        addPinToMap(pin);
-        return;
+        return pin;
       }
       arrayPins.splice(pinID, 1);
+      return false;
     });
+
+    // Отрисовать все пины.
+    addPinsOnMap();
 
     // удаляем все лишние пины с карты.
     arrayPins.forEach(function (el, index) {
@@ -287,6 +283,7 @@
       }
     });
 
+    // убираем открытую карточку.
     clearActiveCard();
   };
 

@@ -179,7 +179,7 @@
   // Удаление всех загруженных фотографий.
   var removeImages = function () {
     var gallery = document.querySelector('.ad-form__photo-container');
-    var images = Array.from(gallery.children);
+    var images = Array.prototype.slice.call(gallery.children);
     images.forEach(function (el) {
       if (el.className === 'ad-form__photo') {
         el.remove();
