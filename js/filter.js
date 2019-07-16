@@ -7,24 +7,19 @@
   var housingGuests = document.querySelector('#housing-guests');
   var housingFeatures = document.querySelector('#housing-features');
 
+  // диапазон цен стоимости жилья.
+  var rangeOfPrices = {
+    'any': {min: 0, max: Infinity},
+    'middle': {min: 10000, max: 50000},
+    'low': {min: 0, max: 10000},
+    'high': {min: 50000, max: Infinity}
+  };
+
   var filterPrice = function (element) {
-    var price = housingPrice.value;
     var elementPrice = element.ad.offer.price;
-    var result = false;
+    var range = rangeOfPrices[housingPrice.value];
 
-    if (price === 'middle') {
-      result = elementPrice >= 10000 && elementPrice < 50000;
-    }
-
-    if (price === 'low') {
-      result = elementPrice < 10000;
-    }
-
-    if (price === 'high') {
-      result = elementPrice > 50000;
-    }
-
-    return price === 'any' ? true : result;
+    return elementPrice >= range.min && elementPrice < range.max;
   };
 
   var filterType = function (element) {
@@ -72,36 +67,10 @@
 
     return result;
   };
-  /* ---------------------------- Тест ---------------------------------------- */
-
-  // var filterTypes = {
-  //   'housing-type': filterType,
-  //   'housing-price': filterPrice,
-  //   'housing-rooms': filterRooms,
-  //   'housing-guests': filterGuests,
-  //   'housing-features': filterFeatures
-  // };
-
-  // var filterF = function(ID, element) {
-  //   // return filterTypes[ID](element);
-  //   filterTypes[ID](element);
-  // };
-
-  /* -------------------------------------------------------------------------- */
 
   var filter = function (element) {
     return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
   };
-  // var filter = function(element, evt) {
-  //   // console.log(element);
-  //   // console.log(evt.target);
-  //   // console.log(evt.target.id);
-  //   var ID = evt.target.id
-  //   filterF(ID, element);
-  //   return element.isFiltered ? element : null;
-  //   // return filterF(ID, element);
-  //   // return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
-  // }
 
   window.filter = filter;
 })();

@@ -30,9 +30,9 @@
   var filteredPins = [];
 
   // функция для отображения пинов через 1с(устранение дребезга)
-  var debounce = function (callback) {
+  var debounce = function (callback, time) {
     var lastTimeout = null;
-    var time = 1000;
+    time = time || time === 0 ? time : 1000;
 
     return function () {
       if (lastTimeout) {
@@ -290,24 +290,12 @@
     clearActiveCard();
   };
 
-  var debounceAds = debounce(redrawAds);
+  var debounceAds = debounce(redrawAds, 1500);
 
   var onFilterChange = function () {
     filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
     debounceAds();
   };
-
-  // var testF2 = function (evt) {
-  //   return function (element) {
-  //     return filter.filter(element, evt);
-  //   };
-  // };
-
-  // var onFilterChange = function (evt) {
-  //   // var testF = testF2(evt);
-  //   filteredPins = pins.filter(testF);
-  //   debounceAds();
-  // };
 
   formFilter.addEventListener('change', onFilterChange);
 
