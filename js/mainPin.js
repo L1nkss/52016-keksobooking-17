@@ -1,6 +1,6 @@
 'use strict';
 
-(function (map, form, createRequest, notify, usersAd) {
+(function (map, form, createRequest, notify, usersAd, utilities) {
   // острый конец пина
   var PIN_TIP = 22;
   var spinner = document.querySelector('.loader');
@@ -26,6 +26,7 @@
     this.changePinStatus = this.changePinStatus.bind(this);
     this.restoreDefaultPosition = this.restoreDefaultPosition.bind(this);
     this.pin.addEventListener('mousedown', this.onMouseDown);
+    this.pin.addEventListener('keydown', this.onEnterPress);
 
     this.calculatePotision();
     this.calculateStartPotision();
@@ -74,6 +75,15 @@
     map.mapPins.initOffsetCoords(x, y);
 
     document.addEventListener('mouseup', onMouseUp);
+  };
+
+  Pin.prototype.onEnterPress = function (evt) {
+    if (utilities.isEnterPress(evt.keyCode)) {
+      // активируем страницу при первом зажатии главного пина
+      activatePage();
+      // меняет адрес, так как меняется размер пина
+      form.fillAddress(mainPin.getPosition());
+    }
   };
 
   Pin.prototype.onMouseMove = function (newPositionX, newPositionY) {
@@ -179,10 +189,10 @@
     mainPin.changePinStatus();
     disactivatePage();
   };
-  var onFormReset = form.formReset(restoreDefaultPosition);
+  var onFormReset = form.formReset(setDefaultPageStatus);
   var onFormSubmit = form.formSubmit(setDefaultPageStatus);
 
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);
 
-})(window.map, window.form, window.request, window.notify, window.data);
+})(window.map, window.form, window.request, window.notify, window.data, window.utilities);

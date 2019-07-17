@@ -1,6 +1,6 @@
 'use strict';
 
-(function (utilities) {
+(function (utilities, filter) {
   var HouseTypes = {
     BUNGALO: 'Бунгало',
     FLAT: 'Квартира',
@@ -15,15 +15,33 @@
   };
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
+  var PIN_COUNT = 5; // количество пинов на карте.
   var pinList = document.querySelector('.map__pins');
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+  var formFilter = document.querySelector('.map__filters');
   // объект для хранения активного пина на странице(хранится DOM Элемент пина и карточки)
   var activeCard = {
     information: null,
-    DomElement: null
+    domElement: null
   };
   var pins = [];
+  // отфильтрованные пины.
+  var filteredPins = [];
+
+  // функция для отображения пинов через 1с(устранение дребезга)
+  var debounce = function (callback, time) {
+    var lastTimeout = null;
+    time = time || time === 0 ? time : 1000;
+
+    return function () {
+      if (lastTimeout) {
+        window.clearTimeout(lastTimeout);
+      }
+
+      lastTimeout = window.setTimeout(callback, time);
+    };
+  };
 
   var renderImage = function (image) {
     var img = document.createElement('img');
@@ -92,13 +110,14 @@
     return element;
   };
 
-  // создание пинов на карте
+  // создание первоночального пина в объекте PIN(как пин будет выглядить на карте)
   var renderPin = function (pin) {
     var element = adTemplate.cloneNode(true);
     element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
     element.querySelector('img').src = pin.ad.author.avatar;
     element.querySelector('img').alt = pin.ad.offer.type;
     pin.element = element;
+    pin.checkCoords();
   };
 
   function Pin(ad) {
@@ -140,6 +159,10 @@
     }
   };
 
+  Pin.prototype.deleteElement = function () {
+    this.element.remove();
+  };
+
   /**
    * Функция checkActiveCard проверяет какой пин сейчас активен и добавляет класс map__pin--active
    * У другого пина убирает этот класс.
@@ -150,18 +173,18 @@
    */
   var checkActiveCard = function (clickedCard, informationCard) {
     var setNewActiveCard = function () {
-      activeCard.DomElement = clickedCard;
+      activeCard.domElement = clickedCard;
       activeCard.information = informationCard;
-      activeCard.DomElement.classList.add('map__pin--active');
+      activeCard.domElement.classList.add('map__pin--active');
     };
 
-    if (!activeCard.DomElement) {
+    if (!activeCard.domElement) {
       setNewActiveCard();
       return true;
     }
 
-    if (clickedCard !== activeCard.DomElement) {
-      activeCard.DomElement.classList.remove('map__pin--active');
+    if (clickedCard !== activeCard.domElement) {
+      activeCard.domElement.classList.remove('map__pin--active');
       activeCard.information.remove();
       setNewActiveCard();
       return true;
@@ -173,9 +196,9 @@
 
   // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
   var clearActiveCard = function () {
-    if (activeCard.DomElement) {
-      activeCard.DomElement.classList.remove('map__pin--active');
-      activeCard.DomElement = null;
+    if (activeCard.domElement) {
+      activeCard.domElement.classList.remove('map__pin--active');
+      activeCard.domElement = null;
       activeCard.information.remove();
       activeCard.information = null;
     }
@@ -192,39 +215,90 @@
     }
   };
 
-
-  /**
-   * Функция renderAds генерирует пины на карту.
-   * renderPin(pin) - создаёт пины на карте
-   * pin.checkCoords() - проверяет координаты пинов. Если пин выходит за границу, перерисовывает в зону карты.
-   * @param {array} ads массив данных, полученных с сервера
-   */
-  var renderAds = function (ads) {
+  // добавить пины на карту
+  var addPinsOnMap = function () {
     var fragment = document.createDocumentFragment();
-    ads.forEach(function (ad) {
-      var pin = new Pin(ad);
-      renderPin(pin);
-      pins.push(pin);
-      pin.checkCoords();
+
+    filteredPins.forEach(function (pin) {
       pin.element.addEventListener('click', pin.onPinClick);
       fragment.appendChild(pin.element);
     });
+
     pinList.appendChild(fragment);
+  };
+
+  /**
+   * Если длина массива pins = 0, создаём новые пины(первое получение данных с сервера).
+   * Если массив уже заполнен, просто добавляем пины на карту.
+   * @param {array} ads массив данных, полученных с сервера
+   */
+  var renderAds = function (ads) {
+
+    if (pins.length === 0) {
+      ads.forEach(function (ad) {
+        var pin = new Pin(ad);
+        renderPin(pin);
+        pins.push(pin);
+      });
+    }
+
+    // получаем первые 5 значений пинов по фильтрам.
+    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
+    addPinsOnMap();
   };
 
   // удалить все объявления
   var removeAds = function () {
-    var arrayPins = document.querySelectorAll('.map__pin');
+
+    filteredPins.forEach(function (pin) {
+      pin.deleteElement();
+    });
+  };
+
+  // перерисовка объявлений на карте.
+  var redrawAds = function () {
+    // получить все пины, которые находятся на карте.
+    var arrayPins = Array.prototype.slice.call(document.querySelectorAll('.map__pin'));
+
+
+    // Проходим по отфильтрованному массиву.
+    // Если на карте нет элемента, который должен быть отрисован. Добавляем его в массив
+    // Если элемент есть на карте, то удаляем его с карты, но в новый массив не заносим.
+    filteredPins = filteredPins.filter(function (pin) {
+      var pinID = arrayPins.indexOf(pin.element);
+      if (pinID === -1) {
+        return pin;
+      }
+      arrayPins.splice(pinID, 1);
+      return false;
+    });
+
+    // Отрисовать все пины.
+    addPinsOnMap();
+
+    // удаляем все лишние пины с карты.
     arrayPins.forEach(function (el, index) {
       if (index !== 0) {
         el.remove();
       }
     });
+
+    // убираем открытую карточку.
+    clearActiveCard();
   };
+
+  var debounceAds = debounce(redrawAds, 1500);
+
+  var onFilterChange = function () {
+    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
+    debounceAds();
+  };
+
+  formFilter.addEventListener('change', onFilterChange);
 
   window.data = {
     renderAds: renderAds,
     removeAds: removeAds,
     clearActiveCard: clearActiveCard
   };
-})(window.utilities);
+})(window.utilities, window.filter);

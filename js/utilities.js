@@ -2,6 +2,7 @@
 
 (function () {
   var ESC_CODE = 27;
+  var ENTER_CODE = 13;
   /**
  * Получить случайное число
  *
@@ -47,10 +48,15 @@
     return key === ESC_CODE;
   };
 
+  var isEnterPress = function (key) {
+    return key === ENTER_CODE;
+  };
+
   window.utilities = {
     getRandomInt: getRandomInt,
     getRandomArrayElement: getRandomArrayElement,
     generateUniqImage: generateUniqImage,
-    isEscPress: isEscPress
+    isEscPress: isEscPress,
+    isEnterPress: isEnterPress
   };
 })();
