@@ -29,6 +29,29 @@
   // отфильтрованные пины.
   var filteredPins = [];
 
+  // объект в котором хранятся все активные пины на карте(которые отображаются для пользователя)
+  var activePins = {
+    pins: null,
+    // Методы
+    getActivePins: function () {
+      return this.pins;
+    },
+
+    defineActivePins: function () {
+      this.pins = Array.prototype.slice.call(document.querySelectorAll('.pin'));
+    },
+
+    deleteAllActivePins: function () {
+      this.pins.forEach(function (pin) {
+        pin.remove();
+      });
+    },
+
+    deletePin: function (ID) {
+      this.pins[ID].remove();
+    }
+  };
+
   // функция для отображения пинов через 1с(устранение дребезга)
   var debounce = function (callback, time) {
     var lastTimeout = null;
@@ -117,6 +140,7 @@
     element.querySelector('img').src = pin.ad.author.avatar;
     element.querySelector('img').alt = pin.ad.offer.type;
     pin.element = element;
+    pin.element.classList.add('pin');
     pin.checkCoords();
   };
 
@@ -245,6 +269,8 @@
     // получаем первые 5 значений пинов по фильтрам.
     filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
     addPinsOnMap();
+    // получить все пины, которые находятся на карте.
+    activePins.defineActivePins();
   };
 
   // удалить все объявления
@@ -255,36 +281,41 @@
     });
   };
 
+  // Получить массив отфильтрованных элементов(fragment'ов)
+  var getArrayOfElements = function () {
+    return filteredPins.map(function (pin) {
+      return pin.element;
+    });
+  };
+
   // перерисовка объявлений на карте.
   var redrawAds = function () {
-    // получить все пины, которые находятся на карте.
-    var arrayPins = Array.prototype.slice.call(document.querySelectorAll('.map__pin'));
+    // получаем список отфильтрованных пинов в виде массива их элементов(фрагментов)
+    var filteredPinList = getArrayOfElements();
 
-
-    // Проходим по отфильтрованному массиву.
-    // Если на карте нет элемента, который должен быть отрисован. Добавляем его в массив
-    // Если элемент есть на карте, то удаляем его с карты, но в новый массив не заносим.
-    filteredPins = filteredPins.filter(function (pin) {
-      var pinID = arrayPins.indexOf(pin.element);
+    // если элемента из активных пинов не содержится в отфильтрованном массиве, удаляем его с карты
+    activePins.pins.forEach(function (pin, index) {
+      var pinID = filteredPinList.indexOf(pin);
       if (pinID === -1) {
-        return pin;
+        activePins.deletePin(index);
       }
-      arrayPins.splice(pinID, 1);
-      return false;
     });
 
-    // Отрисовать все пины.
+    // формируем новый отфильтрованный массив без элементов, которые уже на карте
+    filteredPins = filteredPins.filter(function (pin) {
+      var pinID = activePins.pins.indexOf(pin.element);
+
+      return pinID === -1 ? true : false;
+    });
+
+    // Отрисовать все пины
     addPinsOnMap();
 
-    // удаляем все лишние пины с карты.
-    arrayPins.forEach(function (el, index) {
-      if (index !== 0) {
-        el.remove();
-      }
-    });
-
-    // убираем открытую карточку.
+    // убираем открытую карточку
     clearActiveCard();
+
+    // заполняем массив с активными карточками
+    activePins.defineActivePins();
   };
 
   var debounceAds = debounce(redrawAds, 1500);
