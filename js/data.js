@@ -267,7 +267,7 @@
     }
 
     // получаем первые 5 значений пинов по фильтрам.
-    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
+    filteredPins = pins.filter(filter.filter).slice(0, PIN_COUNT);
     addPinsOnMap();
     // получить все пины, которые находятся на карте.
     activePins.defineActivePins();
@@ -321,7 +321,7 @@
   var debounceAds = debounce(redrawAds, 1500);
 
   var onFilterChange = function () {
-    filteredPins = pins.filter(filter).slice(0, PIN_COUNT);
+    filteredPins = pins.filter(filter.filter).slice(0, PIN_COUNT);
     debounceAds();
   };
 

@@ -1,6 +1,6 @@
 'use strict';
 
-(function (map, form, createRequest, notify, usersAd, utilities) {
+(function (map, form, createRequest, notify, usersAd, utilities, filter) {
   // острый конец пина
   var PIN_TIP = 22;
   var spinner = document.querySelector('.loader');
@@ -171,8 +171,9 @@
     mainPin.changePinStatus();
     // меняем статус карты
     map.map.changeMapStatus();
+    // возвращаем стандартные настройки для фильтров
+    filter.restoreDefaultSetting();
     // удаляем карточки
-    // usersAd.removeAds();
     usersAd.activePins.deleteAllActivePins();
     // если есть открытые карточки, закрываем её
     usersAd.clearActiveCard();
@@ -197,4 +198,4 @@
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);
 
-})(window.map, window.form, window.request, window.notify, window.data, window.utilities);
+})(window.map, window.form, window.request, window.notify, window.data, window.utilities, window.filter);

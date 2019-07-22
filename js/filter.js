@@ -68,9 +68,27 @@
     return result;
   };
 
+  var restoreDefaultSetting = function () {
+    // получаем массив всех доп. функций, которые выбраны.
+    var features = Array.prototype.slice.call(housingFeatures.querySelectorAll('input:checked'));
+
+    housingType.value = 'any';
+    housingPrice.value = 'any';
+    housingRooms.value = 'any';
+    housingGuests.value = 'any';
+
+    // у всех выбранных функций убиваем checked.
+    features.forEach(function (feature) {
+      feature.checked = false;
+    });
+  };
+
   var filter = function (element) {
     return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
   };
 
-  window.filter = filter;
+  window.filter = {
+    filter: filter,
+    restoreDefaultSetting: restoreDefaultSetting
+  };
 })();
