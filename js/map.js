@@ -31,6 +31,7 @@
   var calculateCoords = function (mouseX, mouseY, width, height) {
     var posX = mouseX - mapPins.offset.x;
     var posY = mouseY - mapPins.offset.y;
+
     // Проверяем находимся ли мы внутри карты или нет
     var isValidX = posX >= MapLimit.LEFT && posX < MapLimit.RIGHT - width;
     var isValidY = posY >= MapLimit.TOP - height && posY <= MapLimit.BOTTOM - height;
@@ -41,7 +42,7 @@
           coords.posX = MapLimit.RIGHT - width;
         }
 
-        if (posX < MapLimit.LEFT) {
+        if (posX <= MapLimit.LEFT) {
           coords.posX = MapLimit.LEFT;
         }
 

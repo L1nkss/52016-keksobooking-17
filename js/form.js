@@ -25,6 +25,8 @@
     0: 'не для гостей'
   };
 
+  var prevSelectedOption = null;
+
   var DRAG_EVENTS = ['drop', 'dragenter', 'dragleave', 'dragover'];
 
   var adFormStatus = document.querySelector('.ad-form');
@@ -161,14 +163,23 @@
     option.text = GuestCounts[index];
     option.value = index;
 
+    // если предыдущее выбранное значение = index, то делаем option выбранным.
+    if (prevSelectedOption === index) {
+      option.selected = true;
+    }
+
     return option;
   };
 
   var changeGuestCapacity = function (rooms) {
+    // получаем предыдущее выбранное значение и переводим в number
+    prevSelectedOption = parseInt(capacity.options[capacity.selectedIndex].value, 10);
+
     capacity.length = 0;
     rooms.forEach(function (el) {
       capacity.add(createOption(el));
     });
+
   };
 
   var preventDefaultEvents = function (evt) {

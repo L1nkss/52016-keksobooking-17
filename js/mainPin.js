@@ -70,6 +70,7 @@
     form.fillAddress(mainPin.getPosition());
 
     document.addEventListener('mousemove', checkCoords);
+
     var x = evt.clientX - parseInt(evt.currentTarget.style.left, 10);
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
     map.mapPins.initOffsetCoords(x, y);
