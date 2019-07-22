@@ -330,6 +330,7 @@
   window.data = {
     renderAds: renderAds,
     removeAds: removeAds,
-    clearActiveCard: clearActiveCard
+    clearActiveCard: clearActiveCard,
+    activePins: activePins
   };
 })(window.utilities, window.filter);

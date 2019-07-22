@@ -172,7 +172,8 @@
     // меняем статус карты
     map.map.changeMapStatus();
     // удаляем карточки
-    usersAd.removeAds();
+    // usersAd.removeAds();
+    usersAd.activePins.deleteAllActivePins();
     // если есть открытые карточки, закрываем её
     usersAd.clearActiveCard();
     // меняем статус pina
