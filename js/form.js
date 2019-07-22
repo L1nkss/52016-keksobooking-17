@@ -1,6 +1,8 @@
 'use strict';
 
 (function (createRequest, notify) {
+
+
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -146,6 +148,9 @@
       el.disabled = !el.disabled;
     });
 
+    // // меняем значение по умолчанию и на валидное.
+    // changeGuestCapacity(RoomCounts[roomNumber.value]);
+
     adForm.forEach(function (el) {
       el.disabled = !el.disabled;
     });
@@ -202,16 +207,24 @@
    * Возвращает значения по умолчанию для полей формы.
    */
   var restoreDefaultForm = function () {
+    // все дополнительные функции
     var featuresItems = features.querySelectorAll('input');
+    // возвращаем значение по умолчанию у 'Заголовок объявления'
     headerInput.restoreDefault();
+    // возвращаем значение по умолчанию у 'Цена за ночь'
     pricePerNightInput.restoreDefault();
+    // возвращаем значение по умолчанию у 'Тип жилья'
+    houseType.value = 'flat';
+    // возвращаем значение по умолчанию у 'Описание'
     description.value = '';
     userAvatar.src = 'img/muffin-grey.svg';
-    changeGuestCapacity(RoomCounts['DEFAULT']);
     timein.value = '12:00';
     syncTime(timein, timeout);
 
     removeImages();
+    roomNumber.value = 1;
+    // возвращаем значение по умолчанию у 'Количество комнат'
+    changeGuestCapacity(RoomCounts['DEFAULT']);
 
     featuresItems.forEach(function (item) {
       item.checked = false;
