@@ -135,6 +135,9 @@
 
   // создание первоночального пина в объекте PIN(как пин будет выглядить на карте)
   var renderPin = function (pin) {
+    if (!pin.ad.offer) {
+      return null;
+    }
     var element = adTemplate.cloneNode(true);
     element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
     element.querySelector('img').src = pin.ad.author.avatar;
@@ -142,6 +145,8 @@
     pin.element = element;
     pin.element.classList.add('pin');
     pin.checkCoords();
+
+    return true;
   };
 
   function Pin(ad) {

@@ -122,6 +122,12 @@
   var headerInput = new ReqNameInput(nameInput, nameInputText);
   var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
 
+  var restoreRooms = function () {
+    roomNumber.value = 1;
+    // возвращаем значение по умолчанию у 'Количество комнат'
+    changeGuestCapacity(RoomCounts['DEFAULT']);
+  };
+
   /**
    * Функции OnSuccess и onError для отправки данных с формы
    */
