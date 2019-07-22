@@ -1,6 +1,6 @@
 'use strict';
 
-(function () {
+(function (utilities) {
   var housingType = document.querySelector('#housing-type');
   var housingPrice = document.querySelector('#housing-price');
   var housingRooms = document.querySelector('#housing-rooms');
@@ -70,7 +70,8 @@
 
   var restoreDefaultSetting = function () {
     // получаем массив всех доп. функций, которые выбраны.
-    var features = Array.prototype.slice.call(housingFeatures.querySelectorAll('input:checked'));
+    // var features = Array.prototype.slice.call(housingFeatures.querySelectorAll('input:checked'));
+    var features = housingFeatures.querySelectorAll('input:checked');
 
     housingType.value = 'any';
     housingPrice.value = 'any';
@@ -87,8 +88,16 @@
     return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
   };
 
+  var onFeatureEnterClick = function (evt) {
+    if (utilities.isEnterPress(evt.keyCode)) {
+      evt.target.checked = !evt.target.checked;
+    }
+  };
+
+  housingFeatures.addEventListener('keydown', onFeatureEnterClick);
+
   window.filter = {
     filter: filter,
     restoreDefaultSetting: restoreDefaultSetting
   };
-})();
+})(window.utilities);
