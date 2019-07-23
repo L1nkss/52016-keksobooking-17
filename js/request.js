@@ -4,7 +4,8 @@
   var ErrorCodes = {
     404: 'Страница не найдена. Неправильный url',
     SYNTAX_ERROR: 'Невалидные данные с сервера. Попробуйте позже',
-    TIMEOUT: 'время подключение истекло. Попробуйте позже'
+    TIMEOUT: 'время подключение истекло. Попробуйте позже',
+    0: 'Отсутствует соединение с интернетом. Попробуйте ещё раз!'
   };
 
   var data = [];
@@ -15,7 +16,6 @@
 
   var request = function (url, method, onSuccess, onError, body) {
     var http = new XMLHttpRequest();
-    http.timeout = 15000;
     var loadCompleted = function () {
       if (http.status === 200) {
         try {
@@ -32,9 +32,13 @@
       onError(http.status, ErrorCodes[http.status]);
     };
 
-    var timeout = function () {
+    var onRequestTimeout = function () {
       onError('Timeout', ErrorCodes['TIMEOUT']);
     };
+
+    var onRequestFails = function () {
+      onError(http.status, ErrorCodes[http.status]);
+    }
 
     var sendCompleted = function () {
       if (http.status === 200) {
@@ -44,7 +48,8 @@
       onError();
     };
 
-    http.addEventListener('timeout', timeout);
+    http.addEventListener('timeout', onRequestTimeout);
+    http.addEventListener('error', onRequestFails);
 
     if (method === 'GET') {
       http.addEventListener('load', loadCompleted);
