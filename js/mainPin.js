@@ -7,7 +7,7 @@
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
 
-  function Pin(element) {
+  var Pin = function (element) {
     this.pin = element;
     this.isActive = false;
     // получаем высоту изображения
@@ -30,7 +30,7 @@
 
     this.calculatePotision();
     this.calculateStartPotision();
-  }
+  };
 
   /*                    Прототипы класса Pin                               */
   /* --------------------------------------------------------------------- */

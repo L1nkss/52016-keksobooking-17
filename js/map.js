@@ -72,17 +72,17 @@
     return coords;
   };
 
-  function Map(element) {
+  var Map = function (element) {
     this.map = element;
-  }
+  };
 
-  function MapPins(element) {
+  var MapPins = function (element) {
     Map.call(this, element);
     this.offset = {
       x: 0,
       y: 0
     };
-  }
+  };
 
   Map.prototype.changeMapStatus = function () {
     this.map.classList.toggle('map--faded');

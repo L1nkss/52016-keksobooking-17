@@ -3,12 +3,16 @@
 (function (utilities) {
   // диапазон цен стоимости жилья.
   var rangeOfPrices = {
-    'any': {min: 0, max: Infinity},
-    'middle': {min: 10000, max: 50000},
-    'low': {min: 0, max: 10000},
-    'high': {min: 50000, max: Infinity}
+    'ANY': {min: 0, max: Infinity},
+    'MIDDLE': {min: 10000, max: 50000},
+    'LOW': {min: 0, max: 10000},
+    'HIGH': {min: 50000, max: Infinity}
   };
-  function Housing() {
+
+  var filters;
+
+  // констуктор для полей фильтрации
+  var Housing = function () {
     this.type = document.querySelector('#housing-type');
     this.price = document.querySelector('#housing-price');
     this.rooms = document.querySelector('#housing-rooms');
@@ -23,7 +27,7 @@
 
     this.restoreDefaultSettings = this.restoreDefaultSettings.bind(this);
     this.features.addEventListener('keydown', this.onFeatureEnterClick);
-  }
+  };
 
   // Восстановить значение по умолчанию у полей фильтрации
   Housing.prototype.restoreDefaultSettings = function () {
@@ -65,11 +69,11 @@
     return this[key].value;
   };
 
-  var filters = new Housing();
+  filters = new Housing();
 
   var filterPrice = function (element) {
     var elementPrice = element.ad.offer.price;
-    var range = rangeOfPrices[filters.getValue('price')];
+    var range = rangeOfPrices[filters.getValue('price').toUpperCase()];
 
     return elementPrice >= range.min && elementPrice < range.max;
   };
@@ -125,7 +129,7 @@
   };
 
   window.filter = {
-    filter: filter,
+    filterValues: filter,
     restoreDefaultSetting: filters.restoreDefaultSettings
   };
 })(window.utilities);
