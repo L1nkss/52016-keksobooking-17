@@ -38,7 +38,7 @@
 
     var onRequestFails = function () {
       onError(http.status, ErrorCodes[http.status]);
-    }
+    };
 
     var sendCompleted = function () {
       if (http.status === 200) {
