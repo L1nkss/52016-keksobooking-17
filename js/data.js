@@ -96,21 +96,21 @@
   //  Функция конструктор для создания карточки с подробной информацией.
   function RenderPinCardInformation(ad) {
     this.element = cardTemplate.cloneNode(true);
+    this.ad = ad;
     this.imageGallery = this.element.querySelector('.popup__photos');
     this.features = this.element.querySelector('.popup__features');
-    this.element.querySelector('.popup__avatar').src = ad.author.avatar;
-    this.ad = ad;
-    this.time = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
-    this.priceText = ad.offer.price + ' ₽/ночь';
-    this.guestsRooms = ad.offer.rooms + ' комнаты для ' + ad.offer.guests + ' гостей';
+    this.element.querySelector('.popup__avatar').src = this.ad.author.avatar;
+    this.time = 'Заезд после ' + this.ad.offer.checkin + ', выезд до ' + this.ad.offer.checkout;
+    this.priceText = this.ad.offer.price + ' ₽/ночь';
+    this.guestsRooms = this.ad.offer.rooms + ' комнаты для ' + this.ad.offer.guests + ' гостей';
     this.textContent = [
-      {query: '.popup__avatar', value: ad.author.avatar},
-      {query: '.popup__title', value: ad.offer.title},
-      {query: '.popup__text--address', value: ad.offer.address},
-      {query: '.popup__type', value: HouseTypes[ad.offer.type.toUpperCase()]},
+      {query: '.popup__avatar', value: this.ad.author.avatar},
+      {query: '.popup__title', value: this.ad.offer.title},
+      {query: '.popup__text--address', value: this.ad.offer.address},
+      {query: '.popup__type', value: HouseTypes[this.ad.offer.type.toUpperCase()]},
       {query: '.popup__text--time', value: this.time},
       {query: '.popup__text--capacity', value: this.guestsRooms},
-      {query: '.popup__description', value: ad.offer.description},
+      {query: '.popup__description', value: this.ad.offer.description},
       {query: '.popup__text--price', value: this.priceText}
     ];
   }
