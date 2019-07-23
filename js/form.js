@@ -1,8 +1,6 @@
 'use strict';
 
 (function (createRequest, notify) {
-
-
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -28,31 +26,116 @@
   };
 
   var prevSelectedOption = null;
+  var formStatus = false;
 
   var DRAG_EVENTS = ['drop', 'dragenter', 'dragleave', 'dragover'];
 
-  var adFormStatus = document.querySelector('.ad-form');
   var addressInput = document.querySelector('#address');
-  var mapFilter = document.querySelectorAll('.map__filter');
-  var mapFeatures = document.querySelector('.map__features');
   var nameInput = document.querySelector('#title');
   var nameInputText = document.querySelector('.title-label');
   var priceInput = document.querySelector('#price');
   var priceInputText = document.querySelector('.price-label');
   var houseType = document.querySelector('#type');
-  var timein = document.querySelector('#timein');
-  var timeout = document.querySelector('#timeout');
-  var roomNumber = document.querySelector('#room_number');
-  var capacity = document.querySelector('#capacity');
   var main = document.querySelector('main');
-  var description = document.querySelector('#description');
-  var features = document.querySelector('.features');
   var avatarLoader = document.querySelector('#avatar');
   var imagesLoader = document.querySelector('#images');
   var avatarDropZone = document.querySelector('.ad-form-header__drop-zone');
   var imagesDropZone = document.querySelector('.ad-form__drop-zone');
   var userAvatar = document.querySelector('.ad-form-header__preview > img');
-  var formFieldsets = adFormStatus.querySelectorAll('fieldset');
+
+
+  function Fieldsets() {
+    this.houseType = document.querySelector('#type');
+    this.description = document.querySelector('#description');
+    this.userAvatar = document.querySelector('.ad-form-header__preview > img');
+    this.timeIn = document.querySelector('#timein');
+    this.timeOut = document.querySelector('#timeout');
+    this.rooms = document.querySelector('#room_number');
+    this.capacity = document.querySelector('#capacity');
+    this.features = document.querySelector('.features');
+    this.defaultValues = {
+      houseType: this.houseType.value,
+      description: this.description.value,
+      userAvatar: this.userAvatar.getAttribute('src'),
+      timeIn: this.timeIn.value,
+      timeOut: this.timeOut.value,
+    };
+    this.defaultRooms = {
+      roomCount: this.rooms.value,
+      selectedRoom: this.getSelectedGuestsValue()
+    };
+
+    this.onTimeInChanges = this.onTimeInChanges.bind(this);
+    this.onTimeOutChanges = this.onTimeOutChanges.bind(this);
+    this.onRoomNumberChanges = this.onRoomNumberChanges.bind(this);
+
+    this.timeIn.addEventListener('change', this.onTimeInChanges);
+    this.timeOut.addEventListener('change', this.onTimeOutChanges);
+    this.rooms.addEventListener('change', this.onRoomNumberChanges);
+  }
+
+  Fieldsets.prototype.getSelectedGuestsValue = function () {
+    return parseInt(this.capacity.options[this.capacity.selectedIndex].value, 10);
+  };
+
+  Fieldsets.prototype.restoreDefaultFeatures = function () {
+    var featuresChecked = this.features.querySelectorAll('input:checked');
+
+    featuresChecked.forEach(function (feature) {
+      feature.checked = false;
+    });
+  };
+
+  Fieldsets.prototype.restoreDefaultRooms = function () {
+    this.rooms.value = this.defaultRooms.roomCount;
+    prevSelectedOption = this.defaultRooms.selected;
+    this.changeGuestCapacity(RoomCounts['DEFAULT']);
+  };
+
+  Fieldsets.prototype.restoreDefaultValues = function () {
+    var self = this;
+    // получаем ключи из объекта defaultValue и перебираем их в цикле
+    Object.keys(this.defaultValues).forEach(function (key) {
+      // у соответсвующего элемента фильтрации устанавливаем значение по умолчанию.
+      self[key].value = self.defaultValues[key];
+    });
+  };
+
+  Fieldsets.prototype.restoreDefaultSetting = function () {
+    this.restoreDefaultValues();
+
+    this.restoreDefaultFeatures();
+
+    this.restoreDefaultRooms();
+  };
+
+  Fieldsets.prototype.syncTimes = function (firstElement, secondElement) {
+    if (firstElement.value !== secondElement.value) {
+      secondElement.value = firstElement.value;
+    }
+  };
+
+  Fieldsets.prototype.onTimeInChanges = function (evt) {
+    this.syncTimes(evt.target, this.timeOut);
+  };
+
+  Fieldsets.prototype.onTimeOutChanges = function (evt) {
+    this.syncTimes(evt.target, this.timeIn);
+  };
+
+  Fieldsets.prototype.changeGuestCapacity = function (rooms) {
+    var self = this;
+    this.capacity.length = 0;
+
+    rooms.forEach(function (room) {
+      self.capacity.add(createOption(room));
+    });
+  };
+
+  Fieldsets.prototype.onRoomNumberChanges = function (evt) {
+    prevSelectedOption = this.getSelectedGuestsValue();
+    this.changeGuestCapacity(RoomCounts[evt.target.value]);
+  };
 
   function ReqNameInput(element, text) {
     this.input = element;
@@ -119,48 +202,72 @@
     return this.labelText;
   };
 
+  function Form() {
+    this.form = document.querySelector('.ad-form');
+    this.mapFilters = document.querySelectorAll('.map__filter');
+    this.formFieldsets = this.form.querySelectorAll('fieldset');
+    this.mapFeatures = document.querySelector('.map__features');
+  }
+
+  Form.prototype.activateForm = function () {
+    this.form.classList.remove('ad-form--disabled');
+    this.form.classList.remove('disabled-events');
+
+    // меняем состояние селекторов у фильтров
+    this.mapFilters.forEach(function (el) {
+      el.disabled = false;
+    });
+
+    // меняем состояние fieldset'ов у основной формы.
+    this.formFieldsets.forEach(function (fieldset) {
+      fieldset.disabled = false;
+    });
+
+    // меняем состояние у доп. функций в фильтре
+    this.mapFeatures.disabled = false;
+  };
+
+  Form.prototype.disactivateForm = function () {
+    this.form.classList.add('ad-form--disabled');
+    this.form.classList.add('disabled-events');
+
+    // меняем состояние селекторов у фильтров
+    this.mapFilters.forEach(function (el) {
+      el.disabled = true;
+    });
+
+    // меняем состояние fieldset'ов у основной формы.
+    this.formFieldsets.forEach(function (fieldset) {
+      fieldset.disabled = true;
+    });
+
+    // меняем состояние у доп. функций в фильтре
+    this.mapFeatures.disabled = true;
+  };
+
+
   var headerInput = new ReqNameInput(nameInput, nameInputText);
   var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
-
-  // var restoreRooms = function () {
-  //   roomNumber.value = 1;
-  //   // возвращаем значение по умолчанию у 'Количество комнат'
-  //   changeGuestCapacity(RoomCounts['DEFAULT']);
-  // };
-
-  /**
-   * Функции OnSuccess и onError для отправки данных с формы
-   */
-
-  var onError = function () {
-    main.appendChild(notify.renderErrorMessage());
-  };
-
-  var syncTime = function (firstElement, secondElement) {
-    if (firstElement.value !== secondElement.value) {
-      secondElement.value = firstElement.value;
-    }
-  };
+  var formFields = new Fieldsets();
+  var pageForm = new Form();
 
   var fillAddress = function (pinPosition) {
     addressInput.value = pinPosition.x + ', ' + pinPosition.y;
   };
 
   var changeFormStatus = function () {
-    adFormStatus.classList.toggle('ad-form--disabled');
-    adFormStatus.classList.toggle('disabled-events');
-    // меняем состояние селекторов у фильтров
-    mapFilter.forEach(function (el) {
-      el.disabled = !el.disabled;
-    });
 
-    // меняем состояние fieldset'ов у основной формы.
-    formFieldsets.forEach(function (fieldset) {
-      fieldset.disabled = !fieldset.disabled;
-    });
+    if (formStatus) {
+      pageForm.disactivateForm();
+      restoreDefaultForm();
+      formStatus = false;
+      return;
+    }
 
-    // меняем состояние у доп. функций в фильтре
-    mapFeatures.disabled = !mapFeatures.disabled;
+    formFields.changeGuestCapacity(RoomCounts[formFields.rooms.value]);
+    pageForm.activateForm();
+    formStatus = true;
+
   };
 
   var changeHouseType = function (value, element) {
@@ -179,17 +286,6 @@
     }
 
     return option;
-  };
-
-  var changeGuestCapacity = function (rooms) {
-    // получаем предыдущее выбранное значение и переводим в number
-    prevSelectedOption = parseInt(capacity.options[capacity.selectedIndex].value, 10);
-
-    capacity.length = 0;
-    rooms.forEach(function (el) {
-      capacity.add(createOption(el));
-    });
-
   };
 
   var preventDefaultEvents = function (evt) {
@@ -212,29 +308,20 @@
    * Возвращает значения по умолчанию для полей формы.
    */
   var restoreDefaultForm = function () {
-    // все дополнительные функции
-    var featuresItems = features.querySelectorAll('input');
     // возвращаем значение по умолчанию у 'Заголовок объявления'
     headerInput.restoreDefault();
+
     // возвращаем значение по умолчанию у 'Цена за ночь'
     pricePerNightInput.restoreDefault();
-    // возвращаем значение по умолчанию у 'Тип жилья'
-    houseType.value = 'flat';
-    // возвращаем значение по умолчанию у 'Описание'
-    description.value = '';
-    userAvatar.src = 'img/muffin-grey.svg';
-    timein.value = '12:00';
-    syncTime(timein, timeout);
 
+    // возвращаем у всех fieldset'ов значение по умолчанию
+    formFields.restoreDefaultSetting();
+
+    // удаляем изображения
     removeImages();
-    roomNumber.value = 1;
-    // возвращаем значение по умолчанию у 'Количество комнат'
-    changeGuestCapacity(RoomCounts['DEFAULT']);
-
-    featuresItems.forEach(function (item) {
-      item.checked = false;
-    });
   };
+
+  /* ---------------------------------------------------------------------------------    */
 
   /**
    * Функция createLoadedImage создаёт карточку с загруженной фотографией жилища.
@@ -269,14 +356,6 @@
   // Callback функции для обработчиков
   /* ------------------------------------------------------------ */
 
-  var onTimeinChange = function (evt) {
-    syncTime(evt.target, timeout);
-  };
-
-  var onTimeoutChange = function (evt) {
-    syncTime(evt.target, timein);
-  };
-
   var onHeaderInput = function (evt) {
     headerInput.checkInputValid(evt.target.value.length);
   };
@@ -289,15 +368,17 @@
     changeHouseType(evt.target.value, pricePerNightInput);
   };
 
-  var onRoomNumberChange = function (evt) {
-    changeGuestCapacity(RoomCounts[evt.target.value]);
+  /*                      Функции FormReset и FormSumbit                   */
+  // onError - вспомогательная функция для функций formReset и FormSumbit
+  var onError = function () {
+    main.appendChild(notify.renderErrorMessage());
   };
 
   var formReset = function (callback) {
 
     return function (evt) {
       evt.preventDefault();
-      restoreDefaultForm();
+      // restoreDefaultForm();
       changeFormStatus();
       callback();
     };
@@ -306,7 +387,7 @@
   var formSubmit = function (callback) {
     var onSuccess = function () {
       main.appendChild(notify.renderSuccessMessage());
-      restoreDefaultForm();
+      // restoreDefaultForm();
       changeFormStatus();
       callback();
     };
@@ -317,6 +398,8 @@
       createRequest(evt.target.action, 'POST', onSuccess, onError, data);
     };
   };
+
+  /* --------------------------------------------------------------------- */
 
   // Callback функции и вспомогательные функции для загрузки изображений.
   /* ------------------------------------------------------------ */
@@ -389,17 +472,11 @@
 
   /* ------------------------------------------------------------ */
 
-  timein.addEventListener('change', onTimeinChange);
-
-  timeout.addEventListener('change', onTimeoutChange);
-
   headerInput.input.addEventListener('input', onHeaderInput);
 
   pricePerNightInput.input.addEventListener('input', onPricePerNightInput);
 
   houseType.addEventListener('change', onHouseTypeChange);
-
-  roomNumber.addEventListener('change', onRoomNumberChange);
 
   // Обработчики загрузки аватарки пользователя
   avatarLoader.addEventListener('change', onAvatarLoad);

@@ -1,6 +1,13 @@
 'use strict';
 
 (function (utilities) {
+  // диапазон цен стоимости жилья.
+  var rangeOfPrices = {
+    'any': {min: 0, max: Infinity},
+    'middle': {min: 10000, max: 50000},
+    'low': {min: 0, max: 10000},
+    'high': {min: 50000, max: Infinity}
+  };
   function Housing() {
     this.type = document.querySelector('#housing-type');
     this.price = document.querySelector('#housing-price');
@@ -20,15 +27,20 @@
 
   // Восстановить значение по умолчанию у полей фильтрации
   Housing.prototype.restoreDefaultSettings = function () {
+    // восстанавливаем поля по умолчанию
+    this.restoreDefaultValues();
+
+    // восстанавливаем значение по умолчаю для доп. функций.
+    this.restoreFeatures();
+  };
+
+  Housing.prototype.restoreDefaultValues = function () {
     var self = this;
     // получаем ключи из объекта defaultValue и перебираем их в цикле
     Object.keys(this.defaultValues).forEach(function (key) {
       // у соответсвующего элемента фильтрации устанавливаем значение по умолчанию.
       self[key].value = self.defaultValues[key];
     });
-
-    // восстанавливаем значение по умолчаю для доп. функций.
-    this.restoreFeatures();
   };
 
   Housing.prototype.restoreFeatures = function () {
@@ -54,14 +66,6 @@
   };
 
   var filters = new Housing();
-
-  // диапазон цен стоимости жилья.
-  var rangeOfPrices = {
-    'any': {min: 0, max: Infinity},
-    'middle': {min: 10000, max: 50000},
-    'low': {min: 0, max: 10000},
-    'high': {min: 50000, max: Infinity}
-  };
 
   var filterPrice = function (element) {
     var elementPrice = element.ad.offer.price;
