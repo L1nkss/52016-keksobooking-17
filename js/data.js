@@ -52,6 +52,16 @@
     }
   };
 
+  // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
+  var clearActiveCard = function () {
+    if (activeCard.domElement) {
+      activeCard.domElement.classList.remove('map__pin--active');
+      activeCard.domElement = null;
+      activeCard.information.remove();
+      activeCard.information = null;
+    }
+  };
+
   // функция для отображения пинов через 1с(устранение дребезга)
   var debounce = function (callback, time) {
     var lastTimeout = null;
@@ -83,54 +93,83 @@
     return li;
   };
 
-
-  // карточка с подробной информацией
-  var renderPinInformation = function (ad) {
-    var element = cardTemplate.cloneNode(true);
-    var imageGallery = element.querySelector('.popup__photos');
-    var features = element.querySelector('.popup__features');
-    var price = ad.offer.price;
-    var guestsRooms = ad.offer.rooms + ' комнаты для ' + ad.offer.guests + ' гостей';
-    var priceText = price + ' ₽/ночь';
-    var time = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
-    var textContent = [
+  //  Функция конструктор для создания карточки с подробной информацией.
+  function RenderPinCardInformation(ad) {
+    this.element = cardTemplate.cloneNode(true);
+    this.imageGallery = this.element.querySelector('.popup__photos');
+    this.features = this.element.querySelector('.popup__features');
+    this.element.querySelector('.popup__avatar').src = ad.author.avatar;
+    this.ad = ad;
+    this.time = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
+    this.priceText = ad.offer.price + ' ₽/ночь';
+    this.guestsRooms = ad.offer.rooms + ' комнаты для ' + ad.offer.guests + ' гостей';
+    this.textContent = [
       {query: '.popup__avatar', value: ad.author.avatar},
       {query: '.popup__title', value: ad.offer.title},
       {query: '.popup__text--address', value: ad.offer.address},
       {query: '.popup__type', value: HouseTypes[ad.offer.type.toUpperCase()]},
-      {query: '.popup__text--time', value: time},
-      {query: '.popup__text--capacity', value: guestsRooms},
+      {query: '.popup__text--time', value: this.time},
+      {query: '.popup__text--capacity', value: this.guestsRooms},
       {query: '.popup__description', value: ad.offer.description},
-      {query: '.popup__text--price', value: priceText}
+      {query: '.popup__text--price', value: this.priceText}
     ];
+  }
 
-    element.querySelector('.popup__avatar').src = ad.author.avatar;
-    textContent.forEach(function (el) {
-      element.querySelector(el.query).textContent = el.value;
+  RenderPinCardInformation.prototype.fillTextContent = function () {
+    var self = this;
+    this.textContent.forEach(function (el) {
+      self.element.querySelector(el.query).textContent = el.value;
     });
+  };
 
-    // Если нет изображений или дополнительных удобств, то удаляем разметку с карточки
-    if (ad.offer.photos.length === 0) {
+  RenderPinCardInformation.prototype.onPopupClick = function () {
+    clearActiveCard();
+  };
+
+  RenderPinCardInformation.prototype.onPopupKeyDown = function (evt) {
+    if (utilities.isEscPress(evt.keyCode)) {
+      clearActiveCard();
+      document.removeEventListener('keydown', this.onPopupKeyDown);
+    }
+  };
+
+  RenderPinCardInformation.prototype.renderGallery = function () {
+    var imageGallery = this.element.querySelector('.popup__photos');
+    if (this.ad.offer.photos.length === 0) {
       imageGallery.remove();
+      return;
     }
 
-    ad.offer.photos.forEach(function (image) {
+    this.ad.offer.photos.forEach(function (image) {
       imageGallery.appendChild(renderImage(image));
     });
+  };
 
-    if (ad.offer.features.length === 0) {
+  RenderPinCardInformation.prototype.renderFeatures = function () {
+    var features = this.element.querySelector('.popup__features');
+
+    if (this.ad.offer.features.length === 0) {
       features.remove();
+      return;
     }
 
-    ad.offer.features.forEach(function (feature) {
+    this.ad.offer.features.forEach(function (feature) {
       features.appendChild(renderFeaturesList(feature));
     });
+  };
 
+  RenderPinCardInformation.prototype.renderElement = function () {
+    // заполняем текстовые значение в элементе
+    this.fillTextContent();
+    // создаём галлерею изображений, если есть фотографии
+    this.renderGallery();
+    // создаём список доп. функций, если они есть
+    this.renderFeatures();
+    // вешаем обработчики закрытия элемента
+    this.element.querySelector('.popup__close').addEventListener('click', this.onPopupClick);
+    document.addEventListener('keydown', this.onPopupKeyDown);
 
-    element.querySelector('.popup__close').addEventListener('click', onPopupClick);
-    document.addEventListener('keydown', onPopupKeyDown);
-
-    return element;
+    return this.element;
   };
 
   // создание первоночального пина в объекте PIN(как пин будет выглядить на карте)
@@ -158,6 +197,7 @@
       left: this.ad.location.x,
       top: this.ad.location.y
     };
+    this.cardInformation = null;
 
     this.onPinClick = Pin.prototype.pinClick.bind(this);
   }
@@ -181,10 +221,11 @@
   };
 
   Pin.prototype.pinClick = function () {
-    var pinInformation = renderPinInformation(this.ad);
-    var flagCard = checkActiveCard(this.element, pinInformation);
+    var pinInformationCard = new RenderPinCardInformation(this.ad).renderElement();
+
+    var flagCard = checkActiveCard(this.element, pinInformationCard);
     if (flagCard) {
-      pinList.appendChild(pinInformation);
+      pinList.appendChild(pinInformationCard);
     }
   };
 
@@ -221,27 +262,6 @@
 
     // Если активная карта пуста и активная карта не равна, той которую мы кликнули, возвращаем false
     return false;
-  };
-
-  // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
-  var clearActiveCard = function () {
-    if (activeCard.domElement) {
-      activeCard.domElement.classList.remove('map__pin--active');
-      activeCard.domElement = null;
-      activeCard.information.remove();
-      activeCard.information = null;
-    }
-  };
-
-  var onPopupClick = function () {
-    clearActiveCard();
-  };
-
-  var onPopupKeyDown = function (evt) {
-    if (utilities.isEscPress(evt.keyCode)) {
-      clearActiveCard();
-      document.removeEventListener('keydown', onPopupKeyDown);
-    }
   };
 
   // добавить пины на карту
