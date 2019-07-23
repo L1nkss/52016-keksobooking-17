@@ -34,7 +34,6 @@
   var adFormStatus = document.querySelector('.ad-form');
   var addressInput = document.querySelector('#address');
   var mapFilter = document.querySelectorAll('.map__filter');
-  var adForm = document.querySelectorAll('.ad-form__element');
   var mapFeatures = document.querySelector('.map__features');
   var nameInput = document.querySelector('#title');
   var nameInputText = document.querySelector('.title-label');
@@ -53,6 +52,7 @@
   var avatarDropZone = document.querySelector('.ad-form-header__drop-zone');
   var imagesDropZone = document.querySelector('.ad-form__drop-zone');
   var userAvatar = document.querySelector('.ad-form-header__preview > img');
+  var formFieldsets = adFormStatus.querySelectorAll('fieldset');
 
   function ReqNameInput(element, text) {
     this.input = element;
@@ -122,11 +122,11 @@
   var headerInput = new ReqNameInput(nameInput, nameInputText);
   var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
 
-  var restoreRooms = function () {
-    roomNumber.value = 1;
-    // возвращаем значение по умолчанию у 'Количество комнат'
-    changeGuestCapacity(RoomCounts['DEFAULT']);
-  };
+  // var restoreRooms = function () {
+  //   roomNumber.value = 1;
+  //   // возвращаем значение по умолчанию у 'Количество комнат'
+  //   changeGuestCapacity(RoomCounts['DEFAULT']);
+  // };
 
   /**
    * Функции OnSuccess и onError для отправки данных с формы
@@ -149,18 +149,17 @@
   var changeFormStatus = function () {
     adFormStatus.classList.toggle('ad-form--disabled');
     adFormStatus.classList.toggle('disabled-events');
-    // меняем состояние элементов форм
+    // меняем состояние селекторов у фильтров
     mapFilter.forEach(function (el) {
       el.disabled = !el.disabled;
     });
 
-    // // меняем значение по умолчанию и на валидное.
-    // changeGuestCapacity(RoomCounts[roomNumber.value]);
-
-    adForm.forEach(function (el) {
-      el.disabled = !el.disabled;
+    // меняем состояние fieldset'ов у основной формы.
+    formFieldsets.forEach(function (fieldset) {
+      fieldset.disabled = !fieldset.disabled;
     });
 
+    // меняем состояние у доп. функций в фильтре
     mapFeatures.disabled = !mapFeatures.disabled;
   };
 
