@@ -20,16 +20,16 @@
   };
 
   var generateUniqImage = function (imageCount) {
-    var uniqArray = [];
+    var uniqValues = [];
 
     for (var i = 1; i <= imageCount; i++) {
       if (i < 10) {
-        uniqArray.push('0' + i);
+        uniqValues.push('0' + i);
       } else {
-        uniqArray.push(i + '');
+        uniqValues.push(i + '');
       }
     }
-    return uniqArray;
+    return uniqValues;
   };
 
   var isEscPress = function (key) {
