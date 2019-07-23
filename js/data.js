@@ -47,8 +47,8 @@
       });
     },
 
-    deletePin: function (ID) {
-      this.pins[ID].remove();
+    deletePin: function (id) {
+      this.pins[id].remove();
     }
   };
 
