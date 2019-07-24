@@ -16,7 +16,8 @@
     // получаем высоту изображения
     this.height = this.pin.querySelector('img').offsetHeight;
     // получаем ширину изображения
-    this.width = this.pin.querySelector('img').offsetWidth;
+    this.width = this.pin.offsetWidth;
+    this.halfWidth = this.width / 2;
     this.position = {
       x: null,
       y: null
@@ -25,7 +26,6 @@
       x: null,
       y: null
     };
-
     this.changePinStatus = this.changePinStatus.bind(this);
     this.restoreDefaultPosition = this.restoreDefaultPosition.bind(this);
 
@@ -42,7 +42,7 @@
    * Получить позиция pina'a в зависимости от статуса pin'a (true или false)
    */
   Pin.prototype.calculatePotision = function () {
-    var width = (this.pin.offsetLeft + this.width / 2);
+    var width = (this.pin.offsetLeft + this.halfWidth);
     this.position.x = Math.floor(width);
     this.position.y = Math.floor(this.pin.offsetTop + this.height);
 
@@ -117,7 +117,7 @@
    */
 
   var checkCoords = function (evt) {
-    var coords = map.calculateCoords(evt.clientX, evt.clientY, mainPin.width, mainPin.height);
+    var coords = map.calculateCoords(evt.clientX, evt.clientY, mainPin.halfWidth, mainPin.height);
 
     mainPin.onMouseMove(coords.posX, coords.posY);
     form.fillAddress(mainPin.getPosition());

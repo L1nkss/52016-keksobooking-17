@@ -29,29 +29,36 @@
    * @return {object} Возвращаем объект координат.
    */
   var calculateCoords = function (mouseX, mouseY, width, height) {
+    // позиция мыши на экране
     var posX = mouseX - mapPins.offset.x;
     var posY = mouseY - mapPins.offset.y;
 
+    // границы карты, за которые pin не должен выйти c учётом ширины / 2.
+    var leftLimit = MapLimit.LEFT - width;
+    var rightLimit = MapLimit.RIGHT - width;
+    var topLimit = MapLimit.TOP - height;
+    var bottomLimit = MapLimit.BOTTOM - height;
+
     // Проверяем находимся ли мы внутри карты или нет
-    var isValidX = posX >= MapLimit.LEFT && posX < MapLimit.RIGHT - width;
-    var isValidY = posY >= MapLimit.TOP - height && posY <= MapLimit.BOTTOM - height;
+    var isValidX = posX >= leftLimit && posX < rightLimit;
+    var isValidY = posY >= topLimit && posY <= bottomLimit;
     // установить граничные значение для оси.
     var mouseLeavesMap = function () {
       if (!isBorderSet) {
-        if (posX > MapLimit.RIGHT - width) {
-          coords.posX = MapLimit.RIGHT - width;
+        if (posX > rightLimit) {
+          coords.posX = rightLimit;
         }
 
-        if (posX <= MapLimit.LEFT) {
-          coords.posX = MapLimit.LEFT;
+        if (posX <= leftLimit) {
+          coords.posX = leftLimit;
         }
 
-        if (posY < MapLimit.TOP - height) {
-          coords.posY = MapLimit.TOP - height;
+        if (posY < topLimit) {
+          coords.posY = topLimit;
         }
 
-        if (posY > MapLimit.BOTTOM - height) {
-          coords.posY = MapLimit.BOTTOM - height;
+        if (posY > bottomLimit) {
+          coords.posY = bottomLimit;
         }
         isBorderSet = true;
       }
