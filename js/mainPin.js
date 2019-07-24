@@ -3,6 +3,9 @@
 (function (map, form, createRequest, notify, usersAd, utilities, filter) {
   // острый конец пина
   var PIN_TIP = 22;
+
+  var mainPin;
+
   var spinner = document.querySelector('.loader');
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
@@ -25,6 +28,7 @@
 
     this.changePinStatus = this.changePinStatus.bind(this);
     this.restoreDefaultPosition = this.restoreDefaultPosition.bind(this);
+
     this.pin.addEventListener('mousedown', this.onMouseDown);
     this.pin.addEventListener('keydown', this.onEnterPress);
 
@@ -105,7 +109,7 @@
   };
 
   /* --------------------------------------------------------------------- */
-  var mainPin = new Pin(document.querySelector('.map__pin--main'));
+  mainPin = new Pin(document.querySelector('.map__pin--main'));
   form.fillAddress(mainPin.getPosition());
 
   /**
@@ -127,7 +131,7 @@
     // убираем spinner
     spinner.classList.toggle('loader--show');
     // меняет состояние карты
-    map.map.changeMapStatus();
+    map.mainMap.changeMapStatus();
     // меняем состояние форм
     form.changeFormStatus();
     // рендерим объявления
@@ -170,7 +174,7 @@
     // меняет статус Pin'a
     mainPin.changePinStatus();
     // меняем статус карты
-    map.map.changeMapStatus();
+    map.mainMap.changeMapStatus();
     // возвращаем стандартные настройки для фильтров
     filter.restoreDefaultSetting();
     // удаляем карточки

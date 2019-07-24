@@ -1,6 +1,7 @@
 'use strict';
 
 (function (utilities, filter) {
+  // константы
   var HouseTypes = {
     BUNGALO: 'Бунгало',
     FLAT: 'Квартира',
@@ -16,10 +17,14 @@
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
   var PIN_COUNT = 5; // количество пинов на карте.
+
+  // DOM элементы
   var pinList = document.querySelector('.map__pins');
   var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
   var formFilter = document.querySelector('.map__filters');
+
+  // переменные
   // объект для хранения активного пина на странице(хранится DOM Элемент пина и карточки)
   var activeCard = {
     information: null,
@@ -32,7 +37,7 @@
   // объект в котором хранятся все активные пины на карте(которые отображаются для пользователя)
   var activePins = {
     pins: null,
-    // Методы
+
     getActivePins: function () {
       return this.pins;
     },
@@ -94,7 +99,7 @@
   };
 
   //  Функция конструктор для создания карточки с подробной информацией.
-  function RenderPinCardInformation(ad) {
+  var RenderPinCardInformation = function (ad) {
     this.element = cardTemplate.cloneNode(true);
     this.ad = ad;
     this.imageGallery = this.element.querySelector('.popup__photos');
@@ -113,7 +118,7 @@
       {query: '.popup__description', value: this.ad.offer.description},
       {query: '.popup__text--price', value: this.priceText}
     ];
-  }
+  };
 
   RenderPinCardInformation.prototype.fillTextContent = function () {
     var self = this;
@@ -174,6 +179,7 @@
 
   // создание первоночального пина в объекте PIN(как пин будет выглядить на карте)
   var renderPin = function (pin) {
+    // Если у пина нет информации, то он не нужен
     if (!pin.ad.offer) {
       return null;
     }
@@ -188,7 +194,7 @@
     return true;
   };
 
-  function Pin(ad) {
+  var Pin = function (ad) {
     this.ad = ad;
     this.width = PIN_WIDTH;
     this.height = PIN_HEIGHT;
@@ -200,7 +206,7 @@
     this.cardInformation = null;
 
     this.onPinClick = Pin.prototype.pinClick.bind(this);
-  }
+  };
 
   /**
    * Проверяем позиции пина на карте. Если пин выходит за границы, то отрисовываем его на границы у которой он выходит
@@ -223,6 +229,7 @@
   Pin.prototype.pinClick = function () {
     var pinInformationCard = new RenderPinCardInformation(this.ad).renderElement();
 
+    // проверка активной карточки на карте.
     var flagCard = checkActiveCard(this.element, pinInformationCard);
     if (flagCard) {
       pinList.appendChild(pinInformationCard);

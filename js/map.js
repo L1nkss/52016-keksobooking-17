@@ -101,7 +101,7 @@
   var mapPins = new MapPins(document.querySelector('.map__pins'));
 
   window.map = {
-    map: map,
+    mainMap: map,
     mapPins: mapPins,
     calculateCoords: calculateCoords
   };
