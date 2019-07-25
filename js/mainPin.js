@@ -1,19 +1,23 @@
 'use strict';
 
-(function (map, form, createRequest, notify, usersAd, utilities) {
+(function (map, form, createRequest, notify, usersAd, utilities, filter) {
   // острый конец пина
   var PIN_TIP = 22;
+
+  var mainPin;
+
   var spinner = document.querySelector('.loader');
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
 
-  function Pin(element) {
+  var Pin = function (element) {
     this.pin = element;
     this.isActive = false;
     // получаем высоту изображения
     this.height = this.pin.querySelector('img').offsetHeight;
     // получаем ширину изображения
-    this.width = this.pin.querySelector('img').offsetWidth;
+    this.width = this.pin.offsetWidth;
+    this.halfWidth = this.width / 2;
     this.position = {
       x: null,
       y: null
@@ -22,15 +26,15 @@
       x: null,
       y: null
     };
-
     this.changePinStatus = this.changePinStatus.bind(this);
     this.restoreDefaultPosition = this.restoreDefaultPosition.bind(this);
+
     this.pin.addEventListener('mousedown', this.onMouseDown);
     this.pin.addEventListener('keydown', this.onEnterPress);
 
     this.calculatePotision();
     this.calculateStartPotision();
-  }
+  };
 
   /*                    Прототипы класса Pin                               */
   /* --------------------------------------------------------------------- */
@@ -38,7 +42,7 @@
    * Получить позиция pina'a в зависимости от статуса pin'a (true или false)
    */
   Pin.prototype.calculatePotision = function () {
-    var width = (this.pin.offsetLeft + this.width / 2);
+    var width = (this.pin.offsetLeft + this.halfWidth);
     this.position.x = Math.floor(width);
     this.position.y = Math.floor(this.pin.offsetTop + this.height);
 
@@ -70,6 +74,7 @@
     form.fillAddress(mainPin.getPosition());
 
     document.addEventListener('mousemove', checkCoords);
+
     var x = evt.clientX - parseInt(evt.currentTarget.style.left, 10);
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
     map.mapPins.initOffsetCoords(x, y);
@@ -104,7 +109,7 @@
   };
 
   /* --------------------------------------------------------------------- */
-  var mainPin = new Pin(document.querySelector('.map__pin--main'));
+  mainPin = new Pin(document.querySelector('.map__pin--main'));
   form.fillAddress(mainPin.getPosition());
 
   /**
@@ -112,7 +117,7 @@
    */
 
   var checkCoords = function (evt) {
-    var coords = map.calculateCoords(evt.clientX, evt.clientY, mainPin.width, mainPin.height);
+    var coords = map.calculateCoords(evt.clientX, evt.clientY, mainPin.halfWidth, mainPin.height);
 
     mainPin.onMouseMove(coords.posX, coords.posY);
     form.fillAddress(mainPin.getPosition());
@@ -126,7 +131,7 @@
     // убираем spinner
     spinner.classList.toggle('loader--show');
     // меняет состояние карты
-    map.map.changeMapStatus();
+    map.mainMap.changeMapStatus();
     // меняем состояние форм
     form.changeFormStatus();
     // рендерим объявления
@@ -169,9 +174,11 @@
     // меняет статус Pin'a
     mainPin.changePinStatus();
     // меняем статус карты
-    map.map.changeMapStatus();
+    map.mainMap.changeMapStatus();
+    // возвращаем стандартные настройки для фильтров
+    filter.restoreDefaultSetting();
     // удаляем карточки
-    usersAd.removeAds();
+    usersAd.activePins.deleteAllActivePins();
     // если есть открытые карточки, закрываем её
     usersAd.clearActiveCard();
     // меняем статус pina
@@ -195,4 +202,4 @@
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);
 
-})(window.map, window.form, window.request, window.notify, window.data, window.utilities);
+})(window.map, window.form, window.request, window.notify, window.data, window.utilities, window.filter);

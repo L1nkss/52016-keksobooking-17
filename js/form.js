@@ -1,6 +1,7 @@
 'use strict';
 
 (function (createRequest, notify) {
+  // Константы
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -16,8 +17,6 @@
     DEFAULT: [3, 2, 1, 0]
   };
 
-  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
-
   var GuestCounts = {
     3: 'для 3 гостей',
     2: 'для 2 гостей',
@@ -25,41 +24,256 @@
     0: 'не для гостей'
   };
 
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
   var DRAG_EVENTS = ['drop', 'dragenter', 'dragleave', 'dragover'];
 
-  var adFormStatus = document.querySelector('.ad-form');
+  // переменные
+  var prevSelectedOption = null;
+  var formStatus = false;
+  var headerInput;
+  var pricePerNightInput;
+  var formFields;
+  var pageForm;
+  var userGallery;
+  var userAvatar;
+
+  // DOM Элементы
   var addressInput = document.querySelector('#address');
-  var mapFilter = document.querySelectorAll('.map__filter');
-  var adForm = document.querySelectorAll('.ad-form__element');
-  var mapFeatures = document.querySelector('.map__features');
   var nameInput = document.querySelector('#title');
   var nameInputText = document.querySelector('.title-label');
   var priceInput = document.querySelector('#price');
   var priceInputText = document.querySelector('.price-label');
-  var houseType = document.querySelector('#type');
-  var timein = document.querySelector('#timein');
-  var timeout = document.querySelector('#timeout');
-  var roomNumber = document.querySelector('#room_number');
-  var capacity = document.querySelector('#capacity');
-  var main = document.querySelector('main');
-  var description = document.querySelector('#description');
-  var features = document.querySelector('.features');
-  var avatarLoader = document.querySelector('#avatar');
-  var imagesLoader = document.querySelector('#images');
-  var avatarDropZone = document.querySelector('.ad-form-header__drop-zone');
-  var imagesDropZone = document.querySelector('.ad-form__drop-zone');
-  var userAvatar = document.querySelector('.ad-form-header__preview > img');
 
-  function ReqNameInput(element, text) {
+  // окно где мы выводим сообщение об успехе/ошибки
+  var main = document.querySelector('main');
+
+
+  // функция для проверки на соответсвиме формата изображения
+  var checkFileFormat = function (fileName) {
+    return FILE_TYPES.some(function (format) {
+      return fileName.endsWith(format);
+    });
+  };
+
+  // Конструктор для загрузки изображений Жилища
+  var ImageGallery = function (element) {
+    this.element = element;
+    this.imageInput = element.querySelector('input[type="file"]');
+    this.imageDropZone = element.querySelector('label');
+
+    this.onImageChanges = this.onImageChanges.bind(this);
+    this.addImage = this.addImage.bind(this);
+    this.onImageDrop = this.onImageDrop.bind(this);
+
+    this.imageInput.addEventListener('change', this.onImageChanges);
+    this.imageDropZone.addEventListener('dragenter', this.onToggleDropZone);
+    this.imageDropZone.addEventListener('dragleave', this.onToggleDropZone);
+    this.imageDropZone.addEventListener('drop', this.onImageDrop);
+  };
+
+  // загрузка изображения
+  // если условие (что формат файла картинка) checkFileFormat выполняется, то добавляем изображения на страницу
+  ImageGallery.prototype.loadImage = function (file) {
+    var fileName = file.name.toLowerCase();
+
+    if (checkFileFormat(fileName)) {
+      this.addImage(file);
+    }
+  };
+
+  ImageGallery.prototype.deletePhotoGallery = function () {
+    var images = this.element.querySelectorAll('.ad-form__photo');
+
+    images.forEach(function (image) {
+      image.remove();
+    });
+  };
+
+  ImageGallery.prototype.onToggleDropZone = function (evt) {
+    evt.target.classList.toggle('dragenter');
+  };
+
+  ImageGallery.prototype.onReaderLoaded = function (result) {
+    this.createPhotoGallery(result);
+  };
+
+  // добавление изображения на страницу
+  ImageGallery.prototype.addImage = function (file) {
+    var self = this;
+    var reader = new FileReader();
+    reader.addEventListener('load', function () {
+      self.onReaderLoaded(reader.result);
+    });
+
+    reader.readAsDataURL(file);
+  };
+
+  ImageGallery.prototype.onImageDrop = function (evt) {
+    var files = evt.dataTransfer.files;
+
+    for (var i = 0; i < files.length; i++) {
+      this.loadImage(files[i]);
+    }
+  };
+
+  ImageGallery.prototype.createPhotoGallery = function (file) {
+    var div = document.createElement('div');
+    var image = createImg(file);
+    div.className = 'ad-form__photo';
+
+    div.appendChild(image);
+    this.element.insertAdjacentElement('beforeend', div);
+  };
+
+  ImageGallery.prototype.onImageChanges = function (evt) {
+    var files = evt.target.files;
+
+    for (var i = 0; i < files.length; i++) {
+      this.loadImage(files[i]);
+    }
+  };
+
+  // констуктор аватарки пользователя (наследуется от ImageGallery)
+  var AvatarImage = function (element) {
+    ImageGallery.call(this, element);
+    this.avatar = this.element.querySelector('img');
+    this.defaultAvatar = this.avatar.getAttribute('src');
+  };
+
+  // наследуем AvatarImage от ImageGallery
+  AvatarImage.prototype = Object.create(ImageGallery.prototype);
+  AvatarImage.prototype.constructor = AvatarImage;
+
+  // переопределяем родительские методы(ImageGallery)
+  AvatarImage.prototype.onImageChanges = function (evt) {
+    var file = evt.target.files[0];
+    this.loadImage(file);
+  };
+
+  AvatarImage.prototype.onReaderLoaded = function (result) {
+    this.avatar.src = result;
+  };
+
+  AvatarImage.prototype.onImageDrop = function (evt) {
+    var file = evt.dataTransfer.files[0];
+    this.loadImage(file);
+  };
+
+  AvatarImage.prototype.restoreDefaultAvatar = function () {
+    this.avatar.src = this.defaultAvatar;
+  };
+
+  userGallery = new ImageGallery(document.querySelector('.ad-form__photo-container'));
+  userAvatar = new AvatarImage(document.querySelector('.ad-form-header__upload'));
+
+  // функция констуктор для полей формы.
+  var Fieldsets = function () {
+    this.houseType = document.querySelector('#type');
+    this.description = document.querySelector('#description');
+    this.timeIn = document.querySelector('#timein');
+    this.timeOut = document.querySelector('#timeout');
+    this.rooms = document.querySelector('#room_number');
+    this.capacity = document.querySelector('#capacity');
+    this.features = document.querySelector('.features');
+    this.defaultValues = {
+      houseType: this.houseType.value,
+      description: this.description.value,
+      timeIn: this.timeIn.value,
+      timeOut: this.timeOut.value,
+    };
+    this.defaultRooms = {
+      roomCount: this.rooms.value,
+      selectedRoom: this.getSelectedGuestsValue()
+    };
+
+    this.onTimeInChanges = this.onTimeInChanges.bind(this);
+    this.onTimeOutChanges = this.onTimeOutChanges.bind(this);
+    this.onRoomNumberChanges = this.onRoomNumberChanges.bind(this);
+
+    this.timeIn.addEventListener('change', this.onTimeInChanges);
+    this.timeOut.addEventListener('change', this.onTimeOutChanges);
+    this.rooms.addEventListener('change', this.onRoomNumberChanges);
+  };
+
+  // получаем выбранное значение из поля "Количество мест"
+  Fieldsets.prototype.getSelectedGuestsValue = function () {
+    return parseInt(this.capacity.options[this.capacity.selectedIndex].value, 10);
+  };
+
+  // Вернуть значение доп. функций по умолчанию
+  Fieldsets.prototype.restoreDefaultFeatures = function () {
+    var featuresChecked = this.features.querySelectorAll('input:checked');
+
+    featuresChecked.forEach(function (feature) {
+      feature.checked = false;
+    });
+  };
+
+  // возвращаем комнатам начальное состояние
+  Fieldsets.prototype.restoreDefaultRooms = function () {
+    this.rooms.value = this.defaultRooms.roomCount;
+    prevSelectedOption = this.defaultRooms.selected;
+    this.changeGuestCapacity(RoomCounts['DEFAULT']);
+  };
+
+  // возвращаем стандартное значение всем полям
+  Fieldsets.prototype.restoreDefaultValues = function () {
+    var self = this;
+    // получаем ключи из объекта defaultValue и перебираем их в цикле
+    Object.keys(this.defaultValues).forEach(function (key) {
+      // у соответсвующего элемента фильтрации устанавливаем значение по умолчанию.
+      self[key].value = self.defaultValues[key];
+    });
+  };
+
+  // возвращаем все стандартные значения
+  Fieldsets.prototype.restoreDefaultSetting = function () {
+    this.restoreDefaultValues();
+
+    this.restoreDefaultFeatures();
+
+    this.restoreDefaultRooms();
+  };
+
+  Fieldsets.prototype.syncTimes = function (firstElement, secondElement) {
+    if (firstElement.value !== secondElement.value) {
+      secondElement.value = firstElement.value;
+    }
+  };
+
+  Fieldsets.prototype.onTimeInChanges = function (evt) {
+    this.syncTimes(evt.target, this.timeOut);
+  };
+
+  Fieldsets.prototype.onTimeOutChanges = function (evt) {
+    this.syncTimes(evt.target, this.timeIn);
+  };
+
+  Fieldsets.prototype.changeGuestCapacity = function (rooms) {
+    var self = this;
+    this.capacity.length = 0;
+
+    rooms.forEach(function (room) {
+      self.capacity.add(createOption(room));
+    });
+  };
+
+  // Передаём в переменную prevSelectedOption предыдущее выбранное значение и изменяем количество гостей
+  Fieldsets.prototype.onRoomNumberChanges = function (evt) {
+    prevSelectedOption = this.getSelectedGuestsValue();
+    this.changeGuestCapacity(RoomCounts[evt.target.value]);
+  };
+
+  var ReqNameInput = function (element, text) {
     this.input = element;
     this.isValid = false;
     this.label = text;
     this.labelText = text.textContent;
-  }
+  };
 
-  function ReqNumberInput(element, text) {
+  var ReqNumberInput = function (element, text) {
     ReqNameInput.call(this, element, text);
-  }
+  };
 
   // наследуем ReqNumberInput от ReqNameInput
   ReqNumberInput.prototype = Object.create(ReqNameInput.prototype);
@@ -115,40 +329,59 @@
     return this.labelText;
   };
 
-  var headerInput = new ReqNameInput(nameInput, nameInputText);
-  var pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
-
-  /**
-   * Функции OnSuccess и onError для отправки данных с формы
-   */
-
-  var onError = function () {
-    main.appendChild(notify.renderErrorMessage());
+  // констуктор для Формы
+  var Form = function () {
+    this.form = document.querySelector('.ad-form');
+    this.mapFilters = document.querySelectorAll('.map__filter');
+    this.formFieldsets = this.form.querySelectorAll('fieldset');
+    this.mapFeatures = document.querySelector('.map__features');
+    this.gallery = this.form.querySelector('.ad-form__photo-container');
   };
 
-  var syncTime = function (firstElement, secondElement) {
-    if (firstElement.value !== secondElement.value) {
-      secondElement.value = firstElement.value;
-    }
+  // изменить состояние формы в зависимости от статуса
+  Form.prototype.changeForm = function () {
+    this.form.classList.toggle('ad-form--disabled');
+    this.form.classList.toggle('disabled-events');
+
+    // меняем состояние селекторов у фильтров
+    this.mapFilters.forEach(function (el) {
+      el.disabled = !el.disabled;
+    });
+
+    // меняем состояние fieldset'ов у основной формы.
+    this.formFieldsets.forEach(function (fieldset) {
+      fieldset.disabled = !fieldset.disabled;
+    });
+
+    // меняем состояние у доп. функций в фильтре
+    this.mapFeatures.disabled = !this.mapFeatures.disabled;
   };
+
+  headerInput = new ReqNameInput(nameInput, nameInputText);
+  pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
+  formFields = new Fieldsets();
+  pageForm = new Form();
 
   var fillAddress = function (pinPosition) {
     addressInput.value = pinPosition.x + ', ' + pinPosition.y;
   };
 
+  // изменить статус формы
+  // Если formStatus = true. Меняем форму на disabled, восстанавливаем значения по умолчанию и меняем статус формы
+  // если formStatus = false. Меняем форму на disabled=false, делаем проверку у количество комнат и меняем статус формы
   var changeFormStatus = function () {
-    adFormStatus.classList.toggle('ad-form--disabled');
-    adFormStatus.classList.toggle('disabled-events');
-    // меняем состояние элементов форм
-    mapFilter.forEach(function (el) {
-      el.disabled = !el.disabled;
-    });
 
-    adForm.forEach(function (el) {
-      el.disabled = !el.disabled;
-    });
+    if (formStatus) {
+      pageForm.changeForm();
+      restoreDefaultForm();
+      formStatus = false;
+      return;
+    }
 
-    mapFeatures.disabled = !mapFeatures.disabled;
+    formFields.changeGuestCapacity(RoomCounts[formFields.rooms.value]);
+    pageForm.changeForm();
+    formStatus = true;
+
   };
 
   var changeHouseType = function (value, element) {
@@ -156,97 +389,72 @@
     element.checkInputValid();
   };
 
+  /*                    Функции для создания дополнительных DOM элементов(к примеру img,options и т.д)              */
   var createOption = function (index) {
     var option = document.createElement('option');
     option.text = GuestCounts[index];
     option.value = index;
 
+    // если предыдущее выбранное значение = index, то делаем option выбранным.
+    if (prevSelectedOption === index) {
+      option.selected = true;
+    }
+
     return option;
   };
 
-  var changeGuestCapacity = function (rooms) {
-    capacity.length = 0;
-    rooms.forEach(function (el) {
-      capacity.add(createOption(el));
-    });
+  var createImg = function (img) {
+    var image = document.createElement('img');
+    image.src = img;
+    image.alt = 'Изображение жилища';
+    image.width = '40';
+    image.height = '44';
+
+    return image;
   };
+
+  /* -------------------------------------------------------------------------------------- */
+
+  /**
+   * Возвращает значения по умолчанию для полей формы.
+   */
+  var restoreDefaultForm = function () {
+    // возвращаем значение по умолчанию у 'Заголовок объявления'
+    headerInput.restoreDefault();
+
+    // возвращаем значение по умолчанию у 'Цена за ночь'
+    pricePerNightInput.restoreDefault();
+
+    // возвращаем у всех fieldset'ов значение по умолчанию
+    formFields.restoreDefaultSetting();
+
+    // удаляем изображения
+    userGallery.deletePhotoGallery();
+
+    // возвращаем начальный аватар
+    userAvatar.restoreDefaultAvatar();
+  };
+
+  /* ---------------------------------------------------------------------------------    */
+
+  // для всех событий drag & drop убираем стандартное действие браузера и прекращаем поднятие.
+  // делаем это на элемента DropZone аватарки и изображений.
 
   var preventDefaultEvents = function (evt) {
     evt.preventDefault();
     evt.stopPropagation();
   };
 
-  // Удаление всех загруженных фотографий.
-  var removeImages = function () {
-    var gallery = document.querySelector('.ad-form__photo-container');
-    var images = Array.prototype.slice.call(gallery.children);
-    images.forEach(function (el) {
-      if (el.className === 'ad-form__photo') {
-        el.remove();
-      }
-    });
-  };
-
-  /**
-   * Возвращает значения по умолчанию для полей формы.
-   */
-  var restoreDefaultForm = function () {
-    var featuresItems = features.querySelectorAll('input');
-    headerInput.restoreDefault();
-    pricePerNightInput.restoreDefault();
-    description.value = '';
-    userAvatar.src = 'img/muffin-grey.svg';
-    changeGuestCapacity(RoomCounts['DEFAULT']);
-    timein.value = '12:00';
-    syncTime(timein, timeout);
-
-    removeImages();
-
-    featuresItems.forEach(function (item) {
-      item.checked = false;
-    });
-  };
-
-  /**
-   * Функция createLoadedImage создаёт карточку с загруженной фотографией жилища.
-   * И вставляет в галлерею.
-   * @param {object} file принимает fileReader файл с изобраджений
-   */
-  var createLoadedImage = function (file) {
-    var gallery = document.querySelector('.ad-form__photo-container');
-    var div = document.createElement('div');
-    var image = document.createElement('img');
-    div.className = 'ad-form__photo';
-    image.src = file;
-    image.alt = 'Изображение жилища';
-    image.width = '40';
-    image.height = '44';
-    div.appendChild(image);
-    gallery.insertAdjacentElement('beforeend', div);
-  };
-
-
-  // для всех событий drag & drop убираем стандартное действие браузера и прекращаем поднятие.
-  // делаем это на элемента DropZone аватарки и изображений.
-
   DRAG_EVENTS.forEach(function (el) {
-    avatarDropZone.addEventListener(el, preventDefaultEvents);
+    userAvatar.imageDropZone.addEventListener(el, preventDefaultEvents);
   });
 
   DRAG_EVENTS.forEach(function (el) {
-    imagesDropZone.addEventListener(el, preventDefaultEvents);
+    userGallery.imageDropZone.addEventListener(el, preventDefaultEvents);
   });
 
   // Callback функции для обработчиков
   /* ------------------------------------------------------------ */
-
-  var onTimeinChange = function (evt) {
-    syncTime(evt.target, timeout);
-  };
-
-  var onTimeoutChange = function (evt) {
-    syncTime(evt.target, timein);
-  };
 
   var onHeaderInput = function (evt) {
     headerInput.checkInputValid(evt.target.value.length);
@@ -260,15 +468,16 @@
     changeHouseType(evt.target.value, pricePerNightInput);
   };
 
-  var onRoomNumberChange = function (evt) {
-    changeGuestCapacity(RoomCounts[evt.target.value]);
+  /*                      Функции FormReset и FormSumbit                   */
+  // onError - вспомогательная функция для функций formReset и FormSumbit
+  var onError = function () {
+    main.appendChild(notify.renderErrorMessage());
   };
 
   var formReset = function (callback) {
 
     return function (evt) {
       evt.preventDefault();
-      restoreDefaultForm();
       changeFormStatus();
       callback();
     };
@@ -277,7 +486,6 @@
   var formSubmit = function (callback) {
     var onSuccess = function () {
       main.appendChild(notify.renderSuccessMessage());
-      restoreDefaultForm();
       changeFormStatus();
       callback();
     };
@@ -289,106 +497,14 @@
     };
   };
 
-  // Callback функции и вспомогательные функции для загрузки изображений.
-  /* ------------------------------------------------------------ */
-  var avatarLoad = function (file) {
-    var fileName = file.name.toLowerCase();
-    var matches = FILE_TYPES.some(function (el) {
-      return fileName.endsWith(el);
-    });
-
-    if (matches) {
-      var reader = new FileReader();
-
-      reader.addEventListener('load', function () {
-        userAvatar.src = reader.result;
-      });
-
-      reader.readAsDataURL(file);
-    }
-  };
-
-  var setupMultiplyReader = function (img) {
-    var fileName = img.name.toLowerCase();
-    var matches = FILE_TYPES.some(function (el) {
-      return fileName.endsWith(el);
-    });
-
-    if (matches) {
-      var reader = new FileReader();
-
-      reader.addEventListener('load', function () {
-        createLoadedImage(reader.result);
-      });
-
-      reader.readAsDataURL(img);
-    }
-  };
-
-  var onAvatarLoad = function (evt) {
-    var file = evt.target.files[0];
-    avatarLoad(file);
-  };
-
-  var onAvatarDrop = function (evt) {
-    var dt = evt.dataTransfer;
-    var files = dt.files;
-    var file = files[0];
-    avatarLoad(file);
-  };
-
-  var onImageLoad = function (evt) {
-    var files = evt.target.files;
-
-    for (var i = 0; i < files.length; i++) {
-      setupMultiplyReader(files[i]);
-    }
-  };
-
-  var onImageDrop = function (evt) {
-    var dt = evt.dataTransfer;
-    var files = dt.files;
-
-    for (var i = 0; i < files.length; i++) {
-      setupMultiplyReader(files[i]);
-    }
-  };
-
-  var onToggleDropZone = function (evt) {
-    evt.target.classList.toggle('dragenter');
-  };
-
-  /* ------------------------------------------------------------ */
-
-  timein.addEventListener('change', onTimeinChange);
-
-  timeout.addEventListener('change', onTimeoutChange);
-
+  /*                                        Обработчики                                         */
   headerInput.input.addEventListener('input', onHeaderInput);
 
   pricePerNightInput.input.addEventListener('input', onPricePerNightInput);
 
-  houseType.addEventListener('change', onHouseTypeChange);
+  formFields.houseType.addEventListener('change', onHouseTypeChange);
 
-  roomNumber.addEventListener('change', onRoomNumberChange);
-
-  // Обработчики загрузки аватарки пользователя
-  avatarLoader.addEventListener('change', onAvatarLoad);
-
-  avatarDropZone.addEventListener('dragenter', onToggleDropZone);
-
-  avatarDropZone.addEventListener('dragleave', onToggleDropZone);
-
-  avatarDropZone.addEventListener('drop', onAvatarDrop);
-
-  // Обработчики загрузки изображений жилища
-  imagesLoader.addEventListener('change', onImageLoad);
-
-  imagesDropZone.addEventListener('dragenter', onToggleDropZone);
-
-  imagesDropZone.addEventListener('dragleave', onToggleDropZone);
-
-  imagesDropZone.addEventListener('drop', onImageDrop);
+  /* -------------------------------------------------------------------------------------------*/
 
   window.form = {
     fillAddress: fillAddress,
