@@ -140,11 +140,13 @@
 
   RenderPinCardInformation.prototype.renderGallery = function () {
     var imageGallery = this.element.querySelector('.popup__photos');
+    // Если у объявления нет фотографий, то удаляем этот блок с карточки
     if (this.ad.offer.photos.length === 0) {
       imageGallery.remove();
       return;
     }
 
+    // генерим блок с фотографиями
     this.ad.offer.photos.forEach(function (image) {
       imageGallery.appendChild(renderImage(image));
     });
@@ -153,11 +155,13 @@
   RenderPinCardInformation.prototype.renderFeatures = function () {
     var features = this.element.querySelector('.popup__features');
 
+    // Если у объявления нет доп. функций, то удаляем этот блок с карточки
     if (this.ad.offer.features.length === 0) {
       features.remove();
       return;
     }
 
+    // генерим блок с доп. функциями
     this.ad.offer.features.forEach(function (feature) {
       features.appendChild(renderFeaturesList(feature));
     });
@@ -194,6 +198,7 @@
     return true;
   };
 
+  // конструктор класса Pin (пин на карте)
   var Pin = function (ad) {
     this.ad = ad;
     this.width = PIN_WIDTH;
@@ -325,7 +330,7 @@
     // получаем список отфильтрованных пинов в виде массива их элементов(фрагментов)
     var filteredPinList = getArrayOfElements();
 
-    // если элемента из активных пинов не содержится в отфильтрованном массиве, удаляем его с карты
+    // если элемент из активных пинов не содержится в отфильтрованном массиве, удаляем его с карты
     activePins.pins.forEach(function (pin, index) {
       var pinID = filteredPinList.indexOf(pin);
       if (pinID === -1) {
