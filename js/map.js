@@ -8,10 +8,17 @@
     LEFT: 0
   };
 
-  // находится ли пин внутри карты
-  var isPinInsideMap = false;
-  // установили ли мы граничные значения для пина.
-  var isBorderSet = false;
+  // Объект, которые хранит состояние выхода пина за границу.
+  // Если пин вышел за границы по x или y, то присваивается значение true
+  // Метод isLeaves возвращается значение true, если пин вышел хотя бы из одной границы(x или y)
+  var borderOut = {
+    x: false,
+    y: false,
+    isLeaves: function () {
+      return this.x || this.y;
+    }
+  };
+
   var coords = {
     posX: null,
     posY: null
@@ -22,10 +29,71 @@
   };
 
   /**
+   * функция getX устанавливает координаты пина по оси X
+   * @param {Number} x координата пина по X
+   * @param {Object} limit Границы карты по X
+   */
+  var getX = function (x, limit) {
+    var isValidX = x >= limit.left && x < limit.right;
+
+    if (isValidX) {
+      borderOut.x = false;
+      // если хотя бы одна из осей находится вне карты, выходим из функции.
+      if (borderOut.isLeaves()) {
+        return;
+      }
+
+      coords.posX = x;
+      return;
+    }
+
+    // если хотя бы одна из осей находится вне карты, выходим из функции и устанавливаем значение borderOut.x = true, так как по оси X мы вышли за границы.
+    if (borderOut.isLeaves()) {
+      borderOut.x = true;
+      return;
+    }
+    // устанавливаем значение borderOut.x = true, так как по оси X мы вышли за границы ,и ставим граничные значения
+    borderOut.x = true;
+    coords.posX = x > limit.right ? limit.right : limit.left;
+    return;
+  };
+
+    /**
+   * функция getY устанавливает координаты пина по оси Y
+   * @param {Number} y координата пина по Y
+   * @param {Object} limit Границы карты по Y
+   */
+  var getY = function (y, limit) {
+    var isValidY = y >= limit.top && y <= limit.bottom;
+
+    if (isValidY) {
+      borderOut.y = false;
+      // если хотя бы одна из осей находится вне карты, выходим из функции.
+      if (borderOut.isLeaves()) {
+        return;
+      }
+
+      coords.posY = y;
+      return;
+    }
+
+    // если хотя бы одна из осей находится вне карты, выходим из функции и устанавливаем значение borderOut.y = true, так как по оси Y мы вышли за границы.
+    if (borderOut.isLeaves()) {
+      borderOut.y = true;
+      return;
+    }
+
+    // устанавливаем значение borderOut.y = true, так как по оси Y мы вышли за границы ,и ставим граничные значения
+    borderOut.y = true;
+    coords.posY = y > limit.bottom ? limit.bottom : limit.top;
+    return;
+  };
+
+  /**
    * Функция calculateCoords рассчитывает положение пина на карте
    * posX и posY - координаты пина внутри карты.
-   * Функция mouseLeaveMap рассчитывает координаты осей, если мышь вышла за границы.
-   * Если переменная isBorderSet - true, значит мы уже рассчитали координаты и мышь находится за границей карты, следовательно не надо считать ещё раз.
+   * объекты limitX и limitY хранят границы карты с учётом размера пина
+   * функции getX и getY задают координаты пина.
    * @param {number} mouseX положение мыши по оси X
    * @param {number} mouseY положение мыши по оси Y
    * @param {number} width ширина пина
@@ -38,48 +106,20 @@
     var posY = mouseY - mapPins.offset.y;
 
     // границы карты, за которые pin не должен выйти c учётом ширины / 2.
-    var leftLimit = MapLimit.LEFT - width;
-    var rightLimit = MapLimit.RIGHT - width;
-    var topLimit = MapLimit.TOP - height;
-    var bottomLimit = MapLimit.BOTTOM - height;
-
-    // Проверяем находимся ли мы внутри карты или нет
-    var isValidX = posX >= leftLimit && posX < rightLimit;
-    var isValidY = posY >= topLimit && posY <= bottomLimit;
-    // установить граничные значение для оси.
-    var isMouseLeaves = function () {
-      if (!isBorderSet) {
-        if (posX > rightLimit) {
-          coords.posX = rightLimit;
-        }
-
-        if (posX <= leftLimit) {
-          coords.posX = leftLimit;
-        }
-
-        if (posY < topLimit) {
-          coords.posY = topLimit;
-        }
-
-        if (posY > bottomLimit) {
-          coords.posY = bottomLimit;
-        }
-        isBorderSet = true;
-      }
+    var limitX = {
+      left: MapLimit.LEFT - width,
+      right: MapLimit.RIGHT - width
     };
 
-    // проверяем что мы внутри карты
-    isPinInsideMap = isValidX && isValidY;
+    var limitY = {
+      top: MapLimit.TOP - height,
+      bottom: MapLimit.BOTTOM - height
+    };
 
-    // Если внутри карты, задаём координатам положения мыши и устанавливаем переменной isBorderSet -false
-    if (isPinInsideMap) {
-      coords.posX = posX;
-      coords.posY = posY;
-      isBorderSet = false;
-      return coords;
-    }
+    // получить координаты пина на карте по X и Y
+    getX(posX, limitX);
+    getY(posY, limitY);
 
-    isMouseLeaves();
     return coords;
   };
 
