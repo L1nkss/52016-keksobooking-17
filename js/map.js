@@ -47,7 +47,7 @@
     var isValidX = posX >= leftLimit && posX < rightLimit;
     var isValidY = posY >= topLimit && posY <= bottomLimit;
     // установить граничные значение для оси.
-    var mouseLeavesMap = function () {
+    var isMouseLeaves = function () {
       if (!isBorderSet) {
         if (posX > rightLimit) {
           coords.posX = rightLimit;
@@ -79,7 +79,7 @@
       return coords;
     }
 
-    mouseLeavesMap();
+    isMouseLeaves();
     return coords;
   };
 
