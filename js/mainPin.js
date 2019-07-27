@@ -195,8 +195,8 @@
     mainPin.changeStatus();
     disactivatePage();
   };
-  var onFormReset = form.formReset(setDefaultPageStatus);
-  var onFormSubmit = form.formSubmit(setDefaultPageStatus);
+  var onFormReset = form.getOnFormReset(setDefaultPageStatus);
+  var onFormSubmit = form.getOnFormSubmit(setDefaultPageStatus);
 
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);

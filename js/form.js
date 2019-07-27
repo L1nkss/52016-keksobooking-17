@@ -468,7 +468,7 @@
     main.appendChild(notify.renderErrorMessage());
   };
 
-  var formReset = function (callback) {
+  var getOnFormReset = function (callback) {
 
     return function (evt) {
       evt.preventDefault();
@@ -477,7 +477,7 @@
     };
   };
 
-  var formSubmit = function (callback) {
+  var getOnFormSubmit = function (callback) {
     var onSuccess = function () {
       main.appendChild(notify.renderSuccessMessage());
       changeFormStatus();
@@ -505,8 +505,8 @@
     changeFormStatus: changeFormStatus,
     headerInput: headerInput,
     pricePerNightInput: pricePerNightInput,
-    formReset: formReset,
-    formSubmit: formSubmit
+    getOnFormReset: getOnFormReset,
+    getOnFormSubmit: getOnFormSubmit
   };
 })(window.request, window.notify);
 
