@@ -15,7 +15,7 @@
 
   // DOM элементы
   var pinList = document.querySelector('.map__pins');
-  var adTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+  var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
   var formFilter = document.querySelector('.map__filters');
 
@@ -116,10 +116,9 @@
   };
 
   PinCard.prototype.fillTextContent = function () {
-    var self = this;
     this.textContent.forEach(function (el) {
-      self.element.querySelector(el.query).textContent = el.value;
-    });
+      this.element.querySelector(el.query).textContent = el.value;
+    }, this);
   };
 
   PinCard.prototype.onPopupClick = function () {
@@ -162,7 +161,7 @@
     });
   };
 
-  PinCard.prototype.renderElement = function () {
+  PinCard.prototype.render = function () {
     // заполняем текстовые значение в элементе
     this.fillTextContent();
     // создаём галлерею изображений, если есть фотографии
@@ -187,7 +186,7 @@
     };
     this.cardInformation = null;
 
-    this.onPinClick = Pin.prototype.pinClick.bind(this);
+    this.onPinClick = Pin.prototype.click.bind(this);
   };
 
   /**
@@ -211,8 +210,8 @@
     this.element.style = 'left: ' + this.position.left + 'px; top: ' + this.position.top + 'px;';
   };
 
-  Pin.prototype.pinClick = function () {
-    var pinInformationCard = new PinCard(this.ad).renderElement();
+  Pin.prototype.click = function () {
+    var pinInformationCard = new PinCard(this.ad).render();
 
     // проверка активной карточки на карте.
     var flagCard = checkActiveCard(this.element, pinInformationCard);
@@ -221,7 +220,7 @@
     }
   };
 
-  Pin.prototype.deleteElement = function () {
+  Pin.prototype.delete = function () {
     this.element.remove();
   };
 
@@ -232,7 +231,7 @@
       return null;
     }
 
-    this.element = adTemplate.cloneNode(true);
+    this.element = pinTemplate.cloneNode(true);
     this.element.style = 'left: ' + this.position.left + 'px; top: ' + this.position.top + 'px;';
     this.element.querySelector('img').src = this.ad.author.avatar;
     this.element.querySelector('img').alt = this.ad.offer.type;
@@ -290,7 +289,7 @@
    * Если массив уже заполнен, просто добавляем пины на карту.
    * @param {array} ads массив данных, полученных с сервера
    */
-  var renderAds = function (ads) {
+  var renderPins = function (ads) {
 
     if (pins.length === 0) {
       ads.forEach(function (ad) {
@@ -307,14 +306,6 @@
     activePins.define();
   };
 
-  // удалить все объявления
-  var removeAds = function () {
-
-    filteredPins.forEach(function (pin) {
-      pin.deleteElement();
-    });
-  };
-
   // Получить массив отфильтрованных элементов(fragment'ов)
   var getArrayOfElements = function () {
     return filteredPins.map(function (pin) {
@@ -323,7 +314,7 @@
   };
 
   // перерисовка объявлений на карте.
-  var redrawAds = function () {
+  var redrawPins = function () {
     // получаем список отфильтрованных пинов в виде массива их элементов(фрагментов)
     var filteredPinList = getArrayOfElements();
 
@@ -352,7 +343,7 @@
     activePins.define();
   };
 
-  var debounceAds = debounce(redrawAds, 1500);
+  var debounceAds = debounce(redrawPins, 1500);
 
   var onFilterChange = function () {
     filteredPins = pins.filter(filter.values).slice(0, PIN_COUNT);
@@ -362,8 +353,7 @@
   formFilter.addEventListener('change', onFilterChange);
 
   window.data = {
-    renderAds: renderAds,
-    removeAds: removeAds,
+    renderPins: renderPins,
     clearActiveCard: clearActiveCard,
     activePins: activePins
   };

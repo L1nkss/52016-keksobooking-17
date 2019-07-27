@@ -83,19 +83,20 @@
     return coords;
   };
 
-  var Map = function (element) {
-    this.map = element;
+  var Map = function (query) {
+    // this.map = element;
+    this.map = document.querySelector(query);
   };
 
-  var MapPins = function (element) {
-    Map.call(this, element);
+  var MapPins = function (query) {
+    Map.call(this, query);
     this.offset = {
       x: 0,
       y: 0
     };
   };
 
-  Map.prototype.changeMapStatus = function () {
+  Map.prototype.changeStatus = function () {
     this.map.classList.toggle('map--faded');
   };
 
@@ -108,8 +109,8 @@
     this.offset.y = y || 0;
   };
 
-  var map = new Map(document.querySelector('.map'));
-  var mapPins = new MapPins(document.querySelector('.map__pins'));
+  var map = new Map('.map');
+  var mapPins = new MapPins('.map__pins');
 
   window.map = {
     mainMap: map,
