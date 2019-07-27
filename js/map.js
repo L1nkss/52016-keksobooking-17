@@ -17,6 +17,10 @@
     posY: null
   };
 
+  var getMapLimitCoords = function () {
+    return MapLimit;
+  };
+
   /**
    * Функция calculateCoords рассчитывает положение пина на карте
    * posX и posY - координаты пина внутри карты.
@@ -110,6 +114,7 @@
   window.map = {
     mainMap: map,
     mapPins: mapPins,
-    calculateCoords: calculateCoords
+    calculateCoords: calculateCoords,
+    getMapLimitCoords: getMapLimitCoords
   };
 })();

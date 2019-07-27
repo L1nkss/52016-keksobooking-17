@@ -1,6 +1,6 @@
 'use strict';
 
-(function (utilities, filter) {
+(function (utilities, filter, map) {
   // константы
   var HouseTypes = {
     BUNGALO: 'Бунгало',
@@ -8,12 +8,7 @@
     HOUSE: 'Дом',
     PALACE: 'Дворец'
   };
-  var MapRestriction = {
-    TOP: 130,
-    RIGHT: 1200,
-    BOTTOM: 630,
-    LEFT: 0
-  };
+
   var PIN_WIDTH = 50; // ширина пина
   var PIN_HEIGHT = 70; // высота пина
   var PIN_COUNT = 5; // количество пинов на карте.
@@ -217,16 +212,19 @@
    * Проверяем позиции пина на карте. Если пин выходит за границы, то отрисовываем его на границы у которой он выходит
    */
   Pin.prototype.checkCoords = function () {
-    if (this.position.left + this.width > MapRestriction.RIGHT) {
-      this.position.left = MapRestriction.RIGHT - PIN_WIDTH / 2;
-    } else if (this.position.left < MapRestriction.LEFT) {
-      this.position.left = MapRestriction.LEFT;
+    // получаем границы карты
+    var mapLimits = map.getMapLimitCoords();
+
+    if (this.position.left + this.width > mapLimits.RIGHT) {
+      this.position.left = mapLimits.RIGHT - PIN_WIDTH / 2;
+    } else if (this.position.left < mapLimits.LEFT) {
+      this.position.left = mapLimits.LEFT;
     }
 
-    if (this.position.top + this.height > MapRestriction.BOTTOM) {
-      this.position.top = MapRestriction.BOTTOM - this.height;
-    } else if (this.position.top < MapRestriction.TOP) {
-      this.position.top = MapRestriction.TOP;
+    if (this.position.top + this.height > mapLimits.BOTTOM) {
+      this.position.top = mapLimits.BOTTOM - this.height;
+    } else if (this.position.top < mapLimits.TOP) {
+      this.position.top = mapLimits.TOP;
     }
     this.element.style = 'left: ' + this.position.left + 'px; top: ' + this.position.top + 'px;';
   };
@@ -370,4 +368,4 @@
     clearActiveCard: clearActiveCard,
     activePins: activePins
   };
-})(window.utilities, window.filter);
+})(window.utilities, window.filter, window.map);
