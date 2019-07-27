@@ -1,6 +1,6 @@
 'use strict';
 
-(function (map, form, createRequest, notify, usersAd, utilities, filter) {
+(function (map, form, createRequest, notify, userData, utilities, filter) {
   // острый конец пина
   var PIN_TIP = 22;
 
@@ -10,8 +10,9 @@
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
 
-  var Pin = function (element) {
-    this.pin = element;
+  var Pin = function (query) {
+    // this.pin = element;
+    this.pin = document.querySelector(query);
     this.isActive = false;
     // получаем высоту изображения
     this.height = this.pin.querySelector('img').offsetHeight;
@@ -26,14 +27,17 @@
       x: null,
       y: null
     };
-    this.changePinStatus = this.changePinStatus.bind(this);
+    this.changeStatus = this.changeStatus.bind(this);
     this.restoreDefaultPosition = this.restoreDefaultPosition.bind(this);
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onEnterPress = this.onEnterPress.bind(this);
 
     this.pin.addEventListener('mousedown', this.onMouseDown);
     this.pin.addEventListener('keydown', this.onEnterPress);
 
     this.calculatePotision();
     this.calculateStartPotision();
+    this.fillFormAddress();
   };
 
   /*                    Прототипы класса Pin                               */
@@ -71,7 +75,7 @@
     // активируем страницу при первом зажатии главного пина
     activatePage();
     // меняет адрес, так как меняется размер пина
-    form.fillAddress(mainPin.getPosition());
+    this.fillFormAddress();
 
     document.addEventListener('mousemove', checkCoords);
 
@@ -82,19 +86,25 @@
     document.addEventListener('mouseup', onMouseUp);
   };
 
+  Pin.prototype.fillFormAddress = function () {
+    form.fillAddress(this.getPosition());
+  };
+
   Pin.prototype.onEnterPress = function (evt) {
     if (utilities.isEnterPress(evt.keyCode)) {
       // активируем страницу при первом зажатии главного пина
       activatePage();
       // меняет адрес, так как меняется размер пина
-      form.fillAddress(mainPin.getPosition());
+      this.fillFormAddress();
     }
   };
 
+  // метод движения пина. Получаем координаты мыши.
   Pin.prototype.onMouseMove = function (newPositionX, newPositionY) {
     this.pin.style.left = newPositionX + 'px';
     this.pin.style.top = newPositionY + 'px';
     this.calculatePotision();
+    this.fillFormAddress();
   };
 
 
@@ -102,15 +112,14 @@
    * Меням статус пина на активный и рассчитываем новое положение
    * Если пин активирован, добавляем высоте 22px(так как рассчёт коордит идёт от острого конца пина), если нет берём центр пина.
    */
-  Pin.prototype.changePinStatus = function () {
+  Pin.prototype.changeStatus = function () {
     this.isActive = !this.isActive;
     this.height = this.isActive ? this.height + PIN_TIP : this.height / 2;
     this.calculatePotision();
   };
 
   /* --------------------------------------------------------------------- */
-  mainPin = new Pin(document.querySelector('.map__pin--main'));
-  form.fillAddress(mainPin.getPosition());
+  mainPin = new Pin('.map__pin--main');
 
   /**
    * Функция checkCoords проверяет расположение пина на карте(не выходит ли за границы). И вызывает * функцию fillAddress для заполнения в форме поля Адрес
@@ -120,7 +129,6 @@
     var coords = map.calculateCoords(evt.clientX, evt.clientY, mainPin.halfWidth, mainPin.height);
 
     mainPin.onMouseMove(coords.posX, coords.posY);
-    form.fillAddress(mainPin.getPosition());
   };
 
   /**
@@ -131,25 +139,16 @@
     // убираем spinner
     spinner.classList.toggle('loader--show');
     // меняет состояние карты
-    map.mainMap.changeMapStatus();
+    map.mainMap.changeStatus();
     // меняем состояние форм
     form.changeFormStatus();
     // рендерим объявления
-    usersAd.renderAds(data);
+    userData.renderPins(data);
   };
 
   var onError = function (code, status) {
     pinMap.appendChild(notify.renderErrorData(code, status));
   };
-
-  /**
-   * Функция restoreDefaultPosition возвращает пин в начальную точку и заполняет Address
-   */
-  var restoreDefaultPosition = function () {
-    mainPin.restoreDefaultPosition();
-    form.fillAddress(mainPin.getPosition());
-  };
-
 
   /**
    * Функция активации страницы
@@ -159,7 +158,7 @@
     if (!mainPin.isActive) {
       createRequest('https://js.dump.academy/keksobooking/data', 'GET', onSuccess, onError);
       spinner.classList.toggle('loader--show');
-      mainPin.changePinStatus();
+      mainPin.changeStatus();
       return;
     }
   };
@@ -170,19 +169,19 @@
    */
   var disactivatePage = function () {
     // возвращает пин в начальную точку
-    restoreDefaultPosition();
+    mainPin.restoreDefaultPosition();
     // меняет статус Pin'a
-    mainPin.changePinStatus();
+    mainPin.changeStatus();
     // меняем статус карты
-    map.mainMap.changeMapStatus();
+    map.mainMap.changeStatus();
     // возвращаем стандартные настройки для фильтров
     filter.restoreDefaultSetting();
     // удаляем карточки
-    usersAd.activePins.deleteAllActivePins();
+    userData.activePins.deleteAll();
     // если есть открытые карточки, закрываем её
-    usersAd.clearActiveCard();
+    userData.clearActiveCard();
     // меняем статус pina
-    mainPin.changePinStatus();
+    mainPin.changeStatus();
   };
 
   var onMouseUp = function (evt) {
@@ -193,7 +192,7 @@
 
   // callback функции для обработчика формы
   var setDefaultPageStatus = function () {
-    mainPin.changePinStatus();
+    mainPin.changeStatus();
     disactivatePage();
   };
   var onFormReset = form.formReset(setDefaultPageStatus);

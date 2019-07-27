@@ -39,10 +39,6 @@
 
   // DOM Элементы
   var addressInput = document.querySelector('#address');
-  var nameInput = document.querySelector('#title');
-  var nameInputText = document.querySelector('.title-label');
-  var priceInput = document.querySelector('#price');
-  var priceInputText = document.querySelector('.price-label');
 
   // окно где мы выводим сообщение об успехе/ошибки
   var main = document.querySelector('main');
@@ -56,10 +52,10 @@
   };
 
   // Конструктор для загрузки изображений Жилища
-  var ImageGallery = function (element) {
-    this.element = element;
-    this.imageInput = element.querySelector('input[type="file"]');
-    this.imageDropZone = element.querySelector('label');
+  var ImageGallery = function (query) {
+    this.element = document.querySelector(query);
+    this.imageInput = this.element.querySelector('input[type="file"]');
+    this.imageDropZone = this.element.querySelector('label');
 
     this.onImageChanges = this.onImageChanges.bind(this);
     this.addImage = this.addImage.bind(this);
@@ -134,8 +130,8 @@
   };
 
   // констуктор аватарки пользователя (наследуется от ImageGallery)
-  var AvatarImage = function (element) {
-    ImageGallery.call(this, element);
+  var AvatarImage = function (query) {
+    ImageGallery.call(this, query);
     this.avatar = this.element.querySelector('img');
     this.defaultAvatar = this.avatar.getAttribute('src');
   };
@@ -163,8 +159,8 @@
     this.avatar.src = this.defaultAvatar;
   };
 
-  userGallery = new ImageGallery(document.querySelector('.ad-form__photo-container'));
-  userAvatar = new AvatarImage(document.querySelector('.ad-form-header__upload'));
+  userGallery = new ImageGallery('.ad-form__photo-container');
+  userAvatar = new AvatarImage('.ad-form-header__upload');
 
   // функция констуктор для полей формы.
   var Fieldsets = function () {
@@ -218,12 +214,11 @@
 
   // возвращаем стандартное значение всем полям
   Fieldsets.prototype.restoreDefaultValues = function () {
-    var self = this;
     // получаем ключи из объекта defaultValue и перебираем их в цикле
     Object.keys(this.defaultValues).forEach(function (key) {
       // у соответсвующего элемента фильтрации устанавливаем значение по умолчанию.
-      self[key].value = self.defaultValues[key];
-    });
+      this[key].value = this.defaultValues[key];
+    }, this);
   };
 
   // возвращаем все стандартные значения
@@ -250,12 +245,11 @@
   };
 
   Fieldsets.prototype.changeGuestCapacity = function (rooms) {
-    var self = this;
     this.capacity.length = 0;
 
     rooms.forEach(function (room) {
-      self.capacity.add(createOption(room));
-    });
+      this.capacity.add(createOption(room));
+    }, this);
   };
 
   // Передаём в переменную prevSelectedOption предыдущее выбранное значение и изменяем количество гостей
@@ -264,15 +258,15 @@
     this.changeGuestCapacity(RoomCounts[evt.target.value]);
   };
 
-  var ReqNameInput = function (element, text) {
-    this.input = element;
+  var ReqNameInput = function (queryInput, queryText) {
+    this.input = document.querySelector(queryInput);
     this.isValid = false;
-    this.label = text;
-    this.labelText = text.textContent;
+    this.label = document.querySelector(queryText);
+    this.labelText = this.label.textContent;
   };
 
-  var ReqNumberInput = function (element, text) {
-    ReqNameInput.call(this, element, text);
+  var ReqNumberInput = function (queryInput, queryText) {
+    ReqNameInput.call(this, queryInput, queryText);
   };
 
   // наследуем ReqNumberInput от ReqNameInput
@@ -357,8 +351,8 @@
     this.mapFeatures.disabled = !this.mapFeatures.disabled;
   };
 
-  headerInput = new ReqNameInput(nameInput, nameInputText);
-  pricePerNightInput = new ReqNumberInput(priceInput, priceInputText);
+  headerInput = new ReqNameInput('#title', '.title-label');
+  pricePerNightInput = new ReqNumberInput('#price', '.price-label');
   formFields = new Fieldsets();
   pageForm = new Form();
 

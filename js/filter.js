@@ -2,17 +2,17 @@
 
 (function (utilities) {
   // диапазон цен стоимости жилья.
-  var rangeOfPrices = {
-    'ANY': {min: 0, max: Infinity},
-    'MIDDLE': {min: 10000, max: 50000},
-    'LOW': {min: 0, max: 10000},
-    'HIGH': {min: 50000, max: Infinity}
+  var RangeOfPrices = {
+    ANY: {min: 0, max: Infinity},
+    MIDDLE: {min: 10000, max: 50000},
+    LOW: {min: 0, max: 10000},
+    HIGH: {min: 50000, max: Infinity}
   };
 
   var filters;
 
   // констуктор для полей фильтрации
-  var Housing = function () {
+  var Filters = function () {
     this.type = document.querySelector('#housing-type');
     this.price = document.querySelector('#housing-price');
     this.rooms = document.querySelector('#housing-rooms');
@@ -30,7 +30,7 @@
   };
 
   // Восстановить значение по умолчанию у полей фильтрации
-  Housing.prototype.restoreDefaultSettings = function () {
+  Filters.prototype.restoreDefaultSettings = function () {
     // восстанавливаем поля по умолчанию
     this.restoreDefaultValues();
 
@@ -38,16 +38,15 @@
     this.restoreFeatures();
   };
 
-  Housing.prototype.restoreDefaultValues = function () {
-    var self = this;
+  Filters.prototype.restoreDefaultValues = function () {
     // получаем ключи из объекта defaultValue и перебираем их в цикле
     Object.keys(this.defaultValues).forEach(function (key) {
       // у соответсвующего элемента фильтрации устанавливаем значение по умолчанию.
-      self[key].value = self.defaultValues[key];
-    });
+      this[key].value = this.defaultValues[key];
+    }, this);
   };
 
-  Housing.prototype.restoreFeatures = function () {
+  Filters.prototype.restoreFeatures = function () {
     var checkedFeatures = this.getAllCheckedFeatures();
 
     checkedFeatures.forEach(function (feature) {
@@ -55,53 +54,50 @@
     });
   };
 
-  Housing.prototype.onFeatureEnterClick = function (evt) {
+  Filters.prototype.onFeatureEnterClick = function (evt) {
     if (utilities.isEnterPress(evt.keyCode)) {
       evt.target.checked = !evt.target.checked;
     }
   };
 
-  Housing.prototype.getAllCheckedFeatures = function () {
+  Filters.prototype.getAllCheckedFeatures = function () {
     return Array.prototype.slice.call(this.features.querySelectorAll('input:checked'));
   };
 
-  Housing.prototype.getValue = function (key) {
+  Filters.prototype.getValue = function (key) {
     return this[key].value;
   };
 
-  filters = new Housing();
-
-  var filterPrice = function (element) {
+  Filters.prototype.checkPrice = function (element) {
     var elementPrice = element.ad.offer.price;
-    var range = rangeOfPrices[filters.getValue('price').toUpperCase()];
+    var range = RangeOfPrices[this.getValue('price').toUpperCase()];
 
     return elementPrice >= range.min && elementPrice < range.max;
   };
 
-  var filterType = function (element) {
-    var type = filters.getValue('type');
+  Filters.prototype.checkType = function (element) {
+    var type = this.getValue('type');
     var elementType = element.ad.offer.type;
 
     return type === 'any' ? element : elementType === type;
   };
 
-  var filterRooms = function (element) {
-    var rooms = filters.getValue('rooms');
+  Filters.prototype.checkRooms = function (element) {
+    var rooms = this.getValue('rooms');
     var elementRooms = element.ad.offer.rooms;
 
     return rooms === 'any' ? element : elementRooms.toString() === rooms;
   };
 
-  var filterGuests = function (element) {
-    var guests = filters.getValue('guests');
+  Filters.prototype.checkGuests = function (element) {
+    var guests = this.getValue('guests');
     var elementGuests = element.ad.offer.guests;
 
     return guests === 'any' ? element : elementGuests.toString() === guests;
   };
 
-  // получение элемента по доп. функциям дома.
-  var filterFeatures = function (element) {
-    var featuresChecked = filters.getAllCheckedFeatures();
+  Filters.prototype.checkFeatures = function (element) {
+    var featuresChecked = this.getAllCheckedFeatures();
     var elementFeatures = element.ad.offer.features;
     var result = false;
     var features = featuresChecked.map(function (feature) {
@@ -124,12 +120,14 @@
     return result;
   };
 
+  filters = new Filters();
+
   var filter = function (element) {
-    return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
+    return filters.checkType(element) && filters.checkPrice(element) && filters.checkRooms(element) && filters.checkGuests(element) && filters.checkFeatures(element);
   };
 
   window.filter = {
-    filterValues: filter,
+    values: filter,
     restoreDefaultSetting: filters.restoreDefaultSettings
   };
 })(window.utilities);
