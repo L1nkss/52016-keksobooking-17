@@ -127,7 +127,7 @@
   };
 
   window.filter = {
-    filterValues: filter,
+    values: filter,
     restoreDefaultSetting: filters.restoreDefaultSettings
   };
 })(window.utilities);
