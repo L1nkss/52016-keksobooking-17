@@ -12,8 +12,23 @@
     return key === ENTER_CODE;
   };
 
+  // функция для отображения пинов через 1с(устранение дребезга)
+  var debounce = function (callback, time) {
+    var lastTimeout = null;
+    time = time || time === 0 ? time : 1000;
+
+    return function () {
+      if (lastTimeout) {
+        window.clearTimeout(lastTimeout);
+      }
+
+      lastTimeout = window.setTimeout(callback, time);
+    };
+  };
+
   window.utilities = {
     isEscPress: isEscPress,
-    isEnterPress: isEnterPress
+    isEnterPress: isEnterPress,
+    debounce: debounce
   };
 })();

@@ -62,20 +62,6 @@
     }
   };
 
-  // функция для отображения пинов через 1с(устранение дребезга)
-  var debounce = function (callback, time) {
-    var lastTimeout = null;
-    time = time || time === 0 ? time : 1000;
-
-    return function () {
-      if (lastTimeout) {
-        window.clearTimeout(lastTimeout);
-      }
-
-      lastTimeout = window.setTimeout(callback, time);
-    };
-  };
-
   var renderImage = function (image) {
     var img = document.createElement('img');
     img.src = image;
@@ -343,11 +329,11 @@
     activePins.define();
   };
 
-  var debounceAds = debounce(redrawPins, 1500);
+  var debouncePins = utilities.debounce(redrawPins, 1500);
 
   var onFilterChange = function () {
     filteredPins = pins.filter(filter.values).slice(0, PIN_COUNT);
-    debounceAds();
+    debouncePins();
   };
 
   formFilter.addEventListener('change', onFilterChange);
