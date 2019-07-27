@@ -3,10 +3,10 @@
 (function (utilities) {
   // диапазон цен стоимости жилья.
   var rangeOfPrices = {
-    'ANY': {min: 0, max: Infinity},
-    'MIDDLE': {min: 10000, max: 50000},
-    'LOW': {min: 0, max: 10000},
-    'HIGH': {min: 50000, max: Infinity}
+    ANY: {min: 0, max: Infinity},
+    MIDDLE: {min: 10000, max: 50000},
+    LOW: {min: 0, max: 10000},
+    HIGH: {min: 50000, max: Infinity}
   };
 
   var filters;
