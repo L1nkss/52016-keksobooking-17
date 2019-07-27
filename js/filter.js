@@ -39,12 +39,11 @@
   };
 
   Housing.prototype.restoreDefaultValues = function () {
-    var self = this;
     // получаем ключи из объекта defaultValue и перебираем их в цикле
     Object.keys(this.defaultValues).forEach(function (key) {
       // у соответсвующего элемента фильтрации устанавливаем значение по умолчанию.
-      self[key].value = self.defaultValues[key];
-    });
+      this[key].value = this.defaultValues[key];
+    }, this);
   };
 
   Housing.prototype.restoreFeatures = function () {
