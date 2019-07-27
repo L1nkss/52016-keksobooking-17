@@ -176,24 +176,6 @@
     return this.element;
   };
 
-  // создание первоночального пина в объекте PIN(как пин будет выглядить на карте)
-  var renderPin = function (pin) {
-    // Если у пина нет информации, то он не нужен
-    if (!pin.ad.offer) {
-      return null;
-    }
-    var element = adTemplate.cloneNode(true);
-    element.style = 'left: ' + pin.position.left + 'px; top: ' + pin.position.top + 'px;';
-    element.querySelector('img').src = pin.ad.author.avatar;
-    element.querySelector('img').alt = pin.ad.offer.type;
-    pin.element = element;
-    pin.element.classList.add('pin');
-    pin.checkCoords();
-
-    return true;
-  };
-
-  // конструктор класса Pin (пин на карте)
   var Pin = function (ad) {
     this.ad = ad;
     this.width = PIN_WIDTH;
@@ -241,6 +223,23 @@
 
   Pin.prototype.deleteElement = function () {
     this.element.remove();
+  };
+
+  // создание первоночального пина в объекте PIN(как пин будет выглядить на карте)
+  Pin.prototype.render = function () {
+    // Если у пина нет ключа offer, отрисовывать не будем.
+    if (!this.ad.offer) {
+      return null;
+    }
+
+    this.element = adTemplate.cloneNode(true);
+    this.element.style = 'left: ' + this.position.left + 'px; top: ' + this.position.top + 'px;';
+    this.element.querySelector('img').src = this.ad.author.avatar;
+    this.element.querySelector('img').alt = this.ad.offer.type;
+    this.element.classList.add('pin');
+    this.checkCoords();
+
+    return true;
   };
 
   /**
@@ -296,7 +295,7 @@
     if (pins.length === 0) {
       ads.forEach(function (ad) {
         var pin = new Pin(ad);
-        renderPin(pin);
+        pin.render();
         pins.push(pin);
       });
     }
