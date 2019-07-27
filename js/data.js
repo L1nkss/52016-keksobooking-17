@@ -90,14 +90,14 @@
     }, this);
   };
 
-  PinCard.prototype.onPopupClick = function () {
+  PinCard.prototype.onClick = function () {
     clearActiveCard();
   };
 
-  PinCard.prototype.onPopupKeyDown = function (evt) {
+  PinCard.prototype.onKeyDown = function (evt) {
     if (utilities.isEscPress(evt.keyCode)) {
       clearActiveCard();
-      document.removeEventListener('keydown', this.onPopupKeyDown);
+      document.removeEventListener('keydown', this.onKeyDown);
     }
   };
 
@@ -155,8 +155,8 @@
     // создаём список доп. функций, если они есть
     this.renderFeatures();
     // вешаем обработчики закрытия элемента
-    this.element.querySelector('.popup__close').addEventListener('click', this.onPopupClick);
-    document.addEventListener('keydown', this.onPopupKeyDown);
+    this.element.querySelector('.popup__close').addEventListener('click', this.onClick);
+    document.addEventListener('keydown', this.onKeyDown);
 
     return this.element;
   };
