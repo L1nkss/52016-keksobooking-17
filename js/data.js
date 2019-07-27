@@ -186,7 +186,7 @@
     };
     this.cardInformation = null;
 
-    this.onPinClick = Pin.prototype.click.bind(this);
+    this.onClick = this.onClick.bind(this);
   };
 
   /**
@@ -210,7 +210,7 @@
     this.element.style = 'left: ' + this.position.left + 'px; top: ' + this.position.top + 'px;';
   };
 
-  Pin.prototype.click = function () {
+  Pin.prototype.onClick = function () {
     var pinInformationCard = new PinCard(this.ad).render();
 
     // проверка активной карточки на карте.
@@ -277,7 +277,7 @@
     var fragment = document.createDocumentFragment();
 
     filteredPins.forEach(function (pin) {
-      pin.element.addEventListener('click', pin.onPinClick);
+      pin.element.addEventListener('click', pin.onClick);
       fragment.appendChild(pin.element);
     });
 
