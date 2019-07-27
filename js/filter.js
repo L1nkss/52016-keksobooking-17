@@ -68,39 +68,36 @@
     return this[key].value;
   };
 
-  filters = new Filters();
-
-  var filterPrice = function (element) {
+  Filters.prototype.checkPrice = function (element) {
     var elementPrice = element.ad.offer.price;
-    var range = RangeOfPrices[filters.getValue('price').toUpperCase()];
+    var range = RangeOfPrices[this.getValue('price').toUpperCase()];
 
     return elementPrice >= range.min && elementPrice < range.max;
   };
 
-  var filterType = function (element) {
-    var type = filters.getValue('type');
+  Filters.prototype.checkType = function (element) {
+    var type = this.getValue('type');
     var elementType = element.ad.offer.type;
 
     return type === 'any' ? element : elementType === type;
   };
 
-  var filterRooms = function (element) {
-    var rooms = filters.getValue('rooms');
+  Filters.prototype.checkRooms = function (element) {
+    var rooms = this.getValue('rooms');
     var elementRooms = element.ad.offer.rooms;
 
     return rooms === 'any' ? element : elementRooms.toString() === rooms;
   };
 
-  var filterGuests = function (element) {
-    var guests = filters.getValue('guests');
+  Filters.prototype.checkGuests = function (element) {
+    var guests = this.getValue('guests');
     var elementGuests = element.ad.offer.guests;
 
     return guests === 'any' ? element : elementGuests.toString() === guests;
   };
 
-  // получение элемента по доп. функциям дома.
-  var filterFeatures = function (element) {
-    var featuresChecked = filters.getAllCheckedFeatures();
+  Filters.prototype.checkFeatures = function (element) {
+    var featuresChecked = this.getAllCheckedFeatures();
     var elementFeatures = element.ad.offer.features;
     var result = false;
     var features = featuresChecked.map(function (feature) {
@@ -123,8 +120,10 @@
     return result;
   };
 
+  filters = new Filters();
+
   var filter = function (element) {
-    return filterType(element) && filterPrice(element) && filterRooms(element) && filterGuests(element) && filterFeatures(element);
+    return filters.checkType(element) && filters.checkPrice(element) && filters.checkRooms(element) && filters.checkGuests(element) && filters.checkFeatures(element);
   };
 
   window.filter = {
