@@ -89,7 +89,7 @@
     this.time = 'Заезд после ' + this.ad.offer.checkin + ', выезд до ' + this.ad.offer.checkout;
     this.priceText = this.ad.offer.price + ' ₽/ночь';
     this.guestsRooms = this.ad.offer.rooms + ' комнаты для ' + this.ad.offer.guests + ' гостей';
-    this.textContent = [
+    this.textsContent = [
       {query: '.popup__avatar', value: this.ad.author.avatar},
       {query: '.popup__title', value: this.ad.offer.title},
       {query: '.popup__text--address', value: this.ad.offer.address},
@@ -101,9 +101,9 @@
     ];
   };
 
-  PinCard.prototype.fillTextContent = function () {
-    this.textContent.forEach(function (el) {
-      this.element.querySelector(el.query).textContent = el.value;
+  PinCard.prototype.fillTextsContent = function () {
+    this.textsContent.forEach(function (content) {
+      this.element.querySelector(content.query).textContent = content.value;
     }, this);
   };
 
@@ -149,7 +149,7 @@
 
   PinCard.prototype.render = function () {
     // заполняем текстовые значение в элементе
-    this.fillTextContent();
+    this.fillTextsContent();
     // создаём галлерею изображений, если есть фотографии
     this.renderGallery();
     // создаём список доп. функций, если они есть
