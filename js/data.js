@@ -62,23 +62,6 @@
     }
   };
 
-  var renderImage = function (image) {
-    var img = document.createElement('img');
-    img.src = image;
-    img.width = 45;
-    img.height = 40;
-    img.alt = 'Фотография жилья';
-    img.classList = 'popup__photo';
-    return img;
-  };
-
-  var renderFeature = function (feature) {
-    var li = document.createElement('li');
-    li.classList = 'popup__feature popup__feature--' + feature;
-
-    return li;
-  };
-
   //  Функция конструктор для создания карточки с подробной информацией.
   var PinCard = function (ad) {
     this.element = cardTemplate.cloneNode(true);
@@ -128,8 +111,18 @@
 
     // генерим блок с фотографиями
     this.ad.offer.photos.forEach(function (image) {
-      imageGallery.appendChild(renderImage(image));
-    });
+      imageGallery.appendChild(this.renderImage(image));
+    }, this);
+  };
+
+  PinCard.prototype.renderImage = function (image) {
+    var img = document.createElement('img');
+    img.src = image;
+    img.width = 45;
+    img.height = 40;
+    img.alt = 'Фотография жилья';
+    img.classList = 'popup__photo';
+    return img;
   };
 
   PinCard.prototype.renderFeatures = function () {
@@ -143,8 +136,15 @@
 
     // генерим блок с доп. функциями
     this.ad.offer.features.forEach(function (feature) {
-      features.appendChild(renderFeature(feature));
-    });
+      features.appendChild(this.renderFeature(feature));
+    }, this);
+  };
+
+  PinCard.prototype.renderFeature = function (feature) {
+    var li = document.createElement('li');
+    li.classList = 'popup__feature popup__feature--' + feature;
+
+    return li;
   };
 
   PinCard.prototype.render = function () {
