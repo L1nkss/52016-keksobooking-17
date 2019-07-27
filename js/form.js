@@ -104,12 +104,16 @@
     reader.readAsDataURL(file);
   };
 
-  ImageGallery.prototype.onImageDrop = function (evt) {
-    var files = evt.dataTransfer.files;
-
+  ImageGallery.prototype.loadMultiplyFiles = function (files) {
     for (var i = 0; i < files.length; i++) {
       this.loadImage(files[i]);
     }
+  };
+
+  ImageGallery.prototype.onImageDrop = function (evt) {
+    var files = evt.dataTransfer.files;
+
+    this.loadMultiplyFiles(files);
   };
 
   ImageGallery.prototype.createPhotoGallery = function (file) {
@@ -124,9 +128,7 @@
   ImageGallery.prototype.onImageChanges = function (evt) {
     var files = evt.target.files;
 
-    for (var i = 0; i < files.length; i++) {
-      this.loadImage(files[i]);
-    }
+    this.loadMultiplyFiles(files);
   };
 
   // констуктор аватарки пользователя (наследуется от ImageGallery)

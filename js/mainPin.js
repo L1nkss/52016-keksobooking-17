@@ -81,7 +81,7 @@
 
     var x = evt.clientX - parseInt(evt.currentTarget.style.left, 10);
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
-    map.mapPins.initOffsetCoords(x, y);
+    map.pins.initOffsetCoords(x, y);
 
     document.addEventListener('mouseup', onMouseUp);
   };
@@ -139,7 +139,7 @@
     // убираем spinner
     spinner.classList.toggle('loader--show');
     // меняет состояние карты
-    map.mainMap.changeStatus();
+    map.main.changeStatus();
     // меняем состояние форм
     form.changeFormStatus();
     // рендерим объявления
@@ -173,7 +173,7 @@
     // меняет статус Pin'a
     mainPin.changeStatus();
     // меняем статус карты
-    map.mainMap.changeStatus();
+    map.main.changeStatus();
     // возвращаем стандартные настройки для фильтров
     filter.restoreDefaultSetting();
     // удаляем карточки
@@ -187,7 +187,7 @@
   var onMouseUp = function (evt) {
     evt.preventDefault();
     document.removeEventListener('mousemove', checkCoords);
-    map.mapPins.initOffsetCoords();
+    map.pins.initOffsetCoords();
   };
 
   // callback функции для обработчика формы

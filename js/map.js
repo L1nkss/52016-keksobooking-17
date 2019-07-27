@@ -113,8 +113,8 @@
   var mapPins = new MapPins('.map__pins');
 
   window.map = {
-    mainMap: map,
-    mapPins: mapPins,
+    main: map,
+    pins: mapPins,
     calculateCoords: calculateCoords,
     getMapLimitCoords: getMapLimitCoords
   };
