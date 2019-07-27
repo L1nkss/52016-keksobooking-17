@@ -2,7 +2,7 @@
 
 (function (utilities) {
   // диапазон цен стоимости жилья.
-  var rangeOfPrices = {
+  var RangeOfPrices = {
     ANY: {min: 0, max: Infinity},
     MIDDLE: {min: 10000, max: 50000},
     LOW: {min: 0, max: 10000},
@@ -72,7 +72,7 @@
 
   var filterPrice = function (element) {
     var elementPrice = element.ad.offer.price;
-    var range = rangeOfPrices[filters.getValue('price').toUpperCase()];
+    var range = RangeOfPrices[filters.getValue('price').toUpperCase()];
 
     return elementPrice >= range.min && elementPrice < range.max;
   };
