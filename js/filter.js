@@ -12,7 +12,7 @@
   var filters;
 
   // констуктор для полей фильтрации
-  var Housing = function () {
+  var Filters = function () {
     this.type = document.querySelector('#housing-type');
     this.price = document.querySelector('#housing-price');
     this.rooms = document.querySelector('#housing-rooms');
@@ -30,7 +30,7 @@
   };
 
   // Восстановить значение по умолчанию у полей фильтрации
-  Housing.prototype.restoreDefaultSettings = function () {
+  Filters.prototype.restoreDefaultSettings = function () {
     // восстанавливаем поля по умолчанию
     this.restoreDefaultValues();
 
@@ -38,7 +38,7 @@
     this.restoreFeatures();
   };
 
-  Housing.prototype.restoreDefaultValues = function () {
+  Filters.prototype.restoreDefaultValues = function () {
     // получаем ключи из объекта defaultValue и перебираем их в цикле
     Object.keys(this.defaultValues).forEach(function (key) {
       // у соответсвующего элемента фильтрации устанавливаем значение по умолчанию.
@@ -46,7 +46,7 @@
     }, this);
   };
 
-  Housing.prototype.restoreFeatures = function () {
+  Filters.prototype.restoreFeatures = function () {
     var checkedFeatures = this.getAllCheckedFeatures();
 
     checkedFeatures.forEach(function (feature) {
@@ -54,21 +54,21 @@
     });
   };
 
-  Housing.prototype.onFeatureEnterClick = function (evt) {
+  Filters.prototype.onFeatureEnterClick = function (evt) {
     if (utilities.isEnterPress(evt.keyCode)) {
       evt.target.checked = !evt.target.checked;
     }
   };
 
-  Housing.prototype.getAllCheckedFeatures = function () {
+  Filters.prototype.getAllCheckedFeatures = function () {
     return Array.prototype.slice.call(this.features.querySelectorAll('input:checked'));
   };
 
-  Housing.prototype.getValue = function (key) {
+  Filters.prototype.getValue = function (key) {
     return this[key].value;
   };
 
-  filters = new Housing();
+  filters = new Filters();
 
   var filterPrice = function (element) {
     var elementPrice = element.ad.offer.price;
