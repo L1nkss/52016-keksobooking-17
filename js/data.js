@@ -94,7 +94,7 @@
   };
 
   //  Функция конструктор для создания карточки с подробной информацией.
-  var RenderPinCardInformation = function (ad) {
+  var PinCard = function (ad) {
     this.element = cardTemplate.cloneNode(true);
     this.ad = ad;
     this.imageGallery = this.element.querySelector('.popup__photos');
@@ -115,25 +115,25 @@
     ];
   };
 
-  RenderPinCardInformation.prototype.fillTextContent = function () {
+  PinCard.prototype.fillTextContent = function () {
     var self = this;
     this.textContent.forEach(function (el) {
       self.element.querySelector(el.query).textContent = el.value;
     });
   };
 
-  RenderPinCardInformation.prototype.onPopupClick = function () {
+  PinCard.prototype.onPopupClick = function () {
     clearActiveCard();
   };
 
-  RenderPinCardInformation.prototype.onPopupKeyDown = function (evt) {
+  PinCard.prototype.onPopupKeyDown = function (evt) {
     if (utilities.isEscPress(evt.keyCode)) {
       clearActiveCard();
       document.removeEventListener('keydown', this.onPopupKeyDown);
     }
   };
 
-  RenderPinCardInformation.prototype.renderGallery = function () {
+  PinCard.prototype.renderGallery = function () {
     var imageGallery = this.element.querySelector('.popup__photos');
     // Если у объявления нет фотографий, то удаляем этот блок с карточки
     if (this.ad.offer.photos.length === 0) {
@@ -147,7 +147,7 @@
     });
   };
 
-  RenderPinCardInformation.prototype.renderFeatures = function () {
+  PinCard.prototype.renderFeatures = function () {
     var features = this.element.querySelector('.popup__features');
 
     // Если у объявления нет доп. функций, то удаляем этот блок с карточки
@@ -162,7 +162,7 @@
     });
   };
 
-  RenderPinCardInformation.prototype.renderElement = function () {
+  PinCard.prototype.renderElement = function () {
     // заполняем текстовые значение в элементе
     this.fillTextContent();
     // создаём галлерею изображений, если есть фотографии
@@ -230,7 +230,7 @@
   };
 
   Pin.prototype.pinClick = function () {
-    var pinInformationCard = new RenderPinCardInformation(this.ad).renderElement();
+    var pinInformationCard = new PinCard(this.ad).renderElement();
 
     // проверка активной карточки на карте.
     var flagCard = checkActiveCard(this.element, pinInformationCard);
