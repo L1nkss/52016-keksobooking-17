@@ -38,21 +38,21 @@
   var activePins = {
     pins: null,
 
-    getActivePins: function () {
+    get: function () {
       return this.pins;
     },
 
-    defineActivePins: function () {
+    define: function () {
       this.pins = Array.prototype.slice.call(document.querySelectorAll('.pin'));
     },
 
-    deleteAllActivePins: function () {
+    deleteAll: function () {
       this.pins.forEach(function (pin) {
         pin.remove();
       });
     },
 
-    deletePin: function (id) {
+    delete: function (id) {
       this.pins[id].remove();
     }
   };
@@ -307,7 +307,7 @@
     filteredPins = pins.filter(filter.filterValues).slice(0, PIN_COUNT);
     addPinsOnMap();
     // получить все пины, которые находятся на карте.
-    activePins.defineActivePins();
+    activePins.define();
   };
 
   // удалить все объявления
@@ -334,7 +334,7 @@
     activePins.pins.forEach(function (pin, index) {
       var pinID = filteredPinList.indexOf(pin);
       if (pinID === -1) {
-        activePins.deletePin(index);
+        activePins.delete(index);
       }
     });
 
@@ -352,7 +352,7 @@
     clearActiveCard();
 
     // заполняем массив с активными карточками
-    activePins.defineActivePins();
+    activePins.define();
   };
 
   var debounceAds = debounce(redrawAds, 1500);

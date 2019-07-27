@@ -178,7 +178,7 @@
     // возвращаем стандартные настройки для фильтров
     filter.restoreDefaultSetting();
     // удаляем карточки
-    usersAd.activePins.deleteAllActivePins();
+    usersAd.activePins.deleteAll();
     // если есть открытые карточки, закрываем её
     usersAd.clearActiveCard();
     // меняем статус pina
