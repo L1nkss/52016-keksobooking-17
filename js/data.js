@@ -72,7 +72,7 @@
     return img;
   };
 
-  var renderFeaturesList = function (feature) {
+  var renderFeature = function (feature) {
     var li = document.createElement('li');
     li.classList = 'popup__feature popup__feature--' + feature;
 
@@ -143,7 +143,7 @@
 
     // генерим блок с доп. функциями
     this.ad.offer.features.forEach(function (feature) {
-      features.appendChild(renderFeaturesList(feature));
+      features.appendChild(renderFeature(feature));
     });
   };
 
