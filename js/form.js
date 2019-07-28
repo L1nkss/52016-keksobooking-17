@@ -54,17 +54,17 @@
   // Конструктор для загрузки изображений Жилища
   var ImageGallery = function (query) {
     this.element = document.querySelector(query);
-    this.imageInput = this.element.querySelector('input[type="file"]');
-    this.imageDropZone = this.element.querySelector('label');
+    this.input = this.element.querySelector('input[type="file"]');
+    this.dropZone = this.element.querySelector('label');
 
     this.onImageChanges = this.onImageChanges.bind(this);
     this.addImage = this.addImage.bind(this);
     this.onImageDrop = this.onImageDrop.bind(this);
 
-    this.imageInput.addEventListener('change', this.onImageChanges);
-    this.imageDropZone.addEventListener('dragenter', this.onToggleDropZone);
-    this.imageDropZone.addEventListener('dragleave', this.onToggleDropZone);
-    this.imageDropZone.addEventListener('drop', this.onImageDrop);
+    this.input.addEventListener('change', this.onImageChanges);
+    this.dropZone.addEventListener('dragenter', this.onToggleDropZone);
+    this.dropZone.addEventListener('dragleave', this.onToggleDropZone);
+    this.dropZone.addEventListener('drop', this.onImageDrop);
   };
 
   // загрузка изображения
@@ -104,12 +104,16 @@
     reader.readAsDataURL(file);
   };
 
-  ImageGallery.prototype.onImageDrop = function (evt) {
-    var files = evt.dataTransfer.files;
-
+  ImageGallery.prototype.loadMultiplyFiles = function (files) {
     for (var i = 0; i < files.length; i++) {
       this.loadImage(files[i]);
     }
+  };
+
+  ImageGallery.prototype.onImageDrop = function (evt) {
+    var files = evt.dataTransfer.files;
+
+    this.loadMultiplyFiles(files);
   };
 
   ImageGallery.prototype.createPhotoGallery = function (file) {
@@ -124,9 +128,7 @@
   ImageGallery.prototype.onImageChanges = function (evt) {
     var files = evt.target.files;
 
-    for (var i = 0; i < files.length; i++) {
-      this.loadImage(files[i]);
-    }
+    this.loadMultiplyFiles(files);
   };
 
   // констуктор аватарки пользователя (наследуется от ImageGallery)
@@ -440,11 +442,11 @@
   };
 
   DRAG_EVENTS.forEach(function (el) {
-    userAvatar.imageDropZone.addEventListener(el, preventDefaultEvents);
+    userAvatar.dropZone.addEventListener(el, preventDefaultEvents);
   });
 
   DRAG_EVENTS.forEach(function (el) {
-    userGallery.imageDropZone.addEventListener(el, preventDefaultEvents);
+    userGallery.dropZone.addEventListener(el, preventDefaultEvents);
   });
 
   // Callback функции для обработчиков
@@ -468,7 +470,7 @@
     main.appendChild(notify.renderErrorMessage());
   };
 
-  var formReset = function (callback) {
+  var getOnFormReset = function (callback) {
 
     return function (evt) {
       evt.preventDefault();
@@ -477,7 +479,7 @@
     };
   };
 
-  var formSubmit = function (callback) {
+  var getOnFormSubmit = function (callback) {
     var onSuccess = function () {
       main.appendChild(notify.renderSuccessMessage());
       changeFormStatus();
@@ -505,8 +507,8 @@
     changeFormStatus: changeFormStatus,
     headerInput: headerInput,
     pricePerNightInput: pricePerNightInput,
-    formReset: formReset,
-    formSubmit: formSubmit
+    getOnFormReset: getOnFormReset,
+    getOnFormSubmit: getOnFormSubmit
   };
 })(window.request, window.notify);
 

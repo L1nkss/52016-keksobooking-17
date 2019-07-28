@@ -62,37 +62,6 @@
     }
   };
 
-  // функция для отображения пинов через 1с(устранение дребезга)
-  var debounce = function (callback, time) {
-    var lastTimeout = null;
-    time = time || time === 0 ? time : 1000;
-
-    return function () {
-      if (lastTimeout) {
-        window.clearTimeout(lastTimeout);
-      }
-
-      lastTimeout = window.setTimeout(callback, time);
-    };
-  };
-
-  var renderImage = function (image) {
-    var img = document.createElement('img');
-    img.src = image;
-    img.width = 45;
-    img.height = 40;
-    img.alt = 'Фотография жилья';
-    img.classList = 'popup__photo';
-    return img;
-  };
-
-  var renderFeaturesList = function (feature) {
-    var li = document.createElement('li');
-    li.classList = 'popup__feature popup__feature--' + feature;
-
-    return li;
-  };
-
   //  Функция конструктор для создания карточки с подробной информацией.
   var PinCard = function (ad) {
     this.element = cardTemplate.cloneNode(true);
@@ -103,7 +72,7 @@
     this.time = 'Заезд после ' + this.ad.offer.checkin + ', выезд до ' + this.ad.offer.checkout;
     this.priceText = this.ad.offer.price + ' ₽/ночь';
     this.guestsRooms = this.ad.offer.rooms + ' комнаты для ' + this.ad.offer.guests + ' гостей';
-    this.textContent = [
+    this.textsContent = [
       {query: '.popup__avatar', value: this.ad.author.avatar},
       {query: '.popup__title', value: this.ad.offer.title},
       {query: '.popup__text--address', value: this.ad.offer.address},
@@ -115,20 +84,20 @@
     ];
   };
 
-  PinCard.prototype.fillTextContent = function () {
-    this.textContent.forEach(function (el) {
-      this.element.querySelector(el.query).textContent = el.value;
+  PinCard.prototype.fillTextsContent = function () {
+    this.textsContent.forEach(function (content) {
+      this.element.querySelector(content.query).textContent = content.value;
     }, this);
   };
 
-  PinCard.prototype.onPopupClick = function () {
+  PinCard.prototype.onClick = function () {
     clearActiveCard();
   };
 
-  PinCard.prototype.onPopupKeyDown = function (evt) {
+  PinCard.prototype.onKeyDown = function (evt) {
     if (utilities.isEscPress(evt.keyCode)) {
       clearActiveCard();
-      document.removeEventListener('keydown', this.onPopupKeyDown);
+      document.removeEventListener('keydown', this.onKeyDown);
     }
   };
 
@@ -142,8 +111,18 @@
 
     // генерим блок с фотографиями
     this.ad.offer.photos.forEach(function (image) {
-      imageGallery.appendChild(renderImage(image));
-    });
+      imageGallery.appendChild(this.renderImage(image));
+    }, this);
+  };
+
+  PinCard.prototype.renderImage = function (image) {
+    var img = document.createElement('img');
+    img.src = image;
+    img.width = 45;
+    img.height = 40;
+    img.alt = 'Фотография жилья';
+    img.classList = 'popup__photo';
+    return img;
   };
 
   PinCard.prototype.renderFeatures = function () {
@@ -157,20 +136,27 @@
 
     // генерим блок с доп. функциями
     this.ad.offer.features.forEach(function (feature) {
-      features.appendChild(renderFeaturesList(feature));
-    });
+      features.appendChild(this.renderFeature(feature));
+    }, this);
+  };
+
+  PinCard.prototype.renderFeature = function (feature) {
+    var li = document.createElement('li');
+    li.classList = 'popup__feature popup__feature--' + feature;
+
+    return li;
   };
 
   PinCard.prototype.render = function () {
     // заполняем текстовые значение в элементе
-    this.fillTextContent();
+    this.fillTextsContent();
     // создаём галлерею изображений, если есть фотографии
     this.renderGallery();
     // создаём список доп. функций, если они есть
     this.renderFeatures();
     // вешаем обработчики закрытия элемента
-    this.element.querySelector('.popup__close').addEventListener('click', this.onPopupClick);
-    document.addEventListener('keydown', this.onPopupKeyDown);
+    this.element.querySelector('.popup__close').addEventListener('click', this.onClick);
+    document.addEventListener('keydown', this.onKeyDown);
 
     return this.element;
   };
@@ -186,7 +172,7 @@
     };
     this.cardInformation = null;
 
-    this.onPinClick = Pin.prototype.click.bind(this);
+    this.onClick = this.onClick.bind(this);
   };
 
   /**
@@ -210,7 +196,7 @@
     this.element.style = 'left: ' + this.position.left + 'px; top: ' + this.position.top + 'px;';
   };
 
-  Pin.prototype.click = function () {
+  Pin.prototype.onClick = function () {
     var pinInformationCard = new PinCard(this.ad).render();
 
     // проверка активной карточки на карте.
@@ -277,7 +263,7 @@
     var fragment = document.createDocumentFragment();
 
     filteredPins.forEach(function (pin) {
-      pin.element.addEventListener('click', pin.onPinClick);
+      pin.element.addEventListener('click', pin.onClick);
       fragment.appendChild(pin.element);
     });
 
@@ -343,11 +329,11 @@
     activePins.define();
   };
 
-  var debounceAds = debounce(redrawPins, 1500);
+  var debouncePins = utilities.debounce(redrawPins, 1500);
 
   var onFilterChange = function () {
     filteredPins = pins.filter(filter.values).slice(0, PIN_COUNT);
-    debounceAds();
+    debouncePins();
   };
 
   formFilter.addEventListener('change', onFilterChange);

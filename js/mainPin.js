@@ -11,7 +11,6 @@
   var adFormStatus = document.querySelector('.ad-form');
 
   var Pin = function (query) {
-    // this.pin = element;
     this.pin = document.querySelector(query);
     this.isActive = false;
     // получаем высоту изображения
@@ -81,7 +80,7 @@
 
     var x = evt.clientX - parseInt(evt.currentTarget.style.left, 10);
     var y = evt.clientY - parseInt(evt.currentTarget.style.top, 10);
-    map.mapPins.initOffsetCoords(x, y);
+    map.pins.initOffsetCoords(x, y);
 
     document.addEventListener('mouseup', onMouseUp);
   };
@@ -139,7 +138,7 @@
     // убираем spinner
     spinner.classList.toggle('loader--show');
     // меняет состояние карты
-    map.mainMap.changeStatus();
+    map.main.changeStatus();
     // меняем состояние форм
     form.changeFormStatus();
     // рендерим объявления
@@ -159,6 +158,8 @@
       createRequest('https://js.dump.academy/keksobooking/data', 'GET', onSuccess, onError);
       spinner.classList.toggle('loader--show');
       mainPin.changeStatus();
+      // устанавливаем координаты с учётом размера пина
+      map.setLimits(mainPin.halfWidth, mainPin.height);
       return;
     }
   };
@@ -173,7 +174,7 @@
     // меняет статус Pin'a
     mainPin.changeStatus();
     // меняем статус карты
-    map.mainMap.changeStatus();
+    map.main.changeStatus();
     // возвращаем стандартные настройки для фильтров
     filter.restoreDefaultSetting();
     // удаляем карточки
@@ -187,7 +188,7 @@
   var onMouseUp = function (evt) {
     evt.preventDefault();
     document.removeEventListener('mousemove', checkCoords);
-    map.mapPins.initOffsetCoords();
+    map.pins.initOffsetCoords();
   };
 
   // callback функции для обработчика формы
@@ -195,8 +196,8 @@
     mainPin.changeStatus();
     disactivatePage();
   };
-  var onFormReset = form.formReset(setDefaultPageStatus);
-  var onFormSubmit = form.formSubmit(setDefaultPageStatus);
+  var onFormReset = form.getOnFormReset(setDefaultPageStatus);
+  var onFormSubmit = form.getOnFormSubmit(setDefaultPageStatus);
 
   adFormStatus.addEventListener('reset', onFormReset);
   adFormStatus.addEventListener('submit', onFormSubmit);
