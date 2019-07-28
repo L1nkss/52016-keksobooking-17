@@ -46,9 +46,50 @@
     this.limits.bottom = MapLimit.BOTTOM - height;
   };
 
+  Limit.prototype.getX = function (position) {
+    return position > this.limits.right ? this.limits.right : this.limits.left;
+  };
+
+  Limit.prototype.getY = function (position) {
+    return position > this.limits.bottom ? this.limits.bottom : this.limits.top;
+  };
+
   Limit.prototype.setAxes = function (width, height) {
     this.setX(width);
     this.setY(height);
+  };
+
+  /**
+   * Метод getCoord рассчитывает положение пина на карте.
+   * У метода 4 возможных состояния
+   * 1) находимся внутри карты по оси Axe , но уже вышли за границу по другой оси. Возвращаем prevPosition
+   * 2) находимся внутри карты по оси Axe и другая ось тоже внутри карты. Возвращаем Position
+   * 3) находимся за границой карты по оси Axe , но по другой оси ещё не выходили за границы. Возвращаем границы оси
+   * 4) В последнем случае просто возвращаем пред. значение
+   * @param {string} axe Ось, у которой будем возвращать значение
+   * @param {number} position положение мыши по оси Y
+   * @param {number} prevPosition положение мыши по оси X(текущее значение)
+   * @param {boolean} validAxe внутри карты мы или нет
+   * @return {Number} Возвращаем координаты оси
+   */
+  Limit.prototype.getCoord = function (axe, position, prevPosition, validAxe) {
+    if (validAxe && this.isLeaves()) {
+      this.isOut[axe] = false;
+      return prevPosition;
+    }
+
+    if (validAxe && !this.isLeaves()) {
+      this.isOut[axe] = false;
+      return position;
+    }
+
+    if (!validAxe && !this.isLeaves()) {
+      this.isOut[axe] = true;
+      return axe === 'x' ? this.getX(position) : this.getY(position);
+    }
+
+    this.isOut[axe] = true;
+    return prevPosition;
   };
 
   var coords = {
@@ -60,73 +101,16 @@
     return MapLimit;
   };
 
-  /**
-   * функция getX устанавливает положение пина по оси X
-   * border.isOut нужен для хранения статуса выхода пина за границы X или Y
-   * Если мы вышли за границы хоть по какой то из осей, то пин не должен двигаться и менять свои координаты, поэтому мы возвращаем последнее значение перед выходом за границы.
-   * Коордиты у пина будут меняться только в том случае, если значение обоих осей = false
-   * @param {Number} x текущее значение пина по оси X
-   * @param {Number} prevX последнее значение пина по X
-   *
-   * @return {number} возвращает координаты по X
-   */
   var getX = function (x, prevX) {
     var isValidX = x >= border.limits.left && x < border.limits.right;
 
-    if (isValidX) {
-      border.isOut.x = false;
-      // если хотя бы одна из осей находится вне карты, выходим из функции.
-      if (border.isLeaves()) {
-        return prevX;
-      }
-
-      return x;
-    }
-
-    // если хотя бы одна из осей находится вне карты, выходим из функции и устанавливаем значение isOut.x = true, так как по оси X мы вышли за границы.
-    if (border.isLeaves()) {
-      border.isOut.x = true;
-
-      return prevX;
-    }
-    // устанавливаем значение isOut.x = true, так как по оси X мы вышли за границы ,и ставим граничные значения
-    border.isOut.x = true;
-
-    return x > border.limits.right ? border.limits.right : border.limits.left;
+    return border.getCoord('x', x, prevX, isValidX);
   };
 
-    /**
-   * функция getX устанавливает положение пина по оси Y
-   * border.isOut нужен для хранения статуса выхода пина за границы X или Y
-   * Если мы вышли за границы хоть по какой то из осей, то пин не должен двигаться и менять свои координаты, поэтому мы возвращаем последнее значение перед выходом за границы.
-   * Коордиты у пина будут меняться только в том случае, если значение обоих осей = false
-   * @param {Number} y текущее значение пина по оси Y
-   * @param {Number} prevY последнее значение пина по Y
-   *
-   * @return {number} возвращает координаты по Y
-   */
   var getY = function (y, prevY) {
     var isValidY = y >= border.limits.top && y <= border.limits.bottom;
 
-    if (isValidY) {
-      border.isOut.y = false;
-      // если хотя бы одна из осей находится вне карты, выходим из функции.
-      if (border.isLeaves()) {
-        return prevY;
-      }
-
-      return y;
-    }
-
-    if (border.isLeaves()) {
-      border.isOut.y = true;
-      return prevY;
-    }
-
-    // устанавливаем значение isOut.y = true, так как по оси Y мы вышли за границы ,и ставим граничные значения
-    border.isOut.y = true;
-
-    return y > border.limits.bottom ? border.limits.bottom : border.limits.top;
+    return border.getCoord('y', y, prevY, isValidY);
   };
 
   /**

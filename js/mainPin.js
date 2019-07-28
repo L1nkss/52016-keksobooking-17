@@ -11,7 +11,6 @@
   var adFormStatus = document.querySelector('.ad-form');
 
   var Pin = function (query) {
-    // this.pin = element;
     this.pin = document.querySelector(query);
     this.isActive = false;
     // получаем высоту изображения
