@@ -10,6 +10,7 @@
   var pinMap = document.querySelector('.map');
   var adFormStatus = document.querySelector('.ad-form');
 
+  // констуктор главного пина
   var Pin = function (query) {
     this.pin = document.querySelector(query);
     this.isActive = false;
@@ -18,10 +19,12 @@
     // получаем ширину изображения
     this.width = this.pin.offsetWidth;
     this.halfWidth = this.width / 2;
+    // текущее положение пина на карте
     this.position = {
       x: null,
       y: null
     };
+    // стартовые координаты
     this.StartPosition = {
       x: null,
       y: null
@@ -42,7 +45,7 @@
   /*                    Прототипы класса Pin                               */
   /* --------------------------------------------------------------------- */
   /**
-   * Получить позиция pina'a в зависимости от статуса pin'a (true или false)
+   * Устанавливаем позицию пина на карте
    */
   Pin.prototype.calculatePotision = function () {
     var width = (this.pin.offsetLeft + this.halfWidth);

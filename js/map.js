@@ -14,6 +14,12 @@
   var mapPins;
   var border;
 
+  // координаты пина, которые мы возвращаем
+  var coords = {
+    posX: null,
+    posY: null
+  };
+
   // функция констуктор для границ карты
   var Limit = function () {
     // ограничение по границам с учётом ширины пина
@@ -32,15 +38,18 @@
     this.setAxes = this.setAxes.bind(this);
   };
 
+  // проверяем что хотя бы по одней из осей мы вышли за границу
   Limit.prototype.isLeaves = function () {
     return this.isOut.x || this.isOut.y;
   };
 
+  // установить границы по оси X с учётом ширины главного пина
   Limit.prototype.setX = function (width) {
     this.limits.right = MapLimit.RIGHT - width;
     this.limits.left = MapLimit.LEFT - width;
   };
 
+  // установить границы по оси Y с учётом высоты главного пина
   Limit.prototype.setY = function (height) {
     this.limits.top = MapLimit.TOP - height;
     this.limits.bottom = MapLimit.BOTTOM - height;
@@ -54,6 +63,7 @@
     return position > this.limits.bottom ? this.limits.bottom : this.limits.top;
   };
 
+  // устанавливаем границы по X и Y с учётом размера пина
   Limit.prototype.setAxes = function (width, height) {
     this.setX(width);
     this.setY(height);
@@ -92,11 +102,6 @@
     return prevPosition;
   };
 
-  var coords = {
-    posX: null,
-    posY: null
-  };
-
   var getMapLimitCoords = function () {
     return MapLimit;
   };
@@ -133,10 +138,12 @@
     return coords;
   };
 
+  // констуктора главный карты на странице
   var Map = function (query) {
     this.map = document.querySelector(query);
   };
 
+  // констуктор карты пинов на странице
   var MapPins = function (query) {
     Map.call(this, query);
     this.offset = {

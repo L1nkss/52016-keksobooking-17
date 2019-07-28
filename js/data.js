@@ -20,6 +20,7 @@
   var formFilter = document.querySelector('.map__filters');
 
   // переменные
+  var debouncePins;
   // объект для хранения активного пина на странице(хранится DOM Элемент пина и карточки)
   var activeCard = {
     information: null,
@@ -37,6 +38,7 @@
       return this.pins;
     },
 
+    // получить все пины на карте(DOM элементы)
     define: function () {
       this.pins = Array.prototype.slice.call(document.querySelectorAll('.pin'));
     },
@@ -54,6 +56,7 @@
 
   // очищает переменную с активной картой. Убирает класс map__pin--active и закрывает карточку с информацией
   var clearActiveCard = function () {
+    // Если на странице открыта карточка, удаляем её со страницы.
     if (activeCard.domElement) {
       activeCard.domElement.classList.remove('map__pin--active');
       activeCard.domElement = null;
@@ -72,6 +75,8 @@
     this.time = 'Заезд после ' + this.ad.offer.checkin + ', выезд до ' + this.ad.offer.checkout;
     this.priceText = this.ad.offer.price + ' ₽/ночь';
     this.guestsRooms = this.ad.offer.rooms + ' комнаты для ' + this.ad.offer.guests + ' гостей';
+    // массив из объектов, где query - класс информации в который необходимо добавить значение
+    // value - значение
     this.textsContent = [
       {query: '.popup__avatar', value: this.ad.author.avatar},
       {query: '.popup__title', value: this.ad.offer.title},
@@ -84,6 +89,7 @@
     ];
   };
 
+  // заполнить карточку информацией
   PinCard.prototype.fillTextsContent = function () {
     this.textsContent.forEach(function (content) {
       this.element.querySelector(content.query).textContent = content.value;
@@ -161,6 +167,7 @@
     return this.element;
   };
 
+  // констуктор пина, который добавляем на карту.
   var Pin = function (ad) {
     this.ad = ad;
     this.width = PIN_WIDTH;
@@ -236,6 +243,7 @@
    * @return {boolean} возвращает true - если необходимо перерисовывать карточку и false - если нет
    */
   var checkActiveCard = function (clickedCard, informationCard) {
+    // устанавливаем новую активную карточку на карте
     var setNewActiveCard = function () {
       activeCard.domElement = clickedCard;
       activeCard.information = informationCard;
@@ -247,6 +255,8 @@
       return true;
     }
 
+    // если карточка пина, по которому мы кликнули не равна активной карточке на страницу
+    // устанавливаем новую активную карточку
     if (clickedCard !== activeCard.domElement) {
       activeCard.domElement.classList.remove('map__pin--active');
       activeCard.information.remove();
@@ -312,7 +322,7 @@
       }
     });
 
-    // формируем новый отфильтрованный массив без элементов, которые уже на карте
+    // формируем новый отфильтрованный массив без элементов, которые уже на карте(исключаем лишнюю перерисовку)
     filteredPins = filteredPins.filter(function (pin) {
       var pinID = activePins.pins.indexOf(pin.element);
 
@@ -329,7 +339,7 @@
     activePins.define();
   };
 
-  var debouncePins = utilities.debounce(redrawPins, 1500);
+  debouncePins = utilities.debounce(redrawPins, 1500);
 
   var onFilterChange = function () {
     filteredPins = pins.filter(filter.values).slice(0, PIN_COUNT);

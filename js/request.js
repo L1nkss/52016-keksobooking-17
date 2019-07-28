@@ -18,6 +18,7 @@
     var http = new XMLHttpRequest();
     var loadCompleted = function () {
       if (http.status === 200) {
+        // если в процессе запроса мы ловим ошибку, выводим окно с ошибкой на страницу.
         try {
           JSON.parse(http.responseText);
         } catch (e) {
@@ -32,11 +33,11 @@
       onError(http.status, ErrorCodes[http.status]);
     };
 
-    var onRequestTimeout = function () {
+    var onTimeout = function () {
       onError('Timeout', ErrorCodes['TIMEOUT']);
     };
 
-    var onRequestFails = function () {
+    var onFail = function () {
       onError(http.status, ErrorCodes[http.status]);
     };
 
@@ -48,8 +49,8 @@
       onError();
     };
 
-    http.addEventListener('timeout', onRequestTimeout);
-    http.addEventListener('error', onRequestFails);
+    http.addEventListener('timeout', onTimeout);
+    http.addEventListener('error', onFail);
 
     if (method === 'GET') {
       http.addEventListener('load', loadCompleted);

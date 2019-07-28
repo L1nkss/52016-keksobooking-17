@@ -2,6 +2,7 @@
 
 (function (createRequest, notify) {
   // Константы
+  // название жилья и его цена
   var TypeOfHousePrice = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -9,6 +10,7 @@
     PALACE: 10000
   };
 
+  // количество комнат и гостей.
   var RoomCounts = {
     1: [1],
     2: [1, 2],
@@ -17,6 +19,7 @@
     DEFAULT: [3, 2, 1, 0]
   };
 
+  // текстовое описание количества гостей
   var GuestCounts = {
     3: 'для 3 гостей',
     2: 'для 2 гостей',
@@ -173,6 +176,7 @@
     this.rooms = document.querySelector('#room_number');
     this.capacity = document.querySelector('#capacity');
     this.features = document.querySelector('.features');
+    // значения по умолчанию
     this.defaultValues = {
       houseType: this.houseType.value,
       description: this.description.value,
@@ -260,6 +264,7 @@
     this.changeGuestCapacity(RoomCounts[evt.target.value]);
   };
 
+  // констуктор поля Обязательное текстовое поле(Заголовок объявления)
   var ReqNameInput = function (queryInput, queryText) {
     this.input = document.querySelector(queryInput);
     this.isValid = false;
@@ -267,6 +272,7 @@
     this.labelText = this.label.textContent;
   };
 
+  // констуктор поля Обязательное поле цены(Цена за ночь)
   var ReqNumberInput = function (queryInput, queryText) {
     ReqNameInput.call(this, queryInput, queryText);
   };
