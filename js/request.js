@@ -1,12 +1,17 @@
 'use strict';
 
 (function () {
+  // константы
   var ErrorCodes = {
     404: 'Страница не найдена. Неправильный url',
     SYNTAX_ERROR: 'Невалидные данные с сервера. Попробуйте позже',
     TIMEOUT: 'время подключение истекло. Попробуйте позже',
     0: 'Отсутствует соединение с интернетом. Попробуйте ещё раз!'
   };
+
+  // статус успеха, если запрос выполнен удачно
+  var SUCCESS = 200;
+
 
   var data = [];
 
@@ -17,7 +22,7 @@
   var request = function (url, method, onSuccess, onError, body) {
     var http = new XMLHttpRequest();
     var loadCompleted = function () {
-      if (http.status === 200) {
+      if (http.status === SUCCESS) {
         // если в процессе запроса мы ловим ошибку, выводим окно с ошибкой на страницу.
         try {
           JSON.parse(http.responseText);
