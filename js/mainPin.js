@@ -159,6 +159,8 @@
       createRequest('https://js.dump.academy/keksobooking/data', 'GET', onSuccess, onError);
       spinner.classList.toggle('loader--show');
       mainPin.changeStatus();
+      // устанавливаем координаты с учётом размера пина
+      map.setLimits(mainPin.halfWidth, mainPin.height);
       return;
     }
   };

@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  // константы
   var MapLimit = {
     TOP: 130,
     RIGHT: 1200,
@@ -8,15 +9,46 @@
     LEFT: 0
   };
 
-  // Объект, которые хранит состояние выхода пина за границу.
-  // Если пин вышел за границы по x или y, то присваивается значение true
-  // Метод isLeaves возвращается значение true, если пин вышел хотя бы из одной границы(x или y)
-  var borderOut = {
-    x: false,
-    y: false,
-    isLeaves: function () {
-      return this.x || this.y;
-    }
+  // переменные
+  var map;
+  var mapPins;
+  var border;
+
+  // функция констуктор для границ карты
+  var Limit = function () {
+    // ограничение по границам с учётом ширины пина
+    this.limits = {
+      top: null,
+      right: null,
+      bottom: null,
+      left: null
+    };
+    // вышел ли пин за карту по осям
+    this.isOut = {
+      x: false,
+      y: false
+    };
+
+    this.setAxes = this.setAxes.bind(this);
+  };
+
+  Limit.prototype.isLeaves = function () {
+    return this.isOut.x || this.isOut.y;
+  };
+
+  Limit.prototype.setX = function (width) {
+    this.limits.right = MapLimit.RIGHT - width;
+    this.limits.left = MapLimit.LEFT - width;
+  };
+
+  Limit.prototype.setY = function (height) {
+    this.limits.top = MapLimit.TOP - height;
+    this.limits.bottom = MapLimit.BOTTOM - height;
+  };
+
+  Limit.prototype.setAxes = function (width, height) {
+    this.setX(width);
+    this.setY(height);
   };
 
   var coords = {
@@ -29,102 +61,95 @@
   };
 
   /**
-   * функция getX устанавливает координаты пина по оси X
-   * @param {Number} x координата пина по X
-   * @param {Object} limit Границы карты по X
+   * функция getX устанавливает положение пина по оси X
+   * border.isOut нужен для хранения статуса выхода пина за границы X или Y
+   * Если мы вышли за границы хоть по какой то из осей, то пин не должен двигаться и менять свои координаты, поэтому мы возвращаем последнее значение перед выходом за границы.
+   * Коордиты у пина будут меняться только в том случае, если значение обоих осей = false
+   * @param {Number} x текущее значение пина по оси X
+   * @param {Number} prevX последнее значение пина по X
+   *
+   * @return {number} возвращает координаты по X
    */
-  var getX = function (x, limit) {
-    var isValidX = x >= limit.left && x < limit.right;
+  var getX = function (x, prevX) {
+    var isValidX = x >= border.limits.left && x < border.limits.right;
 
     if (isValidX) {
-      borderOut.x = false;
+      border.isOut.x = false;
       // если хотя бы одна из осей находится вне карты, выходим из функции.
-      if (borderOut.isLeaves()) {
-        return;
+      if (border.isLeaves()) {
+        return prevX;
       }
 
-      coords.posX = x;
-      return;
+      return x;
     }
 
-    // если хотя бы одна из осей находится вне карты, выходим из функции и устанавливаем значение borderOut.x = true, так как по оси X мы вышли за границы.
-    if (borderOut.isLeaves()) {
-      borderOut.x = true;
-      return;
+    // если хотя бы одна из осей находится вне карты, выходим из функции и устанавливаем значение isOut.x = true, так как по оси X мы вышли за границы.
+    if (border.isLeaves()) {
+      border.isOut.x = true;
+
+      return prevX;
     }
-    // устанавливаем значение borderOut.x = true, так как по оси X мы вышли за границы ,и ставим граничные значения
-    borderOut.x = true;
-    coords.posX = x > limit.right ? limit.right : limit.left;
-    return;
+    // устанавливаем значение isOut.x = true, так как по оси X мы вышли за границы ,и ставим граничные значения
+    border.isOut.x = true;
+
+    return x > border.limits.right ? border.limits.right : border.limits.left;
   };
 
     /**
-   * функция getY устанавливает координаты пина по оси Y
-   * @param {Number} y координата пина по Y
-   * @param {Object} limit Границы карты по Y
+   * функция getX устанавливает положение пина по оси Y
+   * border.isOut нужен для хранения статуса выхода пина за границы X или Y
+   * Если мы вышли за границы хоть по какой то из осей, то пин не должен двигаться и менять свои координаты, поэтому мы возвращаем последнее значение перед выходом за границы.
+   * Коордиты у пина будут меняться только в том случае, если значение обоих осей = false
+   * @param {Number} y текущее значение пина по оси Y
+   * @param {Number} prevY последнее значение пина по Y
+   *
+   * @return {number} возвращает координаты по Y
    */
-  var getY = function (y, limit) {
-    var isValidY = y >= limit.top && y <= limit.bottom;
+  var getY = function (y, prevY) {
+    var isValidY = y >= border.limits.top && y <= border.limits.bottom;
 
     if (isValidY) {
-      borderOut.y = false;
+      border.isOut.y = false;
       // если хотя бы одна из осей находится вне карты, выходим из функции.
-      if (borderOut.isLeaves()) {
-        return;
+      if (border.isLeaves()) {
+        return prevY;
       }
 
-      coords.posY = y;
-      return;
+      return y;
     }
 
-    // если хотя бы одна из осей находится вне карты, выходим из функции и устанавливаем значение borderOut.y = true, так как по оси Y мы вышли за границы.
-    if (borderOut.isLeaves()) {
-      borderOut.y = true;
-      return;
+    if (border.isLeaves()) {
+      border.isOut.y = true;
+      return prevY;
     }
 
-    // устанавливаем значение borderOut.y = true, так как по оси Y мы вышли за границы ,и ставим граничные значения
-    borderOut.y = true;
-    coords.posY = y > limit.bottom ? limit.bottom : limit.top;
-    return;
+    // устанавливаем значение isOut.y = true, так как по оси Y мы вышли за границы ,и ставим граничные значения
+    border.isOut.y = true;
+
+    return y > border.limits.bottom ? border.limits.bottom : border.limits.top;
   };
 
   /**
    * Функция calculateCoords рассчитывает положение пина на карте
    * posX и posY - координаты пина внутри карты.
-   * объекты limitX и limitY хранят границы карты с учётом размера пина
-   * функции getX и getY задают координаты пина.
+   * функции getX и getY задают координаты пина по осям
    * @param {number} mouseX положение мыши по оси X
    * @param {number} mouseY положение мыши по оси Y
-   * @param {number} width ширина пина
-   * @param {number} height высота пина
    * @return {object} Возвращаем объект координат.
    */
-  var calculateCoords = function (mouseX, mouseY, width, height) {
+  var calculateCoords = function (mouseX, mouseY) {
     // позиция мыши на экране
     var posX = mouseX - mapPins.offset.x;
     var posY = mouseY - mapPins.offset.y;
 
-    // границы карты, за которые pin не должен выйти c учётом ширины / 2.
-    var limitX = {
-      left: MapLimit.LEFT - width,
-      right: MapLimit.RIGHT - width
-    };
-
-    var limitY = {
-      top: MapLimit.TOP - height,
-      bottom: MapLimit.BOTTOM - height
-    };
-
     // получить координаты пина на карте по X и Y
-    getX(posX, limitX);
-    getY(posY, limitY);
+    coords.posX = getX(posX, coords.posX);
+    coords.posY = getY(posY, coords.posY);
 
     return coords;
   };
 
   var Map = function (query) {
-    // this.map = element;
     this.map = document.querySelector(query);
   };
 
@@ -149,13 +174,15 @@
     this.offset.y = y || 0;
   };
 
-  var map = new Map('.map');
-  var mapPins = new MapPins('.map__pins');
+  map = new Map('.map');
+  mapPins = new MapPins('.map__pins');
+  border = new Limit();
 
   window.map = {
     main: map,
     pins: mapPins,
     calculateCoords: calculateCoords,
-    getMapLimitCoords: getMapLimitCoords
+    getMapLimitCoords: getMapLimitCoords,
+    setLimits: border.setAxes
   };
 })();
