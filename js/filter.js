@@ -68,6 +68,7 @@
     return this[key].value;
   };
 
+  // методы фильтрации пинов
   Filters.prototype.checkPrice = function (element) {
     var elementPrice = element.ad.offer.price;
     var range = RangeOfPrices[this.getValue('price').toUpperCase()];
